@@ -1,0 +1,157 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.wolfenstein2.steam.pc",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "wolfenstein2-steam",
+    "name": "Wolfenstein II: The New Colossus (Steam)",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "first_person_shooter",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "wolfenstein2-steam-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "move.crouch_slide"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "combat.reload"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "combat.melee"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "combat.hatchet_throw"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "combat.grenade"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "combat.toggle_dual_wield"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "interact.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "stealth.lean_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "stealth.lean_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "combat.weapon_mode"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 45,
+      "extended": false,
+      "semantic": "combat.weapon_upgrade"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "inventory.previous_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 15,
+      "extended": false,
+      "semantic": "ui.objectives"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.fire_right"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.fire_left"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "inventory.cycle_weapon"
+    }
+  ]
+}

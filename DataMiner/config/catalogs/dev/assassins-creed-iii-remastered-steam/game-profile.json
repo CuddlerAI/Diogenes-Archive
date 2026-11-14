@@ -1,0 +1,52 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "assassins-creed-iii-remastered-steam",
+  "version": "1",
+  "display_name": "Assassin's Creed III Remastered (Steam, single-player on-foot core)",
+  "device_profile_id": "assassins-creed-iii-remastered-steam-windows-nvidia-local-v1",
+  "recording_profile_id": "assassins-creed-iii-remastered-steam-recording-v1",
+  "mapping_id": "game.assassins-creed-iii-remastered.steam.pc.on-foot",
+  "executable_names": [
+    "ACIII.exe"
+  ],
+  "window_class": "ScimitarEngineWindowClass",
+  "executable_sha256": "sha256:450b76dea323089077a8bb8f0a9bafd3b7c02f48a46de48811f2f00b63aa13d1",
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      27,
+      32,
+      37,
+      38,
+      39,
+      40,
+      65,
+      67,
+      68,
+      69,
+      70,
+      81,
+      82,
+      83,
+      86,
+      87,
+      97,
+      98,
+      99,
+      100,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": false
+  }
+}

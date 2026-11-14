@@ -1,0 +1,47 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-cyberpunk-2077-steam-dev",
+  "catalog_version": "2026-09-18.0",
+  "device_profiles": [
+    {
+      "id": "cyberpunk-2077-steam-windows-nvidia-v2",
+      "version": "2",
+      "content_hash": "sha256:0c0fbafa25521bd7df7c71f266f7b2d84770d986dfe89219e22f84f94a30f7ea"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "cyberpunk-2077-steam-recording-v1",
+      "version": "3",
+      "content_hash": "sha256:bf79fc3d1dfe5732702c698225fdffe904d22f516770578e5ea62d1c9a19773c"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "cyberpunk-2077-steam",
+      "version": "4",
+      "content_hash": "sha256:926d5317554e1f18e7b67879bdf9e848e7291094a90cbf1ed1b42ebf2cd7dbf7"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.cyberpunk-2077.steam.pc.on-foot",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:2f476dc670b9036073f265b077f0cb620c582043b354bd5e2745d35b4adbd7df"
+    }
+  ],
+  "depth_profiles": [
+    {
+      "id": "cyberpunk-2077-steam",
+      "version": "dm-depth-profile-3",
+      "content_hash": "sha256:fa557a62a79c449ed138df7f2bbc56674c13482eea5db6e2608a7b0e9a42d151"
+    }
+  ],
+  "camera_bindings": [
+    {
+      "id": "cp2077-steam-holstered-local-v3",
+      "version": "2026-09-17.0",
+      "content_hash": "sha256:edc26919102745259372c2089e6f48b72bfb97d239e8f3cf53a185ed43374b6c"
+    }
+  ]
+}

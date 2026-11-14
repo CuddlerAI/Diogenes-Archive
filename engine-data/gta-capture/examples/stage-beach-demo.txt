@@ -1,0 +1,196 @@
+dm-gta-stage-spec/1
+# The four-worldline demo stage (issue #958): Vespucci beach, a 10 x 8 m stretch
+# of flat sand, six people. What a person can disturb: two friends chatting (they
+# stop and watch whoever walks up), a phone call, a tourist's photos, a jogger's lap.
+# The friends stand still all take -- no hand-over: the woman's feet stay on the sand
+# (the customer, 2026-09-27: a foot of hers floated). Changes of clip blend (small
+# run-to-run pose differences inside a blend are accepted, #958 2026-09-23) and are
+# placed where the poses meet; phone and camera come out and go away with the game's
+# own clips.
+# 2026-10-17 the stage moved 65 m along the beach, south of the pier (the user: the sand under the old stage went up
+# and down -- 13 cm bumps and a 1.7 degree slope under the cast, scanned with the controller's ground_scan): here a
+# 25 cm stance changes 0.4 cm at most, the cast's ground rises 16 cm across 11 m, and the game's own beach dressing is
+# 23 m away and more. The same stage coordinates, the same heading: only the frame moved.
+frame -1564.4210 -1209.7169 0.73 104.97
+ticks 3600
+transition blend 4
+# No sink: each clip stands on the sand phase by phase (contact, measured with the calibration: the lowest ankle or
+# toe where the model's own stands). Till 2026-10-17 everybody stood 2 cm into the sand for the customer's floating
+# foot of 2026-09-27 -- and the man of the pair, the tourist and the jogger sank 1-2 cm with it (the user, 2026-10-17:
+# feet going into the sand and floating out again).
+clip walk_m move_m@generic walk walk
+# the tourist's own walk, measured on him (a clip is calibrated on one model; the pacer's walk_m is on a slimmer one)
+clip walk_t move_m@generic walk walk
+clip jog move_m@jog@ run walk
+clip chat_a amb@world_human_hang_out_street@male_c@base base loop
+# not female_arms_crossed: its leg set out to the side showed a foot off the sand (the customer, 2026-09-27)
+clip chat_b amb@world_human_hang_out_street@female_hold_arm@base base loop
+clip phone amb@world_human_stand_mobile@male@standing@call@base base loop
+clip phone_in amb@world_human_stand_mobile@male@standing@call@enter enter once
+clip phone_out amb@world_human_stand_mobile@male@standing@call@exit exit once
+clip photo amb@world_human_paparazzi@male@base base loop
+clip sit amb@world_human_picnic@male@base base loop
+# chat_b's 2 cm lift (the user, 2026-09-29) only undid the old 2 cm sink on her flat bare feet; with the sink gone it
+# held her 2 cm over the sand (beach-demo-103's rehearsal: her toes 2.2 cm over where a standing woman's are), so it went.
+# The tourist is a man in flat shoes since beach-demo-109 (2026-10-17). The woman in heeled sandals floated: the
+# photo clip is a man's, setting her sandals flat so the soles stood clear of the sand though her toe bones were where
+# her own standing has them (lift photo -0.04 hid it standing), and walking her feet still looked off the sand (the
+# user, 108's lane 2). The user: "换成一个穿平底鞋的男人" -- a man's clips on a man's flat soles, nothing to correct.
+# The jog is placed by its lowest phase (contact const), a dip 0.9 cm under the others: on 105 her lower ankle stood
+# 0.9 cm over her standing at each step's lowest (2.3 at most), and the user saw her float at times (2026-10-17).
+lift jog -0.01
+# The sitter leans back on his hands: on 106 his wrists stood 4.2 and 6.0 cm over the sand (a palm flat on it holds the
+# wrist 2-3 cm up) and the user saw the hands float (2026-10-17). Placed by his lowest ankle, he sat about 3 cm high;
+# in the rehearsal both hands' shadows met the fingers 3 cm lower (2 cm left the right hand short).
+lift sit -0.03
+# No turn tighter than 1.2 m round (2026-10-17): a walk clip goes straight, so a body turned round a tight arc slides
+# its feet -- the user saw the pacer's and the tourist's feet slip on their 0.4 m arcs, the body swung at 257 deg/s.
+# Round 1.2 m they turn at 85 deg/s at the most (the jogger's 4 m arcs, 52). So each walks a loop of left turns, its
+# stops on the straights facing along them, each walk ending on 0.6 m of straight (the planner stretches or trims a
+# walk to stop feet-together, which would cut a last arc and leave him turned off it).
+# The pacer's call faces the chatting pair (west, 4.9 m off; C takes him over there at 11 s and its first-person lane
+# rides his head till then), his second faces east, on a rounded rectangle 4 x 2.4 m. Its bottom straight is 1.0 m
+# from the second call to the corner: shorter or longer, the planner's feet-together trims added up and the loop crept
+# 0.4 m west a lap.
+path down 0 1.000 2.300 90
+line down 1.000
+arc down 1.200 90
+arc down 1.200 90
+line down 0.600
+path up 0 0.600 -0.100 270
+line up 1.000
+arc up 1.200 90
+arc up 1.200 90
+line up 0.600
+# The tourist walks a loop 2.4 m wide north of the pacer (2026-10-17, was a 0.8 m one with 0.4 m half-turns at the
+# photo spots): he photographs facing west on its north straight and east on its south one.
+path left 0 0.600 5.600 90
+line left 2.000
+arc left 1.200 180
+line left 0.800
+path right 0 -0.600 3.200 270
+line right 2.000
+arc right 1.200 180
+line right 0.800
+# 1.5 m longer north-south since 2026-10-17, room for the tourist's wider loop (the cast now spans 9.5 m of the 10).
+path lap 1 -1.0 -2.4 270
+line lap 2.0
+arc lap 4.0 90
+line lap 1.500
+arc lap 4.0 90
+line lap 2.0
+arc lap 4.0 90
+line lap 1.500
+arc lap 4.0 90
+# 0.93 m apart, face to face, as the hand-over used to start them (beach-demo-002's plan); since 2026-10-16 in the
+# stage's north half with the sitter and the tourist (the user): C's played person keeps to the south half facing
+# them. At 35 mm (the customer) the first person has somebody in it only 3 m and more off and turns with the body, so
+# with the cast round the middle -- the pair west, the sitter east -- every walk back faced the empty sand: C's routes
+# kept people in it 67% of the take (79% with the middle widened); with the cast north of it, 82-90% (route_sim).
+# 1.2 m further west since 2026-10-17: C's played person turns only while walking now (round 1.6 m and more, after a
+# 1.45 m start straight on), so taken over facing them he passes them going round to the south (0.94 m at the nearest).
+actor chat_a a_m_y_beach_01
+beat chat_a idle chat_a 120 at -3.89 2.47 218.7
+actor chat_b a_f_y_beach_01
+beat chat_b idle chat_b 120 at -3.32 1.73 38.7
+actor pacer a_m_y_hipster_01
+prop pacer prop_npc_phone_02 28422
+# The phone is out only on the call: from where phone_in's hand leaves the back pocket
+# (0.15 of it) to where phone_out's hand is back at the pocket (0.72), measured on the
+# calibrated right hand. Attached all take, it lay on his back once put away and sat in
+# his open hand as he walked (the customer, 2026-09-29).
+propshow pacer phone_in 0.15 1
+propshow pacer phone 0 1
+propshow pacer phone_out 0 0.72
+beat pacer idle phone 4 at 1.000 2.300 90
+beat pacer once phone_out
+beat pacer walk walk_m down
+beat pacer once phone_in
+beat pacer idle phone 4
+beat pacer once phone_out
+beat pacer walk walk_m up
+beat pacer once phone_in
+repeat pacer 0
+actor tourist a_m_m_tourist_01
+prop tourist prop_pap_camera_01 28422
+# No enter/exit clips: the paparazzi's exit put the camera into a bag at his left hip and
+# the enter took it out of it -- she has no bag, and the camera, fixed to her hand, stayed
+# there (the user, 2026-09-29). She lowers it and walks carrying it, and raises it again
+# where she stops. The idles take the exit's 1.8 s and the enter's 1.4 s, so she sets off when
+# she did (take C's route counts on her walking past at second 20).
+beat tourist idle photo 6.8 at 0.600 5.600 90
+beat tourist walk walk_t left
+beat tourist idle photo 9.2
+beat tourist walk walk_t right
+beat tourist idle photo 9.2
+repeat tourist 1
+actor jogger a_f_y_runner_01
+beat jogger walk jog lap
+# A man sitting on the sand, facing the sea, where a man lay sunbathing: the shadow of a
+# body flat on the sand flickered (the customer, 2026-09-27), and so did the slats of the
+# deck chair that replaced it (2026-09-28, under a moving camera). No chair, not flat.
+# In the north half since 2026-10-16 (above), 2 m north of where he sat: clear of the pacer's walks (0.28 m at
+# (2.4, 2.2)) and of the tourist's turn, 1.6 m inside the lap.
+actor sitter a_m_y_musclbeac_01
+# The sitter faces east-north-east, along the beach (2026-10-17): facing the sea his legs reached where the tourist
+# stops to photograph, her ankle 17 cm from his -- one foot through the other in A2 at 6 s (the user). Turned 60 degrees
+# his feet are 0.79 m from hers at the closest, any bones 0.65 m (stage-spec-check, FOOT_CLEARANCE_M); his place is the same.
+beat sitter idle sit 120 at 3.3 2.2 300
+# The beach round the cast (the customer, 2026-09-27: too empty -- cars and things that
+# belong there, not only people). All 8-14 m behind the stage: off the cast's ways (the
+# jogger's lap reaches y 7.1), short of the flags at the waterline (y ~19), out of B's
+# room (in front of y 2.5). The free cameras keep clear of every set piece; C's goes
+# round behind its person between them (2026-10-07).
+set lifeguard lguard -7.5 13.0 90
+set buggy bifta 7.0 12.0 205
+set parasol_a prop_beach_parasol_03|prop_beach_parasol_02|prop_beach_parasol_01 -3.0 10.5 0
+set towel_a prop_beach_towel_02|prop_beach_towel_01 -3.4 9.6 15
+set towel_b prop_beach_towel_03|prop_beach_towel_01 -2.1 9.9 350
+set parasol_b prop_beach_parasol_06|prop_beach_parasol_05|prop_beach_parasol_01 3.5 9.0 0
+set bag prop_beach_bag_01a|prop_beach_bag_02|prop_beach_bag_01b 2.9 8.4 40
+set cooler prop_coolbox_01|prop_cooler_01 4.2 8.5 70
+# The map's own things that move, logged every tick for multicam_sync (the customer's delivery doc v1.1: every moving
+# thing the cameras see; the user, 2026-10-16: wind on, the flags and the ferris wheel moving). Found by a take's
+# map-scan files on win-pc (wind-test-1017): the two feather flags by the cooler and at the water, and the floats in the
+# sea 50-95 m north that the waves move (0.8-1.5 m and 4-23 degrees in two minutes). The flags' poles stand still -- it
+# is the cloth that blows, which the game does not read out. The pier's ferris wheel is no object of the game's at all
+# (not in the scan, none of its model within 200 m: part of the map), so it is not tracked. Since the stage moved
+# (2026-10-17) they are 60-90 m off, behind the cast to the north: the same things, their stage coordinates moved by
+# the frame's move.
+track flag_black prop_beachflag_01 68.52 0.83 2.5
+track flag_green prop_beachflag_02 62.88 8.70 2.5
+# The floats were tracked till beach-demo-109: the waves move them, never the same way in two takes, and 109's
+# multicam_sync had them 0.2-1.8 m apart between its takes -- the only thing that differed (2026-10-18, the user: take
+# the things floating in the sea out). 109's map scans, 30-160 m north and west of the stage, all in the water and all
+# bobbing (none drifts: 0.0 m sideways, only up and down and tilting): 46 prop_dock_float_1 (the swimming area's rope
+# floats), 2 prop_dock_bouy_3 and 2 prop_dock_bouy_5 (red buoys), 2 prop_byard_float_01 and 2 _02 (the floating dock
+# under the pier), 3 prop_jetski_ramp_01; and moored at the dock, the jet skis and a speedboat (vehicles: in no scan).
+# The rope floats and the boats are deleted before the recorder and stay out of the export (111's lane 1).
+clear prop_dock_float_1 0 0 200
+clear boats 0 0 200
+# The buoys, the dock and the ramps are the map's own: a replay puts them back as it plays and bobs them on its own
+# waves, whatever the take did -- deleted before the recorder (111) or moved and frozen (112), they were in the export
+# all the same, bobbing. Left as they are, not tracked (what a take logs of them is not what the export shows); the
+# delivery note says so (2026-10-18, the user: ship them as they are).
+# How the played person (C's taken pacer, D's seventh) stands when the keys rest (2026-10-18): GTA's own idle shifted
+# his weight side to side, the head swinging 21 cm every 1.6 s, and the first person, which rides the head, with it
+# (beach-demo-113). Of seven tried (stance-test-1018, D, the head's swing within 2 s standing): the game's 21.7 cm,
+# calm (ambient anims off) 21.7, guard 5.2, cop 8.4, street 9.4 / 11.9, impatient 23.7, heist 7.6, the strip club
+# bouncer's 0.5 -- hands clasped in front, the body breathing, blended in and out over half a second.
+stance clip mini@strip_club@idles@bouncer@base base
+# Who plays (stage_robot.hpp): a program presses the keys and moves the mouse -- B's free
+# camera flies, C's taken person walks up to the cast (the changed event), D's seventh
+# person strolls in front of the stage and keeps clear of everybody (unchanged).
+robot AB fly 20260924
+# C walks the fixed route of the group config (takeover.route) when it has one; else it wanders
+robot C changed 20260925
+robot D unchanged 20260926
+# Causal rules: only while a person is played. Nobody else reacts. A watcher watches
+# 5 s, then walks back to its spot and takes the plan up again where it left it
+# (stage_take_win.cpp carry_on): the pair chats on, the tourist goes on with his
+# pictures and walks, the jogger runs her lap in her own stride.
+rule near_pair near chat_a 1.2 then chat_a:watch,chat_b:watch say 有人走到正在聊天的两人身边，两人停下来看了他几秒，又接着聊天
+rule hit_pair damage chat_a then chat_a:flee,chat_b:flee say 玩家动手打了聊天的人，两人一起逃开
+rule bump_pacer touch pacer then pacer:watch say 玩家撞到打电话的人，他停下电话看了玩家几秒，又接着打电话
+rule block_tourist near tourist 1.0 then tourist:watch say 玩家走到正在拍照的游客身边，游客停下看了玩家几秒，又接着拍照
+rule block_jogger near jogger 0.8 then jogger:watch say 玩家挡住慢跑者的路，慢跑者停下看了玩家几秒，又接着绕圈跑

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dm-gta-dependency-manifest/1",
+  "type": "object",
+  "required": [
+    "schema", "game", "gpu", "components", "source_pins", "render", "calibration", "policy"
+  ],
+  "properties": {
+    "schema": {"const": "dm-gta-dependency-manifest/1"},
+    "game": {
+      "type": "object",
+      "required": ["path", "sha256", "expected_build", "process_name"]
+    },
+    "gpu": {
+      "type": "object",
+      "required": ["vendor", "adapter_name", "driver_version"],
+      "properties": {
+        "vendor": {"const": "NVIDIA"},
+        "adapter_name": {"type": "string", "minLength": 1},
+        "driver_version": {"type": "string", "minLength": 1},
+        "pnp_device_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "object",
+      "required": [
+        "scripthook_dll", "asi_loader", "replus_asi", "replus_capture_addon",
+        "reshade_dxgi", "replus_render_ini", "replus_main_ini", "replus_lights_ini",
+        "replus_settings_exe", "igcs_dof_shader", "reshade_install_receipt",
+        "capture_build_receipt", "diogenes_controller_asi", "gta_settings_xml", "ffmpeg",
+        "ffprobe"
+      ],
+      "additionalProperties": {"$ref": "#/$defs/fileRecord"}
+    },
+    "source_pins": {
+      "type": "object",
+      "required": [
+        "scripthook_release", "scripthook_runtime_zip_sha256",
+        "scripthook_sdk_zip_sha256", "replus_commit", "replus_patch_sha256",
+        "igcs_fork_commit", "igcs_patch_sha256", "reshade_release",
+        "reshade_setup_sha256", "reshade_signer_thumbprint", "reshade_dll_sha256",
+        "controller_git_commit"
+      ]
+    },
+    "render": {
+      "type": "object",
+      "required": ["fps", "graphics_api", "frame_step_mode"],
+      "properties": {
+        "fps": {"const": 30},
+        "graphics_api": {"const": "DX11"},
+        "frame_step_mode": {"const": "fixed_replay_timeline"}
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "required": [
+        "calibration_id", "filmback_id", "metric_scale", "metric_scale_approved",
+        "acceptance", "projection_evidence"
+      ],
+      "properties": {
+        "calibration_id": {"type": "string", "minLength": 3},
+        "filmback_id": {"type": "string", "minLength": 3},
+        "metric_scale": {"type": "number", "exclusiveMinimum": 0},
+        "metric_scale_approved": {"type": "boolean"},
+        "acceptance": {
+          "type": "object",
+          "required": ["max_reprojection_error_px", "min_sample_count"],
+          "properties": {
+            "max_reprojection_error_px": {"type": "number", "exclusiveMinimum": 0},
+            "min_sample_count": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": false
+        },
+        "projection_evidence": {
+          "type": "object",
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "sha256": {"type": "string"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "purpose", "story_mode_only", "online_forbidden", "non_trainable",
+        "upload_enabled", "customer_replay_sync_accepted",
+        "customer_metadata_semantics_accepted", "commercial_rights_approved"
+      ]
+    }
+  },
+  "$defs": {
+    "fileRecord": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string"},
+        "allow_path_lookup": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,151 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.indiana-jones-great-circle.pc",
+  "version": "2026-08-20.0",
+  "game": {
+    "id": "indiana-jones-great-circle-pc",
+    "name": "Indiana Jones and the Great Circle",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "action_adventure",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "indiana-jones-great-circle-pc-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "camera.zoom"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.primary_attack_or_throw_or_reload"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.aim_or_prepare_throw"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "stealth.lean_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "stealth.lean_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "move.crouch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "interact.use_or_pickup_or_exit"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "inventory.discard_or_unequip"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "combat.block"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "combat.block"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "combat.push"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "combat.whip_or_grab"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "inventory.weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "inventory.key_tool"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "inventory.consumable"
+    }
+  ]
+}

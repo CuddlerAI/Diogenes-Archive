@@ -1,0 +1,60 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "cyberpunk-2077-steam",
+  "version": "4",
+  "display_name": "Cyberpunk 2077 (Steam)",
+  "device_profile_id": "cyberpunk-2077-steam-windows-nvidia-v2",
+  "recording_profile_id": "cyberpunk-2077-steam-recording-v1",
+  "mapping_id": "game.cyberpunk-2077.steam.pc.on-foot",
+  "executable_names": [
+    "Cyberpunk2077.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": "sha256:a7de82945c03e041fc7339fcf9066224d98db2f5d80fea50f7947bb350a60991",
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      17,
+      18,
+      27,
+      32,
+      49,
+      50,
+      51,
+      52,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      77,
+      80,
+      81,
+      82,
+      83,
+      84,
+      86,
+      87,
+      88,
+      116,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

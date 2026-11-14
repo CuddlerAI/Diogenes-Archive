@@ -1,0 +1,14 @@
+{
+  "schema_version": "dm-device-profile-3",
+  "profile_id": "cyberpunk-2077-steam-windows-nvidia-v2",
+  "version": "2",
+  "platform": "windows",
+  "minimum_windows_build": 19045,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [],
+  "minimum_driver_version": null,
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "steam_app_1091500_build_20383525_cyberpunk2077_2_31_executable_sha256_current_2560x1600_borderless_sdr_setting_observed_target_1920x1080_pending_and_installed_input_xml_verified_2026_08_14"
+}

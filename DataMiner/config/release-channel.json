@@ -1,0 +1,5 @@
+{
+  "schema": "dm-release-channel-1",
+  "comment": "Update-channel policy consumed by tools/make-update-manifest.ps1. minSupported below this client version the UI shows a blocking banner (docs/15 §2.5); it never triggers an automatic install. Raise it only together with a breaking journal/input-spec change, not by default.",
+  "minSupported": "0.1.0"
+}

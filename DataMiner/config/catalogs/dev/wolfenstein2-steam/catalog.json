@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-wolfenstein2-steam-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "wolfenstein2-steam-windows-nvidia-v1",
+      "version": "5",
+      "content_hash": "sha256:5f025df84bbc7c4d072ec60d3898e8bec1f4c49f84e31e5f87b1c8f0531d4149"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "wolfenstein2-steam-recording-v1",
+      "version": "4",
+      "content_hash": "sha256:8c9ec0c4141eeb0c65aafd8548680e73a65ae96c72574cdd7a092158fdbe0a66"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "wolfenstein2-steam",
+      "version": "3",
+      "content_hash": "sha256:bffc17c668ddbddc47a67a56a0279a9013c1d7e7f274a8cda0b88c69dd77cf63"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.wolfenstein2.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:38314fe151683c2f3e664b7c54054bd7ee70d25011a4352296159ec6cc583412"
+    }
+  ]
+}

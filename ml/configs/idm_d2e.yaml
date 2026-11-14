@@ -1,0 +1,87 @@
+# IDM Phase 0 on D2E-480p — the first run where BOTH gates can be judged.
+#
+# Why this config exists (model_research/research/28 §3.1 判断 C):
+# doc 19 §8 marked the IDM line 🟥 because its headline signal — held-out GAME
+# zero-shot — cannot be measured on a single-game corpus, which left the
+# stop-loss criterion ("near chance → pivot to latent actions") unexecutable.
+# D2E has 29 games AND native raw HID deltas, so this run can finally answer it.
+#
+# This is NOT a bigger training corpus. D2E's own ablation shows pseudo-label
+# scaling COSTS fine-control accuracy (LIBERO 96.6% → 92.2%). The corpus is here
+# to make a criterion measurable, nothing more.
+#
+# COMPLIANCE: D2E-480p is CC-BY-NC-4.0, third-party recordings of 29 commercial
+# games. Every chunk carries is_trainable=false + method_validation_only, and
+# contract.py refuses it unless the flag below is set. Never a product model.
+run_name: idm-d2e
+seed: 0
+
+data:
+  roots: [data/d2e]
+  # Held out entirely; their score IS the Phase 2 answer. Two kinds of transfer
+  # on purpose, mirroring configs/idm_phase0.yaml's reasoning:
+  #   Rainbow_Six  — an FPS, and training keeps other FPS titles → game-level
+  #                  transfer inside a known genre
+  #   Stardew_Valley — farming sim with no relative in training → genre-level
+  # Both are verified present in the mirror (MANIFEST.json games[]), so this
+  # cannot silently produce an empty zero-shot split.
+  holdout_games: [rainbow_six, stardew_valley]
+  val_fraction: 0.12
+  window: 5              # t-2..t+2, the non-causal window
+  stride: 2
+  input_res: [224, 224]  # multiple of 14 for DINOv2
+  delta_scale: 50.0
+  min_key_frac: 0.10
+  allow_method_validation_only: true
+
+model:
+  trunk: dinov2_vits14   # frozen; only the head trains
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 48
+  max_steps: 12000
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 250
+  num_workers: 6
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+# Mouse R^2 IS gated here — the first config where that is legitimate.
+#
+# configs/idm_phase0.yaml reports but does not gate it, and says why: gaming-500
+# stores ABSOLUTE cursor positions, so its deltas are reconstructed by
+# differencing and pointer-locked FPS titles cannot be faithfully rebuilt.
+# Gating on that would judge the dataset, not the method. D2E records
+# RAWMOUSE.lLastX/lLastY — genuine HID deltas, verified on the actual bytes
+# (research/21 §2.1.1) — and the converter sums them per 1/30 s window, so the
+# quantity is directly comparable to VPT's.
+#
+# 🟥 Precondition the runner MUST honour: exclude recordings tagged
+# `pointer:absent_or_sparse`. Measured pointer rates across the corpus span
+# 239 Hz (CS2) down to ONE event in 133 s (Euro Truck) — keyboard-only titles
+# legitimately have no pointer channel, and averaging their zeros into R^2
+# would make this gate meaningless. `d2e.py convert` prints the offending
+# recordings at the end of its run.
+#
+# 🟨 Also note the bar's provenance: VPT reached R^2=0.97 on Minecraft at 20 Hz
+# with in-engine deltas. 0.9 is our own bar, not a reproduction target.
+# 🟨 What `key_exact` here does and does not mean. Measured on the four games
+# fetched for label-side validation, 18.9% of key-press events fall outside
+# `keys.SCANNED_VKEYS` (2.6% Stardew Valley → 43.0% Rainbow Six), and the
+# dropped keys are core actions: Tab, LCtrl/crouch, R/reload, LShift/sprint,
+# F/interact, Space/jump. The vocabulary is 12 VKs while our own COD profile
+# declares 34. This is a property of the ML action space, not of D2E — it hits
+# the first-party corpus identically — so runs stay comparable. But 0.85 here
+# is "0.85 over a 12-key subset", not "recovered the keyboard". See research/21
+# E7 before quoting it against VPT's 90.6%.
+gates:
+  key_exact_min: 0.85
+  key_macro_f1_min: 0.40
+  mouse_r2_min: 0.9
+  macro_f1_warn: 0.6
+
+output:
+  dir: runs

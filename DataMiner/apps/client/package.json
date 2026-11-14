@@ -1,0 +1,27 @@
+{
+  "name": "@dataminer/client",
+  "private": true,
+  "version": "0.7.34",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev --features dev-catalog --config ./src-tauri/tauri.dev.conf.json",
+    "test": "node --experimental-strip-types --test src/account-presentation.test.mjs src/catalog-games.test.mjs src/depth-lab-ui.test.mjs src/game-admission.test.mjs src/session-history-ui.test.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.8.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.4",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.12"
+  }
+}

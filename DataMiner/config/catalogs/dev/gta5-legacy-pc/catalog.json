@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-gta5-legacy-pc-dev",
+  "catalog_version": "2026-09-02.0",
+  "device_profiles": [
+    {
+      "id": "gta5-legacy-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:44cb014fb52d73b54580a38752d4bafb42fe4f11759e54e85ccb87ce81d1039b"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "gta5-legacy-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:f9ad56fc0ecc21c62fc1bf561979b3b91a5d32be3c8ef1fd6e20d75f46694e06"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "gta5-legacy-pc",
+      "version": "3",
+      "content_hash": "sha256:f7d922435f56b2ac64c586041d4b79e6cfc5de8eb82a6503de08938534723c3b"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.gta5-legacy.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:c7cc71db24efbf00bfa00aee8acf8b4107ac92699d88a64e3f87a110af2f229a"
+    }
+  ]
+}

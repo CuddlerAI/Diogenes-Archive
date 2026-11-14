@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "build": {
+    "beforeBuildCommand": "pnpm build",
+    "beforeDevCommand": null,
+    "devUrl": null,
+    "frontendDist": "../dist"
+  },
+  "bundle": {
+    "shortDescription": "Unsigned DataMiner online catalog collector",
+    "longDescription": "UNSIGNED RELEASE BUILD. Uses the production account, server-delivered catalog, release channel, and ingest service; Windows may show a SmartScreen warning.",
+    "windows": {
+      "nsis": {
+        "installerHooks": "./windows/installer-hooks-delivered.nsh"
+      }
+    }
+  }
+}

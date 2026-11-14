@@ -1,0 +1,31 @@
+{
+  "name": "megacity-corridor-v2",
+  "kind": "megacity_corridor",
+  "lo": [-79.998, 0.003, -90],
+  "hi": [80.002, 46.003, 90],
+  "ground_y": 0.0,
+  "eye_band": [1.4, 2.2],
+  "boxes": [],
+  "world_offset": [63.71, 58.14, 125],
+  "placement": {"yaw_deg": 0, "snap_y": false, "note": "scene-file 模式恒等摆位：局部坐标+world_offset 即世界坐标"},
+  "anchor_corridors": [
+    {"road": 9, "start_w": [-250, 20.5, 5.2], "end_w": [21.2, 20.5, 14.308], "length_m": 271.353, "mean_y": 20.5, "y_spread": 0, "axis": "x", "axis_dev_deg": 1.924, "open_frac": 1, "vehicles_in_band": 11, "vehicles_near": 33, "score": 5223.543, "chosen": false},
+    {"road": 8, "start_w": [60.653, 62.367, 250], "end_w": [66.77, 62.919, 0], "length_m": 250.075, "mean_y": 62.643, "y_spread": 4.143, "axis": "z", "axis_dev_deg": 1.402, "open_frac": 1, "vehicles_in_band": 8, "vehicles_near": 33, "score": 4063.726, "chosen": true},
+    {"road": 1, "start_w": [146.985, 41.452, 55.638], "end_w": [250, 38.801, 40.85], "length_m": 104.105, "mean_y": 40.126, "y_spread": 7.58, "axis": "x", "axis_dev_deg": 8.169, "open_frac": 1, "vehicles_in_band": 3, "vehicles_near": 22, "score": 884.892, "chosen": false},
+    {"road": 1, "start_w": [65.774, 35.493, 250], "end_w": [146.985, 41.452, 55.638], "length_m": 210.73, "mean_y": 38.472, "y_spread": 7.579, "axis": "z", "axis_dev_deg": 22.677, "open_frac": 1, "vehicles_in_band": 6, "vehicles_near": 27, "score": 403.022, "chosen": false}
+  ],
+  "export": {
+    "generator": "SceneProbeExporter (docs/78 G'2)",
+    "unity": "6000.1.0f1",
+    "date": "2026-08-06 15:59:48",
+    "voxel_m": 0.5,
+    "dims": [320, 92, 360],
+    "surface_occupied_voxels": 0,
+    "solid_filled_voxels": 0,
+    "box_count": 0,
+    "vehicles_total": 2348,
+    "corridor_selection": {"mode": "highest", "note": "pick=highest, 带内车流>0", "chosen_mean_y": 62.643},
+    "corridor_y_local": 4.5,
+    "clearance_note": "可行壳 0.5m 由 trajgen CLEARANCE_M 施加，boxes 未预扩"
+  }
+}

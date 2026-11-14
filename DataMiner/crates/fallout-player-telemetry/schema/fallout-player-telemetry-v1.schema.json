@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dataminer.local/schema/fallout-player-telemetry-v1.schema.json",
+  "title": "Fallout 4 DEV player telemetry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "game_update_seq",
+    "sample_qpc",
+    "qpc_frequency_hz",
+    "gameplay_state",
+    "validity",
+    "build",
+    "coordinate_transform",
+    "player"
+  ],
+  "properties": {
+    "schema_version": { "const": "fallout-player-telemetry/v1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "game_update_seq": { "type": "integer", "minimum": 0 },
+    "sample_qpc": { "type": "integer", "minimum": 1 },
+    "qpc_frequency_hz": { "type": "integer", "minimum": 1 },
+    "gameplay_state": {
+      "enum": [
+        "gameplay_player_valid",
+        "loading",
+        "menu_or_pipboy",
+        "transition_or_fast_travel",
+        "no_player",
+        "unknown_probe_timing_possible"
+      ]
+    },
+    "validity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": { "enum": ["valid", "invalid"] },
+        "reason": {
+          "enum": [
+            "old_run",
+            "exe_sha256_mismatch",
+            "fallout_runtime_version_mismatch",
+            "f4se_version_mismatch",
+            "plugin_build_sha_mismatch",
+            "qpc_frequency_mismatch",
+            "qpc_in_future",
+            "stale_qpc",
+            "loading",
+            "menu_or_pipboy",
+            "transition_or_fast_travel",
+            "no_player",
+            "unknown_probe_timing_possible",
+            "rotation_capability_insufficient",
+            "sequence_duplicate",
+            "sequence_regressed",
+            "sequence_gap",
+            "qpc_not_increasing",
+            "speed_unavailable",
+            "non_finite_input",
+            "invalid_rotation"
+          ]
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exe_sha256",
+        "fallout_runtime_version",
+        "f4se_version",
+        "plugin_build_sha"
+      ],
+      "properties": {
+        "exe_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "fallout_runtime_version": { "type": "string", "minLength": 1 },
+        "f4se_version": { "type": "string", "minLength": 1 },
+        "plugin_build_sha": { "type": "string", "pattern": "^git:[0-9a-f]{40}$" }
+      }
+    },
+    "coordinate_transform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transform_id",
+        "source_space_id",
+        "target_space_id",
+        "metres_per_game_unit",
+        "target_from_source_axes"
+      ],
+      "properties": {
+        "transform_id": { "type": "string", "minLength": 1 },
+        "source_space_id": { "type": "string", "minLength": 1 },
+        "target_space_id": { "type": "string", "minLength": 1 },
+        "metres_per_game_unit": { "type": "number", "exclusiveMinimum": 0 },
+        "target_from_source_axes": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": { "type": "number" }
+          }
+        }
+      }
+    },
+    "player": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "position_m",
+            "rotation_quaternion_xyzw",
+            "speed_mps",
+            "speed_provenance"
+          ],
+          "properties": {
+            "position_m": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": { "type": "number" }
+            },
+            "rotation_quaternion_xyzw": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": { "type": "number" }
+            },
+            "speed_mps": { "type": "number", "minimum": 0 },
+            "speed_provenance": {
+              "enum": ["direct_game_logic_velocity", "actor_root_delta_game_tick_qpc"]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "validity": { "properties": { "state": { "const": "valid" } } } }
+      },
+      "then": {
+        "properties": {
+          "validity": { "not": { "required": ["reason"] } },
+          "player": { "type": "object" }
+        }
+      },
+      "else": {
+        "properties": {
+          "validity": { "required": ["reason"] },
+          "player": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": {
+        "not": { "properties": { "gameplay_state": { "const": "gameplay_player_valid" } } }
+      },
+      "then": {
+        "properties": {
+          "validity": { "properties": { "state": { "const": "invalid" } } },
+          "player": { "type": "null" }
+        }
+      }
+    }
+  ]
+}

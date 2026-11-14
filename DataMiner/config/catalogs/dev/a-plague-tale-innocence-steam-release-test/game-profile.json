@@ -1,0 +1,21 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "a-plague-tale-innocence-steam-release-test",
+  "version": "4",
+  "display_name": "A Plague Tale: Innocence Steam",
+  "device_profile_id": "a-plague-tale-innocence-steam-release-test-windows-nvidia-v1",
+  "recording_profile_id": "a-plague-tale-innocence-steam-release-test-recording-v1",
+  "mapping_id": "game.a-plague-tale-innocence.steam.pc",
+  "executable_names": [
+    "APlagueTaleInnocence_x64.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": "sha256:fb5f31c3bd07f89142281fa8469fc4db7811e94992c7a46fdc14e0f5af07b329",
+  "input_contract": {
+    "keyboard_vks": [9, 16, 17, 32, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 67, 68, 69, 70, 73, 81, 83, 87, 90, 119, 121],
+    "control_vks": [119, 121],
+    "mouse_buttons": [1, 2, 4],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-dying-light-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "dying-light-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:0b588623c617eb41acc8ce75a0a7cf535296cd2fd65b02c546294ba9634bd876"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "dying-light-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:c74466c69fb9de374ef17675e91e8e081477667480d745bf20d4121f720f320b"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "dying-light-pc",
+      "version": "2",
+      "content_hash": "sha256:ba5acb981d59a5eb9b61a7435d6fcf57d3972cd7a96ecc5b7d81e4bec75fab64"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.dying-light.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:9c930a9250fcd7cf9a131f568e1393e7b6efdec0029a730ef14808f894474a1f"
+    }
+  ]
+}

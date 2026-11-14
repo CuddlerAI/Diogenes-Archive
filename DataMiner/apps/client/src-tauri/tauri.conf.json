@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "DataMiner",
+  "version": "0.7.34",
+  "identifier": "com.diogeneslab.dataminer",
+  "build": {
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://releases.diogenesmodel.com/releases/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI4QTE2RTkyOEMxQUIyMDcKUldRSHNocU1rbTZodUNnb2w5NXhKT1J5alJDaDJvdXIwR0xVd2xsTkdQb05ISjVmbTJqMHdpak8K"
+    }
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "DataMiner UNSIGNED DEV · Local Collector",
+        "width": 1180,
+        "height": 760,
+        "minWidth": 1040,
+        "minHeight": 680,
+        "decorations": false
+      },
+      {
+        "label": "overlay",
+        "title": "DataMiner UNSIGNED DEV · Capture Status",
+        "width": 420,
+        "height": 96,
+        "resizable": false,
+        "maximizable": false,
+        "minimizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "focus": false,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Unsigned non-production DataMiner development collector",
+    "longDescription": "UNSIGNED DEVELOPMENT BUILD. Non-production Windows local collector; no production certification or release channel.",
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      },
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "installMode": "currentUser",
+        "installerHooks": "./windows/installer-hooks.nsh"
+      }
+    }
+  }
+}

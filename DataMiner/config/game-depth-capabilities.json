@@ -1,0 +1,1082 @@
+{
+  "$comment": [
+    "Every game shipped by the All Games DEV catalog must have one explicit Depth capability state.",
+    "This file is an audit surface, not a source of runtime authorization. Only catalog_ready entries",
+    "with a real DepthProfile and CameraBinding may ever report recording_ready=true, and only when all",
+    "runtime gates such as an approved generation-bound performance certificate also pass. local_trial means that",
+    "raw Depth can be collected under a game-specific non-production contract but cannot enter the",
+    "formal StartRun/Ready/delivery path. not_assessed is intentionally fail-closed.",
+    "rendererEvidence is a separate renderer-backend audit surface. graphicsApis lists only APIs",
+    "named by the cited repository evidence; rendererMode describes whether that evidence names one,",
+    "multiple, or no API. Product survey evidence is never exact-build runtime evidence.",
+    "Every exact-build renderer tier carries exactBuildIdentity. Its AppID and executable bytes must",
+    "cross-check against the rights ledger plus final classification or exact catalog/target evidence;",
+    "buildId is null unless a machine-readable target or structured local-trial record binds it.",
+    "finalLedgerAudit separates the full observed-build classification ledger from its shipped-roster",
+    "mapping. final_for_observed_build=true is hard-terminal authority only when an independent repository",
+    "record exists and the catalog identity is consistent; product survey/taxonomy or identity conflict",
+    "keeps the mapped capability provisional and disabled."
+  ],
+  "schemaVersion": "dm-game-depth-capabilities-3",
+  "reviewedAt": "2026-09-07",
+  "finalLedgerAudit": {
+    "schema": "dm-depth-final-ledger-audit-v1",
+    "ledgerTotalRecords": 17,
+    "shippedRosterGames": 32,
+    "mappedLedgerRecords": 12,
+    "mappedShippedGames": 12,
+    "unmappedLedgerRecords": 5,
+    "unmappedShippedGames": 20,
+    "hardTerminalMappedRecords": 7,
+    "hardTerminalMappedGames": 7,
+    "provisionalMappedRecords": 5,
+    "provisionalMappedGames": 5,
+    "mappedRecords": [
+      {
+        "appId": "1466860",
+        "gameIds": ["age-of-empires-4-steam"],
+        "classification": "not_adaptable",
+        "finalForObservedBuild": true,
+        "authorityMaturity": "hard_terminal_for_observed_build",
+        "provisionalReasons": []
+      },
+      {
+        "appId": "1240440",
+        "gameIds": ["halo-infinite-steam-release-test"],
+        "classification": "not_adaptable",
+        "finalForObservedBuild": true,
+        "authorityMaturity": "hard_terminal_for_observed_build",
+        "provisionalReasons": []
+      },
+      {
+        "appId": "2622380",
+        "gameIds": ["elden-ring-nightreign-steam-release-test"],
+        "classification": "not_adaptable",
+        "finalForObservedBuild": true,
+        "authorityMaturity": "hard_terminal_for_observed_build",
+        "provisionalReasons": []
+      },
+      {
+        "appId": "1145350",
+        "gameIds": ["hades-ii-steam-release-test"],
+        "classification": "not_adaptable",
+        "finalForObservedBuild": true,
+        "authorityMaturity": "provisional",
+        "provisionalReasons": [
+          "product_survey_or_taxonomy_only",
+          "catalog_final_executable_identity_conflict"
+        ]
+      },
+      {
+        "appId": "227300",
+        "gameIds": ["euro-truck-simulator-2-steam"],
+        "classification": "blocked",
+        "finalForObservedBuild": false,
+        "authorityMaturity": "provisional",
+        "provisionalReasons": ["final_for_observed_build_false"]
+      },
+      {
+        "appId": "377160",
+        "gameIds": ["fallout4-steam-release-test"],
+        "classification": "adapted",
+        "finalForObservedBuild": true,
+        "authorityMaturity": "hard_terminal_for_observed_build",
+        "provisionalReasons": []
+      },
+      {
+        "appId": "1771300",
+        "gameIds": ["kingdom-come-deliverance-2-steam"],
+        "classification": "adapted",
+        "finalForObservedBuild": true,
+        "authorityMaturity": "hard_terminal_for_observed_build",
+        "provisionalReasons": []
+      },
+      {
+        "appId": "8870",
+        "gameIds": ["bioshock-infinite-steam-e2e"],
+        "classification": "blocked",
+        "finalForObservedBuild": true,
+        "authorityMaturity": "hard_terminal_for_observed_build",
+        "provisionalReasons": []
+      },
+      {
+        "appId": "261550",
+        "gameIds": ["mount-and-blade-2-bannerlord-steam"],
+        "classification": "blocked",
+        "finalForObservedBuild": false,
+        "authorityMaturity": "provisional",
+        "provisionalReasons": [
+          "final_for_observed_build_false",
+          "catalog_final_executable_identity_conflict"
+        ]
+      },
+      {
+        "appId": "752590",
+        "gameIds": ["a-plague-tale-innocence-steam-release-test"],
+        "classification": "blocked",
+        "finalForObservedBuild": false,
+        "authorityMaturity": "provisional",
+        "provisionalReasons": ["final_for_observed_build_false"]
+      },
+      {
+        "appId": "976730",
+        "gameIds": ["halo-reach-mcc-s0"],
+        "classification": "blocked",
+        "finalForObservedBuild": false,
+        "authorityMaturity": "provisional",
+        "provisionalReasons": ["final_for_observed_build_false"]
+      },
+      {
+        "appId": "1091500",
+        "gameIds": ["cyberpunk-2077-steam"],
+        "classification": "adapted",
+        "finalForObservedBuild": true,
+        "authorityMaturity": "hard_terminal_for_observed_build",
+        "provisionalReasons": []
+      }
+    ],
+    "unmappedLedgerAppIds": ["1150690", "206440", "3561220", "4532590", "4570720"],
+    "unmappedShippedGameIds": [
+      "call-of-duty-steam-release-test",
+      "wolfenstein2-steam",
+      "wuchang-fallen-feathers-steam",
+      "assassins-creed-iii-remastered-steam",
+      "total-war-warhammer-iii-steam-release-test",
+      "nioh2-steam",
+      "deathloop-pc",
+      "atomic-heart-pc",
+      "doom-eternal-pc",
+      "resident-evil-village-pc",
+      "avatar-frontiers-of-pandora-pc",
+      "dying-light-pc",
+      "far-cry-5-pc",
+      "forza-horizon-5-pc",
+      "gta5-legacy-pc",
+      "indiana-jones-great-circle-pc",
+      "titanfall-2-pc",
+      "prey-2017-pc",
+      "red-dead-redemption-2-pc",
+      "starfield-pc"
+    ]
+  },
+  "games": [
+    {
+      "gameId": "call-of-duty-steam-release-test",
+      "evidenceTier": "product_policy_survey",
+      "evidenceLocator": "docs/73 §3.4 row 13 and §4.13; product-level RICOCHET/always-online survey, not an exact-build runtime probe",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/77-depth-ground-truth-hook-experiment-plan.md",
+          "locator": "renderer eligibility table / Call of Duty row"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["kernel_ricochet_product_policy_requires_exact_build_reconfirmation", "campaign_always_online_product_policy_requires_exact_build_reconfirmation", "supported_protection_disabled_mode_not_evidenced", "runtime_instrumentation_prohibited"],
+      "evidence": ["docs/73-steam-roster-depth-capture-eligibility-survey.md", "docs/77-depth-ground-truth-hook-experiment-plan.md"]
+    },
+    {
+      "gameId": "bioshock-infinite-steam-e2e",
+      "evidenceTier": "exact_build_runtime",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=8870]",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "8870",
+          "buildId": null,
+          "executableBasename": "BioShockInfinite.exe",
+          "executableSha256": "sha256:c20a42529c4181b1d10eed416d9847a823f9453dd267ca478efb3a10014a0e77"
+        },
+        "evidence": {
+          "path": "docs/evidence/issue-609-runtime-gates/bioshock-infinite-8870-20260810T065707Z.json",
+          "locator": "BioShockInfinite.exe / d3d11 process identity + graphics.expected_api"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["projection_camera_unresolved", "metric_scale_second_chain_missing"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md", "docs/evidence/issue-609-runtime-gates/bioshock-infinite-8870-20260810T065707Z.json"]
+    },
+    {
+      "gameId": "wolfenstein2-steam",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "docs/evidence/wolfenstein2-steam-2026-07-28.md pins build 3329064/hash/window; docs/43 records exact-identity RGB D7 but not Vulkan Depth runtime",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["vulkan"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/73-steam-roster-depth-capture-eligibility-survey.md",
+          "locator": "§3.1 Wolfenstein II row"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["vulkan_product_survey_requires_exact_build_reconfirmation", "vulkan_backend_not_implemented", "vulkan_attachment_probe_missing", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/evidence/wolfenstein2-steam-2026-07-28.md", "docs/43-d7-wolfenstein2-smoke.md", "docs/73-steam-roster-depth-capture-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "age-of-empires-4-steam",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=1466860] pins installed build/Aegis log; no Depth runtime probe was attempted",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "1466860",
+          "buildId": null,
+          "executableBasename": "RelicCardinal.exe",
+          "executableSha256": "sha256:5380c577805565817f528af6eac385263413fa6815553f9a31fa62561cb45e8c"
+        },
+        "evidence": {
+          "path": "docs/evidence/issue-609-runtime-gates/aoe4-1466860-20260810T063945Z.json",
+          "locator": "RelicCardinal.exe / d3d12 process identity + graphics.expected_api"
+        }
+      },
+      "capability": "not_adaptable",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["embedded_anti_tamper_without_supported_disabled_mode", "depth_runtime_not_probed_due_embedded_protection"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md", "docs/evidence/issue-609-runtime-gates/aoe4-1466860-20260810T063945Z.json"]
+    },
+    {
+      "gameId": "wuchang-fallen-feathers-steam",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "docs/41 pins build 20781879/hash/window; docs/42 records exact-identity RGB D7 but not a build-bound D3D12 Depth runtime",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/73-steam-roster-depth-capture-eligibility-survey.md",
+          "locator": "§3.1 WUCHANG row"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["d3d12_product_survey_requires_exact_build_reconfirmation", "depth_renderer_runtime_unverified", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/41-d6-wuchang-fallen-feathers-profile-evidence.md", "docs/42-d7-wuchang-fallen-feathers-smoke.md", "docs/73-steam-roster-depth-capture-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "halo-infinite-steam-release-test",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=1240440] pins executable/install-tree policy evidence; no Depth runtime probe was attempted",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_observation",
+        "exactBuildIdentity": {
+          "appId": "1240440",
+          "buildId": null,
+          "executableBasename": "HaloInfinite.exe",
+          "executableSha256": "sha256:5da518ec21f5ab7baeb021aeed2b9892eeb65320dc17d2682f8f55271c203da8"
+        },
+        "evidence": {
+          "path": "docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "exact installed-build table / AppID 1240440 / d3d12"
+        }
+      },
+      "capability": "not_adaptable",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["kernel_anti_cheat", "no_certifiable_camera_player_channel", "depth_runtime_not_probed_due_kernel_anti_cheat"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md"]
+    },
+    {
+      "gameId": "euro-truck-simulator-2-steam",
+      "evidenceTier": "exact_build_runtime",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=227300]",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "227300",
+          "buildId": null,
+          "executableBasename": "eurotrucks2.exe",
+          "executableSha256": "sha256:b7dffe6b27402c7db6dfd52cf982cd5bf292584138b35e3eb8efb311814ab3f8"
+        },
+        "evidence": {
+          "path": "docs/evidence/issue-609-runtime-gates/ets2-227300-20260810T062941Z.json",
+          "locator": "eurotrucks2.exe / d3d11 process identity + graphics.expected_api"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["sixty_second_zero_realign_evidence_missing", "player_pose_evidence_missing"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md", "docs/evidence/issue-609-runtime-gates/ets2-227300-20260810T062941Z.json"]
+    },
+    {
+      "gameId": "fallout4-steam-release-test",
+      "evidenceTier": "formal_catalog",
+      "evidenceLocator": "config/catalogs/dev/fallout4-steam-release-test/catalog.json depth_profiles/camera_bindings",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "377160",
+          "buildId": null,
+          "executableBasename": "Fallout4.exe",
+          "executableSha256": "sha256:428f9996cc4248e26c0f62f9fdd3eaf0e5eb305834b67ee5996538e593218b61"
+        },
+        "evidence": {
+          "path": "docs/evidence/issue-609-runtime-gates/fallout4-377160-20260810T063406Z.json",
+          "locator": "Fallout4.exe / d3d11 process identity + graphics.expected_api"
+        }
+      },
+      "capability": "catalog_ready",
+      "runtimeMode": "formal_catalog",
+      "depthCaptureAvailable": true,
+      "recordingReady": false,
+      "blockers": ["runtime_gpu_model_must_match_certification_coverage", "runtime_started_ready_handshake_required"],
+      "evidence": ["tools/pr405-fallout4/README.md", "docs/architecture.md", "docs/154-depth-capability-full-roster-review-20260902.md", "docs/evidence/issue-609-runtime-gates/fallout4-377160-20260810T063406Z.json", "config/depth-probe/performance-certifications.json"]
+    },
+    {
+      "gameId": "kingdom-come-deliverance-2-steam",
+      "evidenceTier": "formal_catalog",
+      "evidenceLocator": "config/catalogs/dev/kingdom-come-deliverance-2-steam/catalog.json depth_profiles/camera_bindings",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "1771300",
+          "buildId": null,
+          "executableBasename": "KingdomCome.exe",
+          "executableSha256": "sha256:d85b5355842d16290dc0d97e1d02856c6f2811a2021c8957aa24d7782a771b77"
+        },
+        "evidence": {
+          "path": "docs/evidence/kcd2/kcd2-runtime-gate-redacted-20260907.json",
+          "locator": "KingdomCome.exe AppID 1771300 exact-build D3D12 runtime summary"
+        }
+      },
+      "capability": "catalog_ready",
+      "runtimeMode": "formal_catalog",
+      "depthCaptureAvailable": true,
+      "recordingReady": false,
+      "blockers": [
+        "mainline_runtime_verification_missing"
+      ],
+      "historicalPerformancePairs": [
+        {
+          "depthProfile": "config/catalogs/dev/kingdom-come-deliverance-2-steam/depth-profile.json",
+          "cameraBinding": "config/depth-profiles/kcd2-camera-binding-candidate.json"
+        }
+      ],
+      "evidence": [
+        "config/catalogs/dev/kingdom-come-deliverance-2-steam/catalog.json",
+        "config/depth-profiles/kcd2-d3d12-mainline-candidate.json",
+        "config/depth-map-bounds/kcd2-metric-scale-evidence.json",
+        "docs/kcd2-main-integration-audit-20260904.md",
+        "docs/evidence/kcd2/kcd2-runtime-gate-redacted-20260907.json"
+      ]
+    },
+    {
+      "gameId": "a-plague-tale-innocence-steam-release-test",
+      "evidenceTier": "exact_build_runtime",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=752590]",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "752590",
+          "buildId": null,
+          "executableBasename": "APlagueTaleInnocence_x64.exe",
+          "executableSha256": "sha256:fb5f31c3bd07f89142281fa8469fc4db7811e94992c7a46fdc14e0f5af07b329"
+        },
+        "evidence": {
+          "path": "docs/evidence/issue-609-runtime-gates/a-plague-tale-innocence-752590-20260810T063724Z.json",
+          "locator": "APlagueTaleInnocence_x64.exe / d3d11 process identity + graphics.expected_api"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["player_pose_evidence_missing", "sixty_second_zero_realign_evidence_missing", "metric_scale_second_chain_missing", "steam_license_unavailable_current_account"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md", "docs/157-a-plague-tale-local-license-blocker-20260902.md", "docs/evidence/issue-609-runtime-gates/a-plague-tale-innocence-752590-20260810T063724Z.json"]
+    },
+    {
+      "gameId": "assassins-creed-iii-remastered-steam",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "docs/155 pins Steam build 11324511, exact ACIII.exe hash, two live process/window observations and the authored RGB D6 bundle; docs/164 records a representative-scene DSV Run A whose historical v2 report remained incomplete because deferred command lists were opaque, the descriptor identity was ambiguous and the frame limit was exceeded",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_observation",
+        "exactBuildIdentity": {
+          "appId": "911400",
+          "buildId": "11324511",
+          "executableBasename": "ACIII.exe",
+          "executableSha256": "sha256:450b76dea323089077a8bb8f0a9bafd3b7c02f48a46de48811f2f00b63aa13d1"
+        },
+        "evidence": {
+          "path": "docs/155-d6-assassins-creed-iii-remastered-onboarding-evidence.md",
+          "locator": "§1 AppID 911400 / ACIII.exe exact-build runtime identity / D3D11 and DXGI modules"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["d7_rgb_runtime_evidence_missing", "d3d11_dsv_discovery_missing", "depth_profile_missing", "camera_binding_missing"],
+      "evidence": ["docs/155-d6-assassins-creed-iii-remastered-onboarding-evidence.md", "docs/159-generic-d3d11-dsv-discovery-contract.md", "docs/164-ac3-dsv-run-a-failure-review-20260904.md"]
+    },
+    {
+      "gameId": "hades-ii-steam-release-test",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=1145350] pins executable identity but bases the camera-domain conclusion on product taxonomy, not a Depth runtime probe",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_observation",
+        "exactBuildIdentity": {
+          "appId": "1145350",
+          "buildId": null,
+          "executableBasename": "Hades2.exe",
+          "executableSha256": "sha256:c3ff02904199dba56b4841581ec9938a0a7c7fbf3e83e0d8e6cb6179d9645d1f"
+        },
+        "evidence": {
+          "path": "docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "exact installed-build table / AppID 1145350 / d3d12 Renderer=DirectX 12"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["fixed_isometric_product_taxonomy_requires_exact_build_reconfirmation", "action_camera_runtime_not_verified", "catalog_final_executable_identity_conflict"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md"]
+    },
+    {
+      "gameId": "cyberpunk-2077-steam",
+      "evidenceTier": "formal_catalog",
+      "evidenceLocator": "config/catalogs/dev/cyberpunk-2077-steam/catalog.json depth_profiles/camera_bindings",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "1091500",
+          "buildId": null,
+          "executableBasename": "Cyberpunk2077.exe",
+          "executableSha256": "sha256:a7de82945c03e041fc7339fcf9066224d98db2f5d80fea50f7947bb350a60991"
+        },
+        "evidence": {
+          "path": "docs/evidence/cp2077/cp2077-runtime-gate-redacted-20260918.json",
+          "locator": "Cyberpunk2077.exe AppID 1091500 build 20383525 exact-build D3D12 runtime summary"
+        }
+      },
+      "capability": "catalog_ready",
+      "runtimeMode": "formal_catalog",
+      "depthCaptureAvailable": true,
+      "recordingReady": false,
+      "blockers": [
+        "mainline_runtime_verification_missing",
+        "approved_runtime_performance_certification_missing"
+      ],
+      "evidence": [
+        "config/catalogs/dev/cyberpunk-2077-steam/catalog.json",
+        "config/catalogs/dev/cyberpunk-2077-steam/README.md",
+        "config/cp2077-local-depth/local-depth-evidence.json",
+        "docs/cp2077-gen8-5070ti-laptop-performance-certification-20260918.md",
+        "docs/evidence/cp2077/cp2077-runtime-gate-redacted-20260918.json",
+        "docs/evidence/issue-814/cp2077-metric-scale-promotion-20383525.json"
+      ]
+    },
+    {
+      "gameId": "total-war-warhammer-iii-steam-release-test",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/73 §4.4; renderer/protection facts require exact-build reconfirmation",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/73-steam-roster-depth-capture-eligibility-survey.md",
+          "locator": "§3.1 Total War: WARHAMMER III row; D3D11 default"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["d3d11_product_survey_requires_exact_build_reconfirmation", "runtime_protection_interaction_unverified", "stable_installed_build_missing", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/73-steam-roster-depth-capture-eligibility-survey.md", "docs/114-dm-capture-host-game-adaptation-roster.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "halo-reach-mcc-s0",
+      "evidenceTier": "exact_build_runtime",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=976730]",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "976730",
+          "buildId": null,
+          "executableBasename": "MCC-Win64-Shipping.exe",
+          "executableSha256": "sha256:be70d6dcd1a884f10ceb342a7a2dcb35ee0fa43181b66a1d19c3d830e9834691"
+        },
+        "evidence": {
+          "path": "docs/evidence/issue-609-runtime-gates/halo-mcc-976730-20260810T063855Z.json",
+          "locator": "MCC-Win64-Shipping.exe / d3d11 process identity + graphics.expected_api"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["player_pose_evidence_missing", "sixty_second_zero_realign_evidence_missing", "scale_live_anchor_missing"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md", "docs/evidence/issue-609-runtime-gates/halo-mcc-976730-20260810T063855Z.json"]
+    },
+    {
+      "gameId": "elden-ring-nightreign-steam-release-test",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=2622380] pins executable/install-tree policy evidence; no Depth runtime probe was attempted",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_observation",
+        "exactBuildIdentity": {
+          "appId": "2622380",
+          "buildId": null,
+          "executableBasename": "nightreign.exe",
+          "executableSha256": "sha256:9545e8732919bb6a63904cb73223641b3c4f9a67869be5722612acca413e8b3a"
+        },
+        "evidence": {
+          "path": "docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "exact installed-build table / AppID 2622380 / d3d12"
+        }
+      },
+      "capability": "not_adaptable",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["kernel_anti_cheat", "protected_online_product", "depth_runtime_not_probed_due_kernel_anti_cheat"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md"]
+    },
+    {
+      "gameId": "nioh2-steam",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "docs/40 pins build 10049618/hash/window and exact-identity RGB D7; renderer/API and Depth runtime remain unverified",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/73-steam-roster-depth-capture-eligibility-survey.md",
+          "locator": "§3.1 Nioh 2 row"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["d3d11_product_survey_requires_exact_build_reconfirmation", "depth_renderer_runtime_unverified", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["config/catalogs/dev/nioh2-steam/catalog.json", "docs/40-d6-nioh2-admission-blocker.md", "docs/73-steam-roster-depth-capture-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "mount-and-blade-2-bannerlord-steam",
+      "evidenceTier": "exact_build_runtime",
+      "evidenceLocator": "config/game-depth-final-classifications.json records[app_id=261550]",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_runtime_report",
+        "exactBuildIdentity": {
+          "appId": "261550",
+          "buildId": null,
+          "executableBasename": "Bannerlord.exe",
+          "executableSha256": "sha256:97476d34e3b6de9a6e4df9a290a2f8a5408cfd319c208b2f1438fc213dedd83f"
+        },
+        "evidence": {
+          "path": "docs/evidence/issue-609-runtime-gates/bannerlord-261550-20260810T063631Z.json",
+          "locator": "Bannerlord.exe / d3d11 process identity + graphics.expected_api"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["sixty_second_zero_realign_evidence_missing", "catalog_final_executable_identity_conflict", "runtime_process_identity_conflict"],
+      "evidence": ["config/game-depth-final-classifications.json", "docs/114-dm-capture-host-game-adaptation-roster.md", "docs/evidence/issue-609-runtime-gates/bannerlord-261550-20260810T063631Z.json"]
+    },
+    {
+      "gameId": "deathloop-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.1 row 28; renderer fact is not exact-build evidence",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/74-full-steam-catalog-depth-eligibility-survey.md",
+          "locator": "§7.1 row 28"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["product_renderer_survey_requires_exact_build_reconfirmation", "stable_exact_build_missing", "renderer_runtime_unverified", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "atomic-heart-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.1 row 116; renderer fact is not exact-build evidence",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/74-full-steam-catalog-depth-eligibility-survey.md",
+          "locator": "§7.1 row 116"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["d3d12_product_survey_requires_exact_build_reconfirmation", "non_cp2077_d3d12_early_launch_not_implemented", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "doom-eternal-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.1 row 5; renderer/product facts require exact-build reconfirmation",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["vulkan"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/74-full-steam-catalog-depth-eligibility-survey.md",
+          "locator": "§7.1 row 5"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["product_renderer_survey_requires_exact_build_reconfirmation", "stable_exact_build_missing", "renderer_runtime_unverified", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "resident-evil-village-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.1 row 121; renderer fact is not exact-build evidence",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/74-full-steam-catalog-depth-eligibility-survey.md",
+          "locator": "§7.1 row 121"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["product_renderer_survey_requires_exact_build_reconfirmation", "stable_exact_build_missing", "renderer_runtime_unverified", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "avatar-frontiers-of-pandora-pc",
+      "evidenceTier": "catalog_only",
+      "evidenceLocator": "docs/143 §3.1 proves RGB scope only; exact-build Depth runtime not assessed",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["unknown"],
+        "rendererMode": "unknown",
+        "apiEvidenceTier": "unknown",
+        "evidence": null
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/143-seven-local-games-rgb-v1-scope.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "dying-light-pc",
+      "evidenceTier": "catalog_only",
+      "evidenceLocator": "docs/143 §3.2 proves RGB scope only; exact-build Depth runtime not assessed",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["unknown"],
+        "rendererMode": "unknown",
+        "apiEvidenceTier": "unknown",
+        "evidence": null
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/143-seven-local-games-rgb-v1-scope.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "far-cry-5-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.3 Far Cry 5 EAC row; exact installed build is unavailable",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["unknown"],
+        "rendererMode": "unknown",
+        "apiEvidenceTier": "unknown",
+        "evidence": null
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["kernel_eac_product_survey_requires_exact_build_reconfirmation", "supported_protection_disabled_mode_not_evidenced", "stable_exact_build_missing"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/143-seven-local-games-rgb-v1-scope.md"]
+    },
+    {
+      "gameId": "forza-horizon-5-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.1 row 25 plus docs/143 §3.4 RGB-only scope",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/74-full-steam-catalog-depth-eligibility-survey.md",
+          "locator": "§7.1 row 25"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["product_renderer_survey_requires_exact_build_reconfirmation", "stable_exact_build_missing", "renderer_runtime_unverified", "render_camera_binding_missing", "missing_exact_build_depth_profile"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md", "docs/143-seven-local-games-rgb-v1-scope.md"]
+    },
+    {
+      "gameId": "gta5-legacy-pc",
+      "evidenceTier": "exact_build_planning_only",
+      "evidenceLocator": "docs/evidence/gta5-legacy-exact-install-20260902.json pins Steam build 24129523 and GTA5.exe; docs/158 contains the camera/player POC; Depth DSV remains unproven",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d11"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "exact_build_observation",
+        "exactBuildIdentity": {
+          "appId": "271590",
+          "buildId": "24129523",
+          "executableBasename": "GTA5.exe",
+          "executableSha256": "sha256:677e4e355cfbdb13273b1d992407e3c261b3a108dc4dd5c8a0c4c1da651802e5"
+        },
+        "evidence": {
+          "path": "docs/158-gta5-legacy-pr405-multicamera-feasibility-and-implementation-plan.md",
+          "locator": "§4.1 GTA5.exe Legacy 3889 exact runtime and system DXGI/D3D11 hook path"
+        }
+      },
+      "capability": "adaptation_blocked",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["clean_official_install_surface_missing", "exact_build_renderer_runtime_missing", "representative_window_binding_missing", "official_protection_disabled_launch_binding_missing", "dsv_profile_missing", "formal_camera_binding_not_integrated", "generation_performance_certificate_missing"],
+      "evidence": ["docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/158-gta5-legacy-pr405-multicamera-feasibility-and-implementation-plan.md", "docs/evidence/gta5-legacy-exact-install-20260902.json"]
+    },
+    {
+      "gameId": "indiana-jones-great-circle-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.1 row 2 plus docs/143 §3.6 RGB-only scope",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["vulkan"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/74-full-steam-catalog-depth-eligibility-survey.md",
+          "locator": "§7.1 row 2"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["product_renderer_survey_requires_exact_build_reconfirmation", "stable_exact_build_missing", "renderer_runtime_unverified", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md", "docs/143-seven-local-games-rgb-v1-scope.md"]
+    },
+    {
+      "gameId": "titanfall-2-pc",
+      "evidenceTier": "catalog_only",
+      "evidenceLocator": "docs/143 §3.7 proves RGB scope only; exact-build Depth runtime not assessed",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["unknown"],
+        "rendererMode": "unknown",
+        "apiEvidenceTier": "unknown",
+        "evidence": null
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/143-seven-local-games-rgb-v1-scope.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "prey-2017-pc",
+      "evidenceTier": "catalog_only",
+      "evidenceLocator": "docs/144 §3.1 proves RGB scope only; exact-build Depth runtime not assessed",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["unknown"],
+        "rendererMode": "unknown",
+        "apiEvidenceTier": "unknown",
+        "evidence": null
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/144-three-local-games-rgb-v1-scope.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md"]
+    },
+    {
+      "gameId": "red-dead-redemption-2-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.1 row 34 plus docs/144 §3.2 RGB-only scope",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12", "vulkan"],
+        "rendererMode": "multi",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/74-full-steam-catalog-depth-eligibility-survey.md",
+          "locator": "§7.1 row 34"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["product_renderer_survey_requires_exact_build_reconfirmation", "stable_exact_build_missing", "renderer_mode_not_pinned", "renderer_runtime_unverified", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md", "docs/144-three-local-games-rgb-v1-scope.md"]
+    },
+    {
+      "gameId": "starfield-pc",
+      "evidenceTier": "product_survey_only",
+      "evidenceLocator": "docs/74 §7.1 row 26, docs/98 Starfield rows, and docs/144 §3.3 RGB-only scope",
+      "rendererEvidence": {
+        "schema": "dm-renderer-backend-evidence-v2",
+        "graphicsApis": ["d3d12"],
+        "rendererMode": "single",
+        "apiEvidenceTier": "product_survey",
+        "evidence": {
+          "path": "docs/74-full-steam-catalog-depth-eligibility-survey.md",
+          "locator": "§7.1 row 26"
+        }
+      },
+      "capability": "not_assessed",
+      "runtimeMode": null,
+      "depthCaptureAvailable": false,
+      "recordingReady": false,
+      "blockers": ["product_renderer_survey_requires_exact_build_reconfirmation", "stable_exact_build_missing", "renderer_runtime_unverified", "floating_origin_player_pose_contract_missing", "missing_exact_build_depth_profile", "missing_camera_binding"],
+      "evidence": ["docs/74-full-steam-catalog-depth-eligibility-survey.md", "docs/98-steam-wide-map-metric-actioncamera-source-survey.md", "docs/126-gpu-depth-buffer-capture-mechanism.md", "docs/138-depth-per-game-adaptation-cost-alternatives-research.md", "docs/144-three-local-games-rgb-v1-scope.md"]
+    }
+  ],
+  "pendingOnboarding": [
+    {
+      "gameId": "mafia-iii-definitive-edition-steam",
+      "displayName": "Mafia III: Definitive Edition",
+      "appId": "360430",
+      "targetBuildId": "5121098",
+      "steamStateFlags": 4,
+      "catalogAuthored": false,
+      "capability": "runtime_onboarding_pending",
+      "executableCandidate": "Mafia3DefinitiveEdition.exe",
+      "executableSha256": "sha256:300160ce19c64bd6fde5e2a6d8f29077eceb6efcb05d224ee8554cb308d5edd0",
+      "graphicsApi": "d3d11",
+      "runtimeEvidence": {
+        "schema": "dm-pending-runtime-evidence-v1",
+        "appId": "360430",
+        "targetBuildId": "5121098",
+        "executableBasename": "Mafia3DefinitiveEdition.exe",
+        "executableSha256": "sha256:300160ce19c64bd6fde5e2a6d8f29077eceb6efcb05d224ee8554cb308d5edd0",
+        "graphicsApi": "d3d11",
+        "launches": [
+          {
+            "ordinal": 1,
+            "sourceReportSha256": "sha256:a58e859db20e3d7427285fdf855e654f445ba7e65284a22dfa60f5708d0c4a59",
+            "sceneKind": "display_calibration",
+            "processIdentityMatched": true,
+            "graphicsApi": "d3d11",
+            "runtimeProtectionGate": "pass",
+            "window": {
+              "className": "Mafia III: Definitive Edition",
+              "clientWidth": 1920,
+              "clientHeight": 1080
+            }
+          },
+          {
+            "ordinal": 2,
+            "sourceReportSha256": "sha256:f882e6c41dcf1bc59f38bad668a8550fcacd0dcd4c6ac9a301a590ad64bf30de",
+            "sceneKind": "online_policy",
+            "processIdentityMatched": true,
+            "graphicsApi": "d3d11",
+            "runtimeProtectionGate": "pass",
+            "window": {
+              "className": "Mafia III: Definitive Edition",
+              "clientWidth": 1920,
+              "clientHeight": 1080
+            }
+          }
+        ]
+      },
+      "localProfileEvidence": {
+        "schema": "dm-mafia3-d6-local-profile-evidence/v1",
+        "status": "pass",
+        "validator_sha256": "sha256:a00073064c6b4a3d3ef9068ea338c1b5586723742b9d43a9dde8256cf2117645",
+        "proof_scope": "local_profile_bytes_only",
+        "expected_app_id_context": "360430",
+        "expected_steam_build_id_context": "5121098",
+        "profile_embeds_build_identity": false,
+        "external_install_gate_required": true,
+        "executable_basename": "Mafia3DefinitiveEdition.exe",
+        "launcher": {
+          "basename": "Launcher.exe",
+          "sha256": "sha256:a1a8c67f2024fd7613fce513eb0cb339d1642fe95ec38b5ff04af20345f6dde4",
+          "bytes": 83773952,
+          "field_mapping_evidence": "official W3Launcher.VideoConfigFile.LoadVideoConfigFile read-only reflection"
+        },
+        "input_profile": {
+          "basename": "gameinputmodule.pf",
+          "sha256": "sha256:009ca0dfb756a5f3c4e877ee057e79283a6fa595828f3d6cb93b8dc5cd66a313",
+          "bytes": 396612,
+          "structure": {
+            "xml_bytes": 396608,
+            "trailer_bytes": 4,
+            "control_set_count": 4,
+            "controller_type_2_logical_controls": 130,
+            "device_type_2_bound_tuples": 87,
+            "device_type_1_bound_tuples": 20,
+            "canonical_control_set_sha256": "sha256:3964e5ab41d1d399c8a5934dfb4b23c46313fdb9b025dbdb58076a8cf8267fa9",
+            "mouse_sensitivity": 0.5,
+            "invert_x": false,
+            "invert_y": false
+          },
+          "core_bindings": [
+            { "logical_control": "UP", "device_kind": "profile_device_type_2", "element": 17, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "DOWN", "device_kind": "profile_device_type_2", "element": 31, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "LEFT", "device_kind": "profile_device_type_2", "element": 30, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "RIGHT", "device_kind": "profile_device_type_2", "element": 32, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "AIM_X", "device_kind": "profile_device_type_1", "element": 300, "control_mode": 1, "slot": "primary" },
+            { "logical_control": "AIM_Y", "device_kind": "profile_device_type_1", "element": 301, "control_mode": 1, "slot": "primary" },
+            { "logical_control": "RUN", "device_kind": "profile_device_type_2", "element": 42, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "SPRINT", "device_kind": "profile_device_type_2", "element": 42, "control_mode": 64, "slot": "primary" },
+            { "logical_control": "CLIMB", "device_kind": "profile_device_type_2", "element": 57, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "STALK", "device_kind": "profile_device_type_2", "element": 45, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "COVER_ENTER", "device_kind": "profile_device_type_2", "element": 29, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "FIRE", "device_kind": "profile_device_type_1", "element": 400, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "ZOOM", "device_kind": "profile_device_type_1", "element": 401, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "RELOAD", "device_kind": "profile_device_type_2", "element": 19, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "ACTION", "device_kind": "profile_device_type_2", "element": 18, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "PICKUP_BODY", "device_kind": "profile_device_type_2", "element": 21, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "GENERIC_ACTION_1", "device_kind": "profile_device_type_2", "element": 33, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "WEAPON_GRENADE_AIM", "device_kind": "profile_device_type_2", "element": 34, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "HOLSTER", "device_kind": "profile_device_type_2", "element": 35, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "SWITCH_EXPLOSIVES", "device_kind": "profile_device_type_2", "element": 44, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "USE_MEDKIT", "device_kind": "profile_device_type_2", "element": 46, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "INTEL_VIEW_OPEN", "device_kind": "profile_device_type_2", "element": 47, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "MAP", "device_kind": "profile_device_type_2", "element": 15, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "MENU", "device_kind": "profile_device_type_2", "element": 1, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "CAR_UP", "device_kind": "profile_device_type_2", "element": 17, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "CAR_DOWN", "device_kind": "profile_device_type_2", "element": 31, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "CAR_LEFT", "device_kind": "profile_device_type_2", "element": 30, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "CAR_RIGHT", "device_kind": "profile_device_type_2", "element": 32, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "HANDBRAKE", "device_kind": "profile_device_type_2", "element": 57, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "CAR_FIRE", "device_kind": "profile_device_type_1", "element": 400, "control_mode": 32, "slot": "primary" },
+            { "logical_control": "CAR_EXIT", "device_kind": "profile_device_type_2", "element": 18, "control_mode": 32, "slot": "primary" }
+          ],
+          "source_logical_names_preserved": true,
+          "default_preset_confirmed": false
+        },
+        "video_config": {
+          "basename": "videoconfig.cfg",
+          "sha256": "sha256:1ba4ee58ac40d2fc3643c03dbe1d683b913276c1f0d9fd1a50461b6889d0e977",
+          "bytes": 23,
+          "fields": {
+            "position_x": 0,
+            "position_y": 0,
+            "resolution_x": 1920,
+            "resolution_y": 1080,
+            "is_fullscreen": false,
+            "autodetect_resolution": false,
+            "vsync_enabled": true,
+            "gpu_index": 0,
+            "gpu_name": "Default",
+            "display_index": 0,
+            "display_name": "Default",
+            "hdr_field_present": false,
+            "hdr_confirmed": false
+          }
+        },
+        "catalog_authored": false,
+        "rgb_recording_ready": false,
+        "depth_capture_available": false,
+        "blockers": [
+          "representative_single_player_runtime_evidence_missing",
+          "input_profile_default_preset_confirmation_missing",
+          "physical_input_mapping_and_semantic_authoring_missing",
+          "hdr_or_sdr_confirmation_missing",
+          "d7_rgb_runtime_evidence_missing",
+          "depth_profile_missing",
+          "camera_binding_missing"
+        ]
+      },
+      "blockers": ["rights_ledger_catalog_link_pending", "representative_single_player_runtime_evidence_missing", "hdr_or_sdr_confirmation_missing", "input_profile_default_preset_confirmation_missing", "physical_input_mapping_and_semantic_authoring_missing", "d7_rgb_runtime_evidence_missing", "depth_profile_missing", "camera_binding_missing"],
+      "evidence": ["docs/156-d6-mafia-iii-definitive-edition-install-blocker.md"]
+    }
+  ]
+}

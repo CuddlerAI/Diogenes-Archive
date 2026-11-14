@@ -1,0 +1,59 @@
+{
+  "schema_version": "dm-recording-profile-2",
+  "profile_id": "cod-steam-release-test-recording-60-audio-v1",
+  "version": "3",
+  "game_id": "call-of-duty-steam-release-test",
+  "capture_backend": "native_wgc_window_v1",
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "width": 1920,
+  "height": 1080,
+  "fps_num": 60,
+  "fps_den": 1,
+  "bitrate_bps": 16000000,
+  "max_bitrate_bps": 24000000,
+  "gop_frames": 240,
+  "segment_seconds": 10,
+  "test_segments": 30,
+  "audio": {
+    "mode": "process_loopback",
+    "sample_rate_hz": 48000,
+    "channels": 2,
+    "bits_per_sample": 16,
+    "sample_format": "pcm_s16le",
+    "channel_mask": 3,
+    "compression": "zstd"
+  },
+  "accepted_encoder_relaxations": {
+    "min_effective_max_bitrate_bps": 15552000,
+    "gop_frames": [
+      60
+    ],
+    "allow_rate_control_normalization": true,
+    "allow_low_latency_disabled": true,
+    "allow_unverified_b_frames": true
+  },
+  "window_mode": "windowed_or_borderless",
+  "hdr": false,
+  "cursor_capture": true,
+  "in_game_mouse_sensitivity": 8.0,
+  "field_of_view_degrees": 100,
+  "view_scale": {
+    "applicable": true,
+    "counts_per_360": 6818.18,
+    "fov_axis": null,
+    "vertical_scale_ratio": null,
+    "ads_states": [],
+    "input_requirements": {
+      "hold_to_zoom": true,
+      "mouse_smoothing": false,
+      "mouse_acceleration": false,
+      "minimum_frame_rate_off": true,
+      "resolution_scale_100": true
+    },
+    "tolerance_pct": null,
+    "fast_slow_tolerance_pct": null,
+    "min_polling_hz": 500,
+    "config_watch_paths": [],
+    "max_calibration_age_days": null
+  }
+}

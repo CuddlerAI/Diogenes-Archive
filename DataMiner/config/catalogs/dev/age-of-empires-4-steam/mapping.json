@@ -1,0 +1,218 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.age-of-empires-4.steam.pc",
+  "version": "2026-07-29.0",
+  "game": {
+    "id": "age-of-empires-4-steam",
+    "name": "Age of Empires IV: Anniversary Edition (Steam, RTS subset)",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "real_time_strategy",
+    "view": "isometric",
+    "material": "3d"
+  },
+  "recording_profile_id": "age-of-empires-4-steam-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "pointer.move_x"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "pointer.move_y"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "selection.primary"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "command.contextual"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 35,
+      "extended": false,
+      "semantic": "camera.center_town_center"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 14,
+      "extended": false,
+      "semantic": "camera.center"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "camera.rotate_modifier"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 28,
+      "extended": false,
+      "semantic": "communication.team_chat"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "command.queue_modifier"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "control_group.bind_modifier"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 52,
+      "extended": false,
+      "semantic": "selection.idle_villager"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 15,
+      "extended": false,
+      "semantic": "selection.cycle_type"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 59,
+      "extended": false,
+      "semantic": "selection.military_buildings"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 60,
+      "extended": false,
+      "semantic": "selection.economy_buildings"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 61,
+      "extended": false,
+      "semantic": "selection.technology_buildings"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "control_group.1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "control_group.2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "control_group.3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 5,
+      "extended": false,
+      "semantic": "control_group.4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 6,
+      "extended": false,
+      "semantic": "control_group.5"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 7,
+      "extended": false,
+      "semantic": "control_group.6"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 8,
+      "extended": false,
+      "semantic": "control_group.7"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 9,
+      "extended": false,
+      "semantic": "control_group.8"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 10,
+      "extended": false,
+      "semantic": "control_group.9"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "grid.q"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "grid.w"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "grid.e"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "grid.r"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "grid.a"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "grid.s"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "grid.d"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "grid.z"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 45,
+      "extended": false,
+      "semantic": "grid.x"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "grid.c"
+    }
+  ]
+}

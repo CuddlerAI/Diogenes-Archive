@@ -1,0 +1,14 @@
+{
+  "schema_version": "dm-device-profile-3",
+  "profile_id": "assassins-creed-iii-remastered-steam-windows-nvidia-local-v1",
+  "version": "1",
+  "platform": "windows",
+  "minimum_windows_build": 26200,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [],
+  "minimum_driver_version": "32.0.15.9186",
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "assassins_creed_iii_remastered_steam_911400_build_11324511_local_single_player_on_foot"
+}

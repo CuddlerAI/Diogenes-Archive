@@ -1,0 +1,8 @@
+# Local/example configuration; no account, route, or production environment.
+name = "dataminer-api-edge-example"
+main = "worker.ts"
+compatibility_date = "2026-06-01"
+workers_dev = false
+
+[vars]
+API_ORIGIN = "https://example.invalid"

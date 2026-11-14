@@ -1,0 +1,28 @@
+{
+  "_comment": [
+    "复制成 ets2-pose-config.json 后逐格填写。带 FILL_ME 的值会被 Test-Ets2Readiness.ps1 拒绝——",
+    "这是故意的：一份没填的配置一路跑到交付，产出的内参与相机位置会是别的车型的。",
+    "填写依据见 README §3「相机基线怎么取」。"
+  ],
+  "schema": "ets2-pose-config/v1",
+  "baseline": {
+    "schema_version": "ets2-camera-telemetry/v1",
+    "baseline_id": "FILL_ME-车型-interior-v1",
+    "truck_id": "FILL_ME-与遥测 truck 对应的车型标识",
+    "evidence_path": "tools/pr405-ets2/evidence/FILL_ME-camera-definition.json",
+    "default_head_position_m": [0.0, 0.0, 0.0],
+    "default_head_orientation": { "heading": 0.0, "pitch": 0.0, "roll": 0.0 },
+    "horizontal_fov_degrees": 71.0,
+    "fov_source": "unpacked_game_definition"
+  },
+  "roll_convention": "unvalidated",
+  "offset_composition": "unvalidated",
+  "intrinsics_width": 1920,
+  "intrinsics_height": 1080,
+  "max_skew_us": 16667,
+  "wall_clock_anchor": {
+    "qpc": 0,
+    "unix_millis": 0
+  },
+  "qpc_frequency_hz": 10000000
+}

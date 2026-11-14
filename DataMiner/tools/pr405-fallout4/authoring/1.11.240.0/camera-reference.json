@@ -1,0 +1,15 @@
+{
+  "schema": "fallout4-camera-reference/v1",
+  "game_version": "1.11.240.0",
+  "executable_sha256": "sha256:fdcef37ac1230af6d0b0050eb2142b139ef3a867b37b9211fb6edfcc646072f8",
+  "deliverable": false,
+  "source_commit": "6f6a7caa9aeaebc957a70d934b6ab6b80eb768b2",
+  "game_camera": {
+    "provider": "fallout4-player-camera-root-exact-build/v1",
+    "camera_singleton_relocation": 51277400,
+    "camera_root_offset": 32,
+    "world_transform_offset": 112,
+    "metres_per_game_unit": "0.0142875",
+    "axis_mapping": "x_z_y"
+  }
+}

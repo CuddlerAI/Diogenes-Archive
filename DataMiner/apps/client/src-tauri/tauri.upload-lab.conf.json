@@ -1,0 +1,5 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "DataMiner Upload Lab",
+  "identifier": "com.diogeneslab.dataminer.uploadlab"
+}

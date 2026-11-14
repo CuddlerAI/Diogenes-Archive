@@ -1,0 +1,43 @@
+{
+  "schema_version": "dm-depth-profile-1",
+  "game_id": "fallout4-steam-release-test",
+  "lane": "lane30",
+  "cadence": "every_present",
+  "executable_sha256": "sha256:428f9996cc4248e26c0f62f9fdd3eaf0e5eb305834b67ee5996538e593218b61",
+  "dsv": {
+    "dsv_id": "main-scene-v1",
+    "expected_width": 1920,
+    "expected_height": 1080,
+    "sample_count": 1,
+    "evidence_path": "tools/pr405-fallout4/evidence/fallout4-runtime-projection-family-20260812.json"
+  },
+  "readback_path": "copy_to_staging",
+  "readback_slots": 6,
+  "watermark": {
+    "origin_x": 0,
+    "origin_y": 0
+  },
+  "delivery_width": 1280,
+  "delivery_height": 720,
+  "burst": {
+    "interval_seconds": 300,
+    "duration_seconds": 3
+  },
+  "projection_a": 1.0000028610229492,
+  "projection_b": -1.0000028610229492,
+  "metric_scale": {
+    "value": 0.0142875,
+    "source": {
+      "path": "engine_convention",
+      "engine": "creation-engine"
+    },
+    "cross_check": {
+      "convention": 0.0142875,
+      "measured": 0.01499400461183705,
+      "ratio": 1.0494491416858827,
+      "tolerance": 0.1
+    },
+    "evidence_path": "tools/pr405-fallout4/evidence/fallout4-metric-scale-20260805.json"
+  },
+  "projection_source": "constant_buffer"
+}

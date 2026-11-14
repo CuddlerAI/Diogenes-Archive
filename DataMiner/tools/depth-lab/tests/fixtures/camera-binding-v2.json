@@ -1,0 +1,59 @@
+{
+  "schema": "camera-binding/v2",
+  "binding_id": "synthetic-d3d12-camera",
+  "binding_version": "1",
+  "profile_id": "synthetic-d3d12",
+  "profile_version": "dm-depth-profile-2",
+  "executable_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "render_width": 1920,
+  "render_height": 1080,
+  "view_metres_per_unit": "1.0",
+  "axis_mapping": {
+    "delivery_x_from": "positive_x",
+    "delivery_y_from": "positive_y",
+    "delivery_z_from": "positive_z"
+  },
+  "view_sources": [
+    {
+      "descriptor_table": {
+        "root_signature_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "root_parameter_index": 4,
+        "descriptor_range_index": 0,
+        "descriptor_offset_in_range": 0,
+        "descriptor_count": 1,
+        "base_shader_register": 0,
+        "register_space": 0
+      },
+      "cbv_resource_offset": 0,
+      "declared_cbv_bytes": 256,
+      "matrix_offset": 0,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "view",
+      "draw_relation": "exact_selected_depth_dsv_draw",
+      "translation": "row3"
+    }
+  ],
+  "projection_sources": [
+    {
+      "descriptor_table": {
+        "root_signature_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "root_parameter_index": 4,
+        "descriptor_range_index": 0,
+        "descriptor_offset_in_range": 0,
+        "descriptor_count": 1,
+        "base_shader_register": 0,
+        "register_space": 0
+      },
+      "cbv_resource_offset": 0,
+      "declared_cbv_bytes": 256,
+      "matrix_offset": 64,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "projection",
+      "draw_relation": "exact_selected_depth_dsv_draw"
+    }
+  ]
+}

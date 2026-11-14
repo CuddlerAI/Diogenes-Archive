@@ -1,0 +1,62 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "far-cry-5-pc",
+  "version": "2",
+  "display_name": "孤岛惊魂 5（PC 本地步战）",
+  "device_profile_id": "far-cry-5-pc-windows-nvidia-v1",
+  "recording_profile_id": "far-cry-5-pc-recording-v1",
+  "mapping_id": "game.far-cry-5.pc",
+  "executable_names": [
+    "FarCry5.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      16,
+      17,
+      18,
+      32,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      65,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      78,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      90,
+      119,
+      121,
+      187,
+      189
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

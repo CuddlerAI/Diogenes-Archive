@@ -1,0 +1,70 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "call-of-duty-steam-release-test",
+  "version": "12",
+  "display_name": "Call of Duty® Steam",
+  "device_profile_id": "cod-steam-windows-nvidia-audio-dev-v1",
+  "recording_profile_id": "cod-steam-release-test-recording-60-audio-v1",
+  "mapping_id": "game.call-of-duty.steam.pc",
+  "executable_names": [
+    "cod.exe",
+    "cod22-cod.exe",
+    "cod23-cod.exe",
+    "cod24-cod.exe",
+    "sp22-cod.exe",
+    "ModernWarfare.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      13,
+      16,
+      17,
+      18,
+      20,
+      27,
+      32,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      65,
+      67,
+      68,
+      69,
+      70,
+      71,
+      75,
+      77,
+      81,
+      82,
+      83,
+      84,
+      86,
+      87,
+      88,
+      89,
+      90,
+      119,
+      121,
+      192
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4,
+      5,
+      6
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

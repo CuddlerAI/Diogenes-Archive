@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-deathloop-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "deathloop-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:d021f8ce142267b27933bc16ecd562b64a013a6a5b27dcae7f551aff6cf665f1"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "deathloop-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:678ce8bda537ce321ba474a07e8daf8c4539dbd8ac2bd0e53bae7922413f68ba"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "deathloop-pc",
+      "version": "2",
+      "content_hash": "sha256:c5c35213b8379dba7abb408b4d482bd9e20160418fbb1c527090ca71b5da9054"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.deathloop.pc",
+      "version": "2026-08-19.0",
+      "content_hash": "sha256:20be0dcbec3079f743dc3ce267543dee8299cf978a28092bb7db78772261885b"
+    }
+  ]
+}

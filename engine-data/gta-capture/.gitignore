@@ -1,0 +1,9 @@
+out/
+native/build*/
+__pycache__/
+*.py[cod]
+*.asi
+*.dll
+*.pdb
+*.replay
+*.clip

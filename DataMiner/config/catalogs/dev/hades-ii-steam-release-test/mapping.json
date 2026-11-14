@@ -1,0 +1,41 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.hades-ii.steam.pc",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "hades-ii-steam-release-test",
+    "name": "Hades II Steam",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "action_roguelike",
+    "view": "isometric",
+    "material": "3d"
+  },
+  "recording_profile_id": "hades-ii-steam-release-test-recording-v1",
+  "bindings": [
+    { "device": "mouse", "control": "delta_x", "semantic": "aim.pointer_x" },
+    { "device": "mouse", "control": "delta_y", "semantic": "aim.pointer_y" },
+    { "device": "keyboard", "scan_code": 17, "extended": false, "semantic": "move.forward" },
+    { "device": "keyboard", "scan_code": 31, "extended": false, "semantic": "move.backward" },
+    { "device": "keyboard", "scan_code": 30, "extended": false, "semantic": "move.left" },
+    { "device": "keyboard", "scan_code": 32, "extended": false, "semantic": "move.right" },
+    { "device": "keyboard", "scan_code": 57, "extended": false, "semantic": "move.dash" },
+    { "device": "keyboard", "scan_code": 16, "extended": false, "semantic": "combat.cast" },
+    { "device": "keyboard", "scan_code": 33, "extended": false, "semantic": "combat.hex" },
+    { "device": "keyboard", "scan_code": 18, "extended": false, "semantic": "interact.use" },
+    { "device": "keyboard", "scan_code": 34, "extended": false, "semantic": "interact.gift_or_reforge" },
+    { "device": "keyboard", "scan_code": 20, "extended": false, "semantic": "social.salute" },
+    { "device": "keyboard", "scan_code": 29, "extended": false, "semantic": "combat.auto_fire" },
+    { "device": "keyboard", "scan_code": 46, "extended": false, "semantic": "ui.book_of_shadows" },
+    { "device": "keyboard", "scan_code": 23, "extended": false, "semantic": "ui.inventory" },
+    { "device": "keyboard", "scan_code": 48, "extended": false, "semantic": "ui.boon_details" },
+    { "device": "keyboard", "scan_code": 51, "extended": false, "semantic": "ui.select_left_column" },
+    { "device": "keyboard", "scan_code": 52, "extended": false, "semantic": "ui.select_right_column" },
+    { "device": "keyboard", "scan_code": 68, "extended": false, "semantic": "system.bug_report" },
+    { "device": "keyboard", "scan_code": 87, "extended": false, "semantic": "system.screenshot" },
+    { "device": "mouse", "button": 1, "semantic": "combat.attack" },
+    { "device": "mouse", "button": 2, "semantic": "combat.special" },
+    { "device": "mouse", "control": "wheel", "semantic": "inventory.cycle" }
+  ]
+}

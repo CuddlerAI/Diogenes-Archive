@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "build": {
+    "beforeBuildCommand": "pnpm build",
+    "beforeDevCommand": null,
+    "devUrl": null,
+    "frontendDist": "../dist"
+  },
+  "bundle": {
+    "resources": {
+      "../../../target/all-games-dev/release/dm_depth_probe.dll": "depth-lab/dm_depth_probe.dll",
+      "../../../target/all-games-dev/release/dm-depth-inject.exe": "depth-lab/dm-depth-inject.exe",
+      "../../../target/all-games-dev/release/dm-depth-launch.exe": "depth-lab/dm-depth-launch.exe",
+      "../../../target/all-games-dev/release/dm-depth-probe-runtime.json": "depth-lab/dm-depth-probe-runtime.json",
+      "../../../target/all-games-dev/release/dm-depth-extract.exe": "dm-depth-extract.exe",
+      "../../../tools/pr735-cp2077/Set-Cp2077CaptureSettings.ps1": "depth-lab/Set-Cp2077CaptureSettings.ps1",
+      "../../../tools/pr735-cp2077/Test-Cp2077CaptureSettings.ps1": "depth-lab/Test-Cp2077CaptureSettings.ps1",
+      "../../../tools/pr735-cp2077/package-local-fivepiece.py": "depth-lab/package-local-fivepiece.py"
+    }
+  }
+}

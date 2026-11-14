@@ -1,0 +1,55 @@
+# IDM Phase 0, the compute control for the epoch-aligned run.
+#
+# Same 78,750 steps as idm_valorant_epoch.yaml, spent on the shallow corpus
+# (5.5 h) instead of the deep one (33.9 h). Compute is identical, unique data
+# differs 6.55x, so the gap between the two runs is what the extra footage
+# bought — and the gap between this run and the 12000-step shallow run is what
+# the extra compute bought on its own.
+#
+# Without this arm the epoch-aligned run is uninterpretable: it beats the
+# 12000-step shallow baseline on both axes at once. With it, the round's
+# actual finding is that compute was the larger half (0.2055 -> 0.2920 on
+# fixed data) and data added the smaller one (0.2920 -> 0.3338 at fixed
+# compute) — a conclusion opposite in sign to the first round's, which had
+# read the same corpora as "more data hurts".
+#
+# 78,750 steps on 233,392 windows is 16.2 epochs, so this arm is also the
+# repetition-vs-novelty reading: the shallow corpus is seen 16 times over
+# while the deep one is seen 2.5 times for the same budget.
+run_name: idm-valorant-control
+seed: 0
+
+data:
+  roots: [data/idm_valorant]
+  holdout_games: []       # single game — the split is by session
+  val_fraction: 0.12
+  window: 5
+  stride: 2
+  input_res: [224, 224]
+  delta_scale: 50.0
+  min_key_frac: 0.10
+  contract_mode: method-validation
+  allow_method_validation_only: true
+
+model:
+  trunk: dinov2_vits14
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 48
+  max_steps: 78750        # matched to the epoch-aligned run on purpose
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 250
+  num_workers: 6
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+gates:
+  key_exact_min: 0.85
+  key_macro_f1_min: 0.40
+  macro_f1_warn: 0.6
+
+output:
+  dir: runs

@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-far-cry-5-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "far-cry-5-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:973c4a994a7437a20b315d841e6d5c57e8bd8745d95d5fa587a50dedff4a85aa"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "far-cry-5-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:8ceb5ee5102cdd646aa8fc0251ec9ea66f888e66d486eb5854ad77c7233e84c1"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "far-cry-5-pc",
+      "version": "2",
+      "content_hash": "sha256:df854329f976feba8ea7d288ab17bb8b2763cd95b40a4742515fbccdd0c2196e"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.far-cry-5.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:dbeca08872e0e1ed1fb75483a27fbddb820c05204ec8ca4b0db1a5f3f726586c"
+    }
+  ]
+}

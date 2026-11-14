@@ -1,0 +1,58 @@
+[package]
+name = "capture-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = []
+# Local engineering entry point only; also requires debug_assertions.
+cadence-trace = []
+# The release client compiles process loopback and profiles opt in explicitly.
+# COD DEV may enable it as non-trainable while certified release remains gated.
+process-loopback-audio = [
+  "windows/Win32_Media_Audio",
+  "windows/Win32_Security",
+]
+# capture-lab keeps its explicit feature name while sharing the exact same
+# process-loopback primitive as the recorder.
+audio-lab = ["process-loopback-audio"]
+
+[dependencies]
+anyhow.workspace = true
+crossbeam-channel.workspace = true
+input-metrics = { path = "../input-metrics" }
+mp4 = "0.14.0"
+present-identity = { path = "../present-identity" }
+serde.workspace = true
+serde_json.workspace = true
+sha2 = "0.10.9"
+thiserror.workspace = true
+tracing.workspace = true
+windows-capture-wgc = { path = "../windows-capture-wgc" }
+windows-core.workspace = true
+zstd = "0.13.3"
+windows = { workspace = true, features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Direct3D",
+  "Win32_Graphics_Direct3D11",
+  "Win32_Graphics_Dwm",
+  "Win32_Graphics_Dxgi",
+  "Win32_Graphics_Dxgi_Common",
+  "Win32_Graphics_Gdi",
+  "Win32_Media_MediaFoundation",
+  "Win32_Storage_FileSystem",
+  "Win32_System_Com",
+  "Win32_System_Com_StructuredStorage",
+  "Win32_System_Ole",
+  "Win32_System_Performance",
+  "Win32_System_SystemInformation",
+  "Win32_System_Threading",
+  "Win32_System_Variant",
+  "Win32_UI_HiDpi",
+  "Win32_UI_WindowsAndMessaging",
+  "Wdk_System_SystemServices",
+] }
+
+[dev-dependencies]
+tempfile = "3.23.0"

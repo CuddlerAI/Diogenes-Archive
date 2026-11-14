@@ -1,0 +1,451 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.euro-truck-simulator-2.steam.pc",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "euro-truck-simulator-2-steam",
+    "name": "Euro Truck Simulator 2 (Steam, in-cab driving)",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "driving_simulation",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "euro-truck-simulator-2-steam-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "camera.rotate"
+    },
+    {
+      "device": "mouse",
+      "button": 4,
+      "semantic": "camera.zoom_drag"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "camera.zoom"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.accelerate"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 72,
+      "extended": true,
+      "semantic": "move.accelerate"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.brake_reverse"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 80,
+      "extended": true,
+      "semantic": "move.brake_reverse"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.steer_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 75,
+      "extended": true,
+      "semantic": "move.steer_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.steer_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 77,
+      "extended": true,
+      "semantic": "move.steer_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 28,
+      "extended": false,
+      "semantic": "interact.activate"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 28,
+      "extended": true,
+      "semantic": "interact.activate"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 1,
+      "extended": false,
+      "semantic": "ui.menu"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "interact.engine"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 20,
+      "extended": false,
+      "semantic": "interact.trailer"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 35,
+      "extended": false,
+      "semantic": "communication.horn"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 49,
+      "extended": false,
+      "semantic": "communication.air_horn"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 36,
+      "extended": false,
+      "semantic": "communication.light_horn"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 24,
+      "extended": false,
+      "semantic": "gadget.beacon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 48,
+      "extended": false,
+      "semantic": "gadget.engine_brake"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 39,
+      "extended": false,
+      "semantic": "gadget.retarder_increase"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 40,
+      "extended": false,
+      "semantic": "gadget.retarder_decrease"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 22,
+      "extended": false,
+      "semantic": "gadget.lift_axle"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "gadget.differential_lock"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "gadget.parking_brake"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 25,
+      "extended": false,
+      "semantic": "gadget.wipers"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "gadget.cruise_control"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 38,
+      "extended": false,
+      "semantic": "gadget.lights"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 37,
+      "extended": false,
+      "semantic": "gadget.high_beam"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 26,
+      "extended": false,
+      "semantic": "gadget.left_blinker"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 27,
+      "extended": false,
+      "semantic": "gadget.right_blinker"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "gadget.hazard_lights"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 60,
+      "extended": false,
+      "semantic": "ui.virtual_mirrors"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 61,
+      "extended": false,
+      "semantic": "ui.route_advisor"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 50,
+      "extended": false,
+      "semantic": "ui.map"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 70,
+      "extended": false,
+      "semantic": "ui.quicksave"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "ui.radio"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 81,
+      "extended": true,
+      "semantic": "ui.radio_next"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 73,
+      "extended": true,
+      "semantic": "ui.radio_previous"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 23,
+      "extended": false,
+      "semantic": "ui.dashboard"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "interact.quick_park"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 15,
+      "extended": false,
+      "semantic": "ui.route_advisor_activate"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 58,
+      "extended": false,
+      "semantic": "ui.route_advisor_cycle"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "transmission.gear_up"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 54,
+      "extended": false,
+      "semantic": "transmission.gear_up"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "transmission.gear_down"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": true,
+      "semantic": "transmission.gear_down"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "camera.mode_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "camera.mode_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "camera.mode_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 5,
+      "extended": false,
+      "semantic": "camera.mode_4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 6,
+      "extended": false,
+      "semantic": "camera.mode_5"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 7,
+      "extended": false,
+      "semantic": "camera.mode_6"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 8,
+      "extended": false,
+      "semantic": "camera.mode_7"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 9,
+      "extended": false,
+      "semantic": "camera.mode_8"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 10,
+      "extended": false,
+      "semantic": "camera.cycle"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 53,
+      "extended": true,
+      "semantic": "camera.look_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 55,
+      "extended": false,
+      "semantic": "camera.look_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 76,
+      "extended": false,
+      "semantic": "camera.view_reset"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 73,
+      "extended": false,
+      "semantic": "camera.view_forward_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 71,
+      "extended": false,
+      "semantic": "camera.view_forward_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 77,
+      "extended": false,
+      "semantic": "camera.view_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 75,
+      "extended": false,
+      "semantic": "camera.view_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 72,
+      "extended": false,
+      "semantic": "camera.view_forward_center"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 59,
+      "extended": false,
+      "semantic": "ui.route_advisor_mouse_mode"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 62,
+      "extended": false,
+      "semantic": "ui.truck_adjustment"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "ui.garage_manager"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 63,
+      "extended": false,
+      "semantic": "ui.route_advisor_zoom_out"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 64,
+      "extended": false,
+      "semantic": "ui.route_advisor_options"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 65,
+      "extended": false,
+      "semantic": "ui.services"
+    }
+  ]
+}

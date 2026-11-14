@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "69 MC action_camera cam1（主相机：蓝+白全字段；键名以需求方样例为准，含 'camera_Follow Offset' 空格键名）",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "time",
+      "fps",
+      "frame",
+      "camera_position",
+      "camera_rotation_quaternion",
+      "camera_Follow Offset",
+      "camera_intrinsics",
+      "camera_speed",
+      "camera_rotation_oula",
+      "player_position",
+      "player_rotation_oula",
+      "player_rotation_quaternion",
+      "player_speed",
+      "mouse_x",
+      "mouse_y",
+      "mouse_dx",
+      "mouse_dy",
+      "keyCode",
+      "metric_scale"
+    ],
+    "properties": {
+      "time": {
+        "type": "string"
+      },
+      "fps": {
+        "type": "number",
+        "minimum": 0
+      },
+      "frame": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "camera_position": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "camera_rotation_quaternion": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "camera_Follow Offset": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "camera_intrinsics": {
+        "type": "object",
+        "required": [
+          "fx",
+          "fy",
+          "cx",
+          "cy"
+        ],
+        "properties": {
+          "fx": {
+            "type": "number"
+          },
+          "fy": {
+            "type": "number"
+          },
+          "cx": {
+            "type": "number"
+          },
+          "cy": {
+            "type": "number"
+          }
+        }
+      },
+      "camera_speed": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "camera_rotation_oula": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "player_position": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "player_rotation_oula": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "player_rotation_quaternion": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "player_speed": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "mouse_x": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "mouse_y": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "mouse_dx": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+      },
+      "mouse_dy": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+      },
+      "keyCode": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "metric_scale": {
+        "type": "number"
+      }
+    },
+    "additionalProperties": true
+  }
+}

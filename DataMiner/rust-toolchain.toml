@@ -1,0 +1,32 @@
+# 钉死工具链版本，让 GitHub 托管 runner 与自建 Windows runner 用同一个 rustc/clippy。
+#
+# 为什么必须钉：2026-08-25 实测过一次代价。同一个 commit——
+#   托管 windows-latest（rustc 1.97.1）  clippy 全绿
+#   自建 Windows runner（rustc 1.98.0）  红在 clippy::chunks_exact_to_as_chunks
+# 因为那条 lint 是 1.98.0 才加的。不钉版的话这类差异表现为「换台机器就红」，
+# 而且分不清是机器问题还是代码问题——那恰好摧毁自建 runner 唯一能提供的诊断价值
+# （「自建红而托管绿 → 机器问题」这条判据要成立，前提是两边工具链相同）。
+#
+# 第二个坑：托管镜像会自己升级。GitHub 把 windows-latest 升到 1.98 的那天，CI 会
+# 毫无预兆地开始红，而那次改动不在任何人的 diff 里。钉版把「什么时候升」变成一次
+# 显式的、可 review 的决定。
+#
+# 为什么是 1.97.1 而不是最新的 1.98.0：
+#   1.97.1 是托管机当前实际在用的版本，钉它 = 零代码改动、两边立刻一致。
+#   升到 1.98.0 需要先修全仓 15 处 chunks_exact 调用点（depth-lab 6 / depth-lab-probe 3
+#   / capture-lab / client / 若干 examples）。那是一次独立的、可以从容做的升级，
+#   不该和「接自建机」这件事捆在同一个改动里。
+#
+# ⚠ channel 必须是**确切版本**。写 `stable` 等于没钉。
+# ⚠ 不是 workspace.package.rust-version 的那个 1.88 —— 那是 MSRV 下限（最低能编过的
+#    版本），不是要用的版本。
+# ⚠ 不写 targets = [...]：Windows 上 msvc 就是 host，写了反而让 ubuntu 侧的
+#    rust-portable job 每次多下载一份 msvc 标准库。
+#
+# 升级流程：改这里的版本号 → 单开一个 PR → `cargo clippy --workspace --all-targets`
+# 看新版本有哪些新 lint → 一并修掉。自建机不需要手工操作，rustup 会按本文件自动
+# 下载并切换。
+[toolchain]
+channel = "1.97.1"
+components = ["rustfmt", "clippy"]
+profile = "minimal"

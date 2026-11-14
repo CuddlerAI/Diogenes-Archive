@@ -1,0 +1,19 @@
+// Local/example configuration only. Supply your own D1 ID before deployment.
+// No account, custom domain, or scheduled trigger is provided.
+{
+  "name": "dataminer-mirror-example",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-06-01",
+  "d1_databases": [
+    {
+      "binding": "MIRROR_DB",
+      "database_name": "dataminer-mirror",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "MIRROR_RETENTION_DAYS": "90"
+  },
+  "workers_dev": false
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "dm-device-profile-3",
+  "profile_id": "age-of-empires-4-windows-nvidia-gtx1060-v1",
+  "version": "4",
+  "platform": "windows",
+  "minimum_windows_build": 26200,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [
+    7171,
+    7174,
+    10248,
+    10370,
+    11524,
+    12056,
+    12120
+  ],
+  "minimum_driver_version": "32.0.15.8266",
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "age_of_empires_4_steam_1466860_local_rts_subset_plus_config_only_gpu_fleet_2026_08"
+}

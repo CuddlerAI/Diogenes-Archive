@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-avatar-frontiers-of-pandora-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "avatar-frontiers-of-pandora-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:40537238b14e93c44658292b67515182b3fb8717a635780a7d54730a732e7986"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "avatar-frontiers-of-pandora-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:dfa076ca1be4dbd0803d4b13457e14f00893040131e7944965a807a9debc618a"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "avatar-frontiers-of-pandora-pc",
+      "version": "2",
+      "content_hash": "sha256:930deaf7bd9131edf46b38a09bf85c71e4a44ad83ebe4b39276f01b83c02ffbe"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.avatar-frontiers-of-pandora.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:3ccc185fa23eefae4879ad4b5ad659b57967f53c3b53f007b1915c09a7f9c584"
+    }
+  ]
+}

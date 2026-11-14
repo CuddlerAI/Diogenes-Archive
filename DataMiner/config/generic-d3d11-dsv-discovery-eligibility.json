@@ -1,0 +1,352 @@
+{
+  "$comment": [
+    "Complete fail-closed audit of every game in config/catalogs/shipped-games.json for the",
+    "generic D3D11 DSV discovery-only allowlist. This file is not runtime authorization.",
+    "authorized_target means only that the game must already have an exact row in",
+    "generic-d3d11-dsv-discovery-targets.json; all runtime, scene, protection and identity gates",
+    "still run again. rejected_d3d11 records why a D3D11-looking game is not added. An existing",
+    "game-specific Depth path is a reason to prefer the narrower proven path, not a reason to",
+    "expand the generic injection surface. out_of_backend_scope never guesses an unknown renderer."
+  ],
+  "schemaVersion": "dm-generic-d3d11-dsv-discovery-eligibility-1",
+  "reviewedAt": "2026-09-07",
+  "summary": {
+    "shippedGames": 32,
+    "d3d11EvidenceGames": 10,
+    "authorizedTargets": 1,
+    "rejectedD3d11Games": 9,
+    "outOfBackendScopeGames": 22,
+    "existingGameSpecificPathsPreferred": 5,
+    "formalDepthPathsExcluded": 1
+  },
+  "games": [
+    {
+      "gameId": "call-of-duty-steam-release-test",
+      "appId": "1938090",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "bioshock-infinite-steam-e2e",
+      "appId": "8870",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_id_binding_missing",
+        "target_architecture_binding_missing",
+        "representative_window_binding_missing",
+        "final_classification_gate_unmodeled",
+        "existing_game_specific_path_preferred"
+      ],
+      "evidenceBindings": [
+        {
+          "purposes": ["existing_game_specific_path", "target_architecture"],
+          "path": "tools/pr405-bioshock/evidence/bioshock-blocker-20260810.json",
+          "sha256": "sha256:0ae7a1fc1bc6057b09fe7c5d2385fd7391bd85e34f25d24e68e3087986331af5"
+        }
+      ]
+    },
+    {
+      "gameId": "wolfenstein2-steam",
+      "appId": "612880",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "age-of-empires-4-steam",
+      "appId": "1466860",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "wuchang-fallen-feathers-steam",
+      "appId": "2277560",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "halo-infinite-steam-release-test",
+      "appId": "1240440",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "euro-truck-simulator-2-steam",
+      "appId": "227300",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_id_binding_missing",
+        "representative_window_binding_missing",
+        "final_classification_gate_unmodeled",
+        "existing_game_specific_path_preferred"
+      ],
+      "evidenceBindings": [
+        {
+          "purposes": ["existing_game_specific_path"],
+          "path": "tools/pr405-ets2/evidence/ets2-dsv-projection-20260810.json",
+          "sha256": "sha256:a606327a2b86c54d4c7e9a0b530237c396d3361b446b95c0430d5c8fe7a52028"
+        }
+      ]
+    },
+    {
+      "gameId": "fallout4-steam-release-test",
+      "appId": "377160",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_id_binding_missing",
+        "representative_window_binding_missing",
+        "final_classification_gate_unmodeled",
+        "formal_depth_path_already_present"
+      ],
+      "evidenceBindings": [
+        {
+          "purposes": ["formal_depth_profile"],
+          "path": "config/catalogs/dev/fallout4-steam-release-test/depth-profile.json",
+          "sha256": "sha256:12e564f0a2c9c7c49fc826df798799960c7eff60bdfffcfe066762cb9c1eaa83"
+        },
+        {
+          "purposes": ["formal_camera_binding"],
+          "path": "config/catalogs/dev/fallout4-steam-release-test/camera-binding.json",
+          "sha256": "sha256:3026c8a8140b5f25bd899013daba52ea520bfaabe02913df78b6326cedeab247"
+        }
+      ]
+    },
+    {
+      "gameId": "a-plague-tale-innocence-steam-release-test",
+      "appId": "752590",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_id_binding_missing",
+        "representative_window_binding_missing",
+        "final_classification_gate_unmodeled",
+        "current_launch_license_missing",
+        "existing_game_specific_path_preferred"
+      ],
+      "evidenceBindings": [
+        {
+          "purposes": ["existing_game_specific_path"],
+          "path": "tools/pr609-a-plague-tale/evidence/a-plague-tale-depth-camera-certification-20260811.json",
+          "sha256": "sha256:b47bb38e051816715c0e8e55019760239698e856ab516d6d7091a19c0c47d778"
+        },
+        {
+          "purposes": ["current_launch_license"],
+          "path": "docs/157-a-plague-tale-local-license-blocker-20260902.md",
+          "sha256": "sha256:9eb07dcbbe6c5ec325c9fdca7c5c3cccbeee030414d4f5f76429dfc0cd730c6a"
+        }
+      ]
+    },
+    {
+      "gameId": "assassins-creed-iii-remastered-steam",
+      "appId": "911400",
+      "disposition": "authorized_target",
+      "blockers": [],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "hades-ii-steam-release-test",
+      "appId": "1145350",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "cyberpunk-2077-steam",
+      "appId": "1091500",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "total-war-warhammer-iii-steam-release-test",
+      "appId": "1142710",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_renderer_runtime_missing",
+        "exact_build_identity_missing",
+        "representative_window_binding_missing"
+      ],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "halo-reach-mcc-s0",
+      "appId": "976730",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_id_binding_missing",
+        "representative_window_binding_missing",
+        "final_classification_gate_unmodeled",
+        "official_protection_disabled_launch_binding_missing",
+        "existing_game_specific_path_preferred"
+      ],
+      "evidenceBindings": [
+        {
+          "purposes": ["existing_game_specific_path"],
+          "path": "tools/pr609-halo-reach/evidence/halo-reach-depth-camera-certification-20260811.json",
+          "sha256": "sha256:6a1af69f6a5b0dafac9942eacb011b89173dadd82d395dd4fa79099be623e50e"
+        },
+        {
+          "purposes": ["official_protection_disabled_launch"],
+          "path": "tools/pr609-halo-reach/README.md",
+          "sha256": "sha256:e95f68ed733f28c4489c179df647de9b88f26a5ac7afaa695a180b2d4f3f55a6"
+        }
+      ]
+    },
+    {
+      "gameId": "elden-ring-nightreign-steam-release-test",
+      "appId": "2622380",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "nioh2-steam",
+      "appId": "1325200",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_renderer_runtime_missing",
+        "exact_build_identity_missing",
+        "representative_window_binding_missing"
+      ],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "mount-and-blade-2-bannerlord-steam",
+      "appId": "261550",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_id_binding_missing",
+        "representative_window_binding_missing",
+        "final_classification_gate_unmodeled",
+        "catalog_final_executable_identity_conflict",
+        "existing_game_specific_path_preferred"
+      ],
+      "evidenceBindings": [
+        {
+          "purposes": ["existing_game_specific_path"],
+          "path": "tools/pr609-bannerlord/evidence/bannerlord-depth-certification-20260811.json",
+          "sha256": "sha256:b88395638ff877549779579b7f8ee36c4d861df11b14fba65ea662682bc4b5e2"
+        }
+      ]
+    },
+    {
+      "gameId": "deathloop-pc",
+      "appId": "1252330",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "atomic-heart-pc",
+      "appId": "668580",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "doom-eternal-pc",
+      "appId": "782330",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "resident-evil-village-pc",
+      "appId": "1196590",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "avatar-frontiers-of-pandora-pc",
+      "appId": "2840770",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_backend_unknown"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "dying-light-pc",
+      "appId": "239140",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_backend_unknown"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "far-cry-5-pc",
+      "appId": "552520",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_backend_unknown"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "forza-horizon-5-pc",
+      "appId": "1551360",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "gta5-legacy-pc",
+      "appId": "271590",
+      "disposition": "rejected_d3d11",
+      "blockers": [
+        "exact_build_renderer_runtime_missing",
+        "representative_window_binding_missing",
+        "official_protection_disabled_launch_binding_missing",
+        "clean_official_install_surface_missing"
+      ],
+      "evidenceBindings": [
+        {
+          "purposes": ["official_protection_disabled_launch"],
+          "path": "docs/158-gta5-legacy-pr405-multicamera-feasibility-and-implementation-plan.md",
+          "sha256": "sha256:69ebff0cbe2dc0ec8ed823a71cf7fa67d7ef4f8d8a27dbc65720fa84d4d56653"
+        }
+      ]
+    },
+    {
+      "gameId": "indiana-jones-great-circle-pc",
+      "appId": "2677660",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "kingdom-come-deliverance-2-steam",
+      "appId": "1771300",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "titanfall-2-pc",
+      "appId": "1237970",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_backend_unknown"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "prey-2017-pc",
+      "appId": "480490",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_backend_unknown"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "red-dead-redemption-2-pc",
+      "appId": "1174180",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    },
+    {
+      "gameId": "starfield-pc",
+      "appId": "1716740",
+      "disposition": "out_of_backend_scope",
+      "blockers": ["renderer_evidence_excludes_d3d11"],
+      "evidenceBindings": []
+    }
+  ]
+}

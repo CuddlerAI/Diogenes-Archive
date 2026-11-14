@@ -1,0 +1,76 @@
+{
+  "$comment": [
+    "Fail-closed control-plane allowlist for the generic D3D11 DSV discovery-only tool.",
+    "A row authorizes only one bounded inventory for the exact game/build/executable and current",
+    "repository capability state. It does not authorize formal recording, profile/binding authoring,",
+    "capability promotion, protection bypass, multiplayer, or a Ready result.",
+    "Every row must require a fresh exact-hash local operator representative offline scene attestation.",
+    "GTA V Legacy is intentionally absent: the repository has not closed its Story Mode/window/D7",
+    "and BattlEye runtime guard chain tightly enough for this generic injector."
+  ],
+  "schemaVersion": "dm-generic-d3d11-dsv-discovery-targets-2",
+  "targets": [
+    {
+      "gameId": "assassins-creed-iii-remastered-steam",
+      "appId": "911400",
+      "steamBuildId": "11324511",
+      "executableBasename": "ACIII.exe",
+      "executableSha256": "sha256:450b76dea323089077a8bb8f0a9bafd3b7c02f48a46de48811f2f00b63aa13d1",
+      "rendererBackend": "d3d11",
+      "shippedAdmission": "onboarding",
+      "capabilityGate": {
+        "evidenceTier": "exact_build_planning_only",
+        "rendererEvidence": {
+          "schema": "dm-renderer-backend-evidence-v2",
+          "graphicsApis": ["d3d11"],
+          "rendererMode": "single",
+          "apiEvidenceTier": "exact_build_observation",
+          "exactBuildIdentity": {
+            "appId": "911400",
+            "buildId": "11324511",
+            "executableBasename": "ACIII.exe",
+            "executableSha256": "sha256:450b76dea323089077a8bb8f0a9bafd3b7c02f48a46de48811f2f00b63aa13d1"
+          },
+          "evidence": {
+            "path": "docs/155-d6-assassins-creed-iii-remastered-onboarding-evidence.md",
+            "locator": "§1 AppID 911400 / ACIII.exe exact-build runtime identity / D3D11 and DXGI modules"
+          }
+        },
+        "capability": "not_assessed",
+        "runtimeMode": null,
+        "depthCaptureAvailable": false,
+        "recordingReady": false,
+        "blockers": [
+          "d7_rgb_runtime_evidence_missing",
+          "d3d11_dsv_discovery_missing",
+          "depth_profile_missing",
+          "camera_binding_missing"
+        ]
+      },
+      "finalClassificationGate": {
+        "mode": "record_must_be_absent"
+      },
+      "representativeSceneGate": {
+        "required": true,
+        "attestationSchema": "generic-d3d11-representative-scene-attestation/v1",
+        "attestationKind": "local_operator",
+        "sceneKind": "representative_offline_single_player",
+        "maximumAgeSeconds": 120,
+        "expectedWindow": {
+          "className": "ScimitarEngineWindowClass",
+          "clientWidth": 1920,
+          "clientHeight": 1080
+        }
+      },
+      "protectionGate": {
+        "runtimeEvidenceSchema": "game-runtime-gate-evidence/v1",
+        "expectedGraphicsApi": "d3d11",
+        "requireCompleteModuleEnumeration": true,
+        "requireCompleteServiceEnumeration": true,
+        "requireCompleteDriverEnumeration": true,
+        "requireNoLoadedAntiCheat": true,
+        "officialLaunchScope": "offline_single_player"
+      }
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.titanfall-2.pc",
+  "version": "2026-08-20.0",
+  "game": {
+    "id": "titanfall-2-pc",
+    "name": "Titanfall 2",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "first_person_shooter",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "titanfall-2-pc-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "inventory.cycle_weapon"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.primary_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.aim"
+    },
+    {
+      "device": "mouse",
+      "button": 4,
+      "semantic": "ability.tactical"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "move.crouch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "combat.reload"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "combat.melee"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "combat.ordnance"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "interact.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "ability.boost"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "inventory.primary_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "inventory.secondary_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "inventory.anti_titan_weapon"
+    }
+  ]
+}

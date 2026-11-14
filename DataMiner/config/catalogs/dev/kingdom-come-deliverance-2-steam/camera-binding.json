@@ -1,0 +1,66 @@
+{
+  "schema": "camera-binding/kcd2-combined-v2",
+  "binding_id": "kcd2-steam-23914554-combined-vp-v2",
+  "binding_version": "2",
+  "profile_id": "kingdom-come-deliverance-2-steam",
+  "profile_version": "dm-depth-profile-3",
+  "executable_sha256": "sha256:d85b5355842d16290dc0d97e1d02856c6f2811a2021c8957aa24d7782a771b77",
+  "render_width": 1920,
+  "render_height": 1080,
+  "view_metres_per_unit": "1.0",
+  "axis_mapping": {
+    "delivery_x_from": "positive_x",
+    "delivery_y_from": "positive_z",
+    "delivery_z_from": "positive_y"
+  },
+  "live_pose_plan": {
+    "schema": "kcd2-d3d12-live-pose-plan/v3",
+    "executable_sha256": "sha256:d85b5355842d16290dc0d97e1d02856c6f2811a2021c8957aa24d7782a771b77",
+    "require_same_present": true,
+    "maximum_depth_row_residual": 0.000001,
+    "view_projection_binding": {
+      "root_signature_sha256": "6286d44b972d430f9c835cf948552688db67c01c8765a74fd7fafb40e4d3897c",
+      "root_parameter_index": 2,
+      "pass_ordinal": 0,
+      "pass_ordinal_policy": "observed",
+      "additional_pass_ordinals": [],
+      "draw_ordinal": 0,
+      "maximum_draw_ordinal": 0,
+      "read_offset_bytes": 0,
+      "read_size_bytes": 256,
+      "primary_matrix_byte_offset": 0,
+      "secondary_matrix_byte_offset": 80,
+      "matrix_bytes": 64
+    },
+    "additional_view_projection_bindings": [
+      {
+        "root_signature_sha256": "fd5323ef4ecaa156517a8cfab0b2cc1792609d746aa432cf8857c41353fce3f4",
+        "root_parameter_index": 1,
+        "pass_ordinal": 0,
+        "pass_ordinal_policy": "observed",
+        "additional_pass_ordinals": [],
+        "draw_ordinal": 0,
+        "maximum_draw_ordinal": 0,
+        "read_offset_bytes": 0,
+        "read_size_bytes": 256,
+        "primary_matrix_byte_offset": 0,
+        "secondary_matrix_byte_offset": 80,
+        "matrix_bytes": 64
+      }
+    ],
+    "horizontal_player_root_binding": {
+      "root_signature_sha256": "45dc805df7d14560cb98909e6949d085841d42a972da0aa9e1c6e44c62e3859e",
+      "root_parameter_index": 0,
+      "pass_ordinal": 5,
+      "pass_ordinal_policy": "observed",
+      "additional_pass_ordinals": [],
+      "draw_ordinal": 0,
+      "maximum_draw_ordinal": 15,
+      "read_offset_bytes": 0,
+      "read_size_bytes": 256,
+      "primary_matrix_byte_offset": 0,
+      "secondary_matrix_byte_offset": null,
+      "matrix_bytes": 48
+    }
+  }
+}

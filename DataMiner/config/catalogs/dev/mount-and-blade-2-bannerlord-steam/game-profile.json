@@ -1,0 +1,62 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "mount-and-blade-2-bannerlord-steam",
+  "version": "3",
+  "display_name": "Mount & Blade II: Bannerlord (Steam combat)",
+  "device_profile_id": "mount-and-blade-2-bannerlord-steam-windows-nvidia-local-v1",
+  "recording_profile_id": "mount-and-blade-2-bannerlord-steam-recording-v1",
+  "mapping_id": "game.mount-and-blade-2-bannerlord.steam.pc.combat",
+  "executable_names": [
+    "Bannerlord.exe"
+  ],
+  "window_class": "TWApplication",
+  "executable_sha256": "sha256:5fc59a9da65474a707fd3e868a24c6f0a782e9364edd4d17a8f8813171237de0",
+  "input_contract": {
+    "keyboard_vks": [
+      8,
+      9,
+      16,
+      18,
+      20,
+      32,
+      65,
+      68,
+      69,
+      70,
+      71,
+      82,
+      83,
+      85,
+      86,
+      87,
+      88,
+      90,
+      97,
+      98,
+      99,
+      100,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      121,
+      192,
+      220
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

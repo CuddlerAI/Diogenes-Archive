@@ -1,0 +1,100 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.kingdom-come-deliverance-2.steam.pc",
+  "version": "2026-09-07.0",
+  "game": {
+    "id": "kingdom-come-deliverance-2-steam",
+    "name": "Kingdom Come: Deliverance II (Steam)",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "open_world_action_rpg",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "kingdom-come-deliverance-2-steam-recording-v1",
+  "bindings": [
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 72,
+      "extended": true,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 80,
+      "extended": true,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 75,
+      "extended": true,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 77,
+      "extended": true,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "move.toggle_crouch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 58,
+      "extended": false,
+      "semantic": "move.toggle_run"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    }
+  ]
+}

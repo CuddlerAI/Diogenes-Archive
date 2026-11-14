@@ -1,0 +1,39 @@
+[workspace]
+resolver = "3"
+members = [
+  "apps/client/src-tauri",
+  "crates/capture-core",
+  "crates/ets2-player-telemetry",
+  "crates/ets2-telemetry-plugin",
+  "crates/fallout-player-telemetry",
+  "crates/input-metrics",
+  "crates/present-identity",
+  "crates/telemetry-geometry",
+  "crates/view-scale",
+  "crates/windows-capture-wgc",
+  "tools/capture-lab",
+  "tools/catalog-validator",
+  "tools/data-demo-converter",
+  "tools/depth-lab",
+  "tools/depth-lab-probe",
+  "tools/dataset-normalizer",
+  "tools/spec-export",
+]
+
+[workspace.package]
+edition = "2024"
+license = "Apache-2.0"
+rust-version = "1.88"
+version = "0.7.34"
+
+[workspace.dependencies]
+anyhow = "1.0.100"
+crossbeam-channel = "0.5.15"
+parking_lot = "0.12.5"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+thiserror = "2.0.18"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.20", features = ["env-filter", "fmt"] }
+windows = "=0.62.2"
+windows-core = "=0.62.2"

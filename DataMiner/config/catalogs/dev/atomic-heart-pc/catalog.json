@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-atomic-heart-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "atomic-heart-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:002ef1c08e74add82e4e245c97d1c4de3bc0c5661e64387cb76a95d5c07b70f3"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "atomic-heart-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:ec3d02dbe7f1ed20edaae2939759f606184f0094b426335f0689cd5658c7e01f"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "atomic-heart-pc",
+      "version": "2",
+      "content_hash": "sha256:afd3f1538d33a78a513b168bab58778b225a9a4ca4b35fde54d5977173b6966a"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.atomic-heart.pc",
+      "version": "2026-08-19.0",
+      "content_hash": "sha256:91a152e5dc35c0a7b7de373d9a459a46a05d9480eb778dfed823a23506769d5f"
+    }
+  ]
+}

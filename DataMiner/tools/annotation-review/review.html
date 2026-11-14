@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>dm-1 标注逐帧审查器</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:13px/1.45 -apple-system,"PingFang SC",sans-serif; background:#101014; color:#e8e8ec; }
+  header { padding:10px 16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; border-bottom:1px solid #26262e; }
+  header h1 { font-size:15px; margin:0; font-weight:600; }
+  header .src { color:#9a9aa6; font-size:12px; }
+  #main { display:flex; gap:14px; padding:14px 16px; align-items:flex-start; flex-wrap:wrap; }
+  #stage { position:relative; flex:1 1 640px; max-width:1100px; }
+  video { width:100%; display:block; background:#000; border-radius:6px; }
+  #hud { position:absolute; inset:0; pointer-events:none; }
+  #side { flex:0 0 340px; display:flex; flex-direction:column; gap:10px; }
+  .card { background:#18181f; border:1px solid #26262e; border-radius:8px; padding:10px 12px; }
+  .card h2 { margin:0 0 8px; font-size:12px; font-weight:600; color:#9a9aa6; text-transform:uppercase; letter-spacing:.05em; }
+  #controls { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  button { background:#26262e; color:#e8e8ec; border:1px solid #34343e; border-radius:6px; padding:5px 10px; cursor:pointer; font-size:13px; }
+  button:hover { background:#30303a; }
+  button.primary { background:#2d4a75; border-color:#3c5f93; }
+  #frameinfo { font-variant-numeric:tabular-nums; }
+  #frameinfo b { color:#7fb2ff; }
+  #rowjson { white-space:pre-wrap; word-break:break-all; font:11px/1.5 ui-monospace,Menlo,monospace; color:#c9d4e3; max-height:180px; overflow:auto; }
+  #timeline { width:100%; height:46px; display:block; cursor:pointer; border-radius:4px; background:#0c0c10; }
+  .legend { display:flex; gap:12px; color:#9a9aa6; font-size:11px; margin-top:6px; flex-wrap:wrap; }
+  .legend i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
+  kbd { background:#26262e; border:1px solid #34343e; border-radius:4px; padding:0 5px; font-size:11px; }
+  #picker { padding:20px; }
+  #err { color:#ff8080; }
+</style>
+</head>
+<body>
+<header>
+  <h1>dm-1 标注逐帧审查器</h1>
+  <span class="src" id="srclabel"></span>
+  <span id="err"></span>
+</header>
+
+<div id="picker" class="card" style="margin:14px 16px; display:none;">
+  <h2>手动加载（无 ?dir= 参数时）</h2>
+  <p>选择同一 chunk 目录下的 p0.mp4 与 p0.jsonl（meta.json 可选，用于读取声明帧率）：</p>
+  <input type="file" id="fmp4" accept="video/mp4"> <input type="file" id="fjsonl" accept=".jsonl">
+  <input type="file" id="fmeta" accept=".json">
+  <button id="loadbtn" class="primary">加载</button>
+</div>
+
+<div id="main" style="display:none;">
+  <div style="flex:1 1 640px; max-width:1100px;">
+    <div id="stage">
+      <video id="vid" muted playsinline preload="auto"></video>
+      <canvas id="hud"></canvas>
+    </div>
+    <div class="card" style="margin-top:10px;">
+      <canvas id="timeline"></canvas>
+      <div class="legend">
+        <span><i style="background:#ff5252"></i>鼠标键 down/up</span>
+        <span><i style="background:#ffb300"></i>键盘 down/up</span>
+        <span><i style="background:#3d6ea5"></i>keys 按住</span>
+        <span><i style="background:#37b06b"></i>鼠标位移</span>
+        <span>点击时间轴可跳帧</span>
+      </div>
+    </div>
+    <div class="card" id="controls" style="margin-top:10px;">
+      <button id="prevEv" title="上一个事件">⏮ 事件</button>
+      <button id="prev10">-10</button>
+      <button id="prev1">◀ 1帧</button>
+      <button id="playpause" class="primary">播放</button>
+      <button id="next1">1帧 ▶</button>
+      <button id="next10">+10</button>
+      <button id="nextEv" title="下一个事件">事件 ⏭</button>
+      <select id="rate"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25" selected>0.25×</option><option value="0.1">0.1×</option></select>
+      <span style="color:#9a9aa6">快捷键: <kbd>←</kbd><kbd>→</kbd> 逐帧 · <kbd>空格</kbd> 播放 · <kbd>E</kbd>/<kbd>Q</kbd> 事件跳转</span>
+    </div>
+  </div>
+  <div id="side">
+    <div class="card"><h2>当前帧</h2><div id="frameinfo"></div></div>
+    <div class="card"><h2>p0.jsonl 原始行</h2><div id="rowjson"></div></div>
+    <div class="card"><h2>审查要点</h2>
+      <div style="color:#bcbcc8; font-size:12px">
+        · 左键(LMB)按下 → 后续 1–3 帧内画面应出现开火/交互反馈（枪口焰、弹药-1、动画），这是<b>输入→渲染延迟</b>，属正常；反过来（画面先于标注）才是错位。<br>
+        · pointerDx&gt;0 → 视角右转（罗盘读数增大）；dy&gt;0 → 视角下移。<br>
+        · W/A/S/D/Shift 按住期间画面应持续位移/加速。<br>
+        · 鼠标键按住状态由本 chunk 内 events 重建，chunk 开头若先出现 up，说明按下发生在上一 chunk（跨界持续，正常）。
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 帧率从 chunk meta.json 的声明值读取（video.fps_num/fps_den 优先，其次
+// video.fps / 顶层 fps）；声明缺失时回退 30 并显示警告，不再硬编码
+// （docs/50 P-5b；60fps profile 的 chunk 用旧硬编码会整条时间轴错位）。
+// 手动挑选路径下 meta.json 是任意用户文件，数值一律过 Number() 再用，
+// 免得字符串 "30" 混进 FPS 后污染模板串与后续算术。
+let FPS = 30, fpsDeclared = false;
+function applyMeta(meta) {
+  if (!meta) return;
+  const v = meta.video || {};
+  const num = Number(v.fps_num), den = Number(v.fps_den);
+  let raw = null;
+  if (num > 0 && den > 0) raw = num / den;
+  else if (Number(v.fps) > 0) raw = Number(v.fps);
+  else if (Number(meta.fps) > 0) raw = Number(meta.fps);
+  if (raw > 0) { FPS = raw; fpsDeclared = true; }
+}
+function warnIfNoFps() {
+  if (!fpsDeclared) err.textContent = '⚠ 未读到声明帧率（meta.json 缺失或无 video.fps），按 30fps 回退——60fps chunk 的帧号/时间会错位';
+  else document.getElementById('srclabel').textContent += `  ·  ${FPS}fps`;
+}
+const VKN = {1:"LMB",2:"RMB",4:"MMB",8:"BS",9:"Tab",13:"Enter",16:"Shift",17:"Ctrl",18:"Alt",27:"Esc",32:"Space",
+  65:"A",66:"B",67:"C",68:"D",69:"E",70:"F",71:"G",72:"H",73:"I",74:"J",75:"K",76:"L",77:"M",78:"N",79:"O",80:"P",
+  81:"Q",82:"R",83:"S",84:"T",85:"U",86:"V",87:"W",88:"X",89:"Y",90:"Z",
+  49:"1",50:"2",51:"3",52:"4",53:"5",54:"6",55:"7",56:"8",57:"9",48:"0"};
+const vkName = vk => VKN[vk] || ("VK"+vk);
+
+let rows = [], mouseHeld = [], curIdx = -1, playing = false;
+const vid = document.getElementById('vid'), hud = document.getElementById('hud'),
+      tl = document.getElementById('timeline'), err = document.getElementById('err');
+
+// ---------- loading ----------
+const params = new URLSearchParams(location.search);
+if (params.get('dir')) {
+  const dir = params.get('dir').replace(/\/$/,'');
+  document.getElementById('srclabel').textContent = dir;
+  Promise.all([
+    fetch(dir + '/p0.jsonl').then(r => { if(!r.ok) throw new Error('p0.jsonl HTTP '+r.status); return r.text(); }),
+    fetch(dir + '/meta.json').then(r => r.ok ? r.json() : null).catch(() => null),
+  ]).then(([txt, meta]) => {
+    applyMeta(meta); warnIfNoFps();
+    vid.src = dir + '/p0.mp4';
+    init(txt);
+  }).catch(e => err.textContent = '加载失败: ' + e.message);
+} else {
+  document.getElementById('picker').style.display = 'block';
+  document.getElementById('loadbtn').onclick = () => {
+    const fm = document.getElementById('fmp4').files[0], fj = document.getElementById('fjsonl').files[0],
+          fme = document.getElementById('fmeta').files[0];
+    if (!fm || !fj) { err.textContent = '两个文件都要选'; return; }
+    document.getElementById('srclabel').textContent = fm.name + ' + ' + fj.name;
+    vid.src = URL.createObjectURL(fm);
+    const metaP = fme ? fme.text().then(JSON.parse).catch(() => null) : Promise.resolve(null);
+    metaP.then(meta => { applyMeta(meta); warnIfNoFps(); fj.text().then(init); });
+  };
+}
+
+function init(jsonlText) {
+  rows = jsonlText.trim().split('\n').map(JSON.parse);
+  // 重建鼠标键按住状态（chunk 内；开头 up 视为跨 chunk 持续按住）
+  const held = new Set();
+  const firstAction = {};   // vk -> 'down' | 'up'
+  for (const r of rows) for (const e of r.events || [])
+    if ((e.type === 'mouse_down' || e.type === 'mouse_up') && !(e.vk in firstAction))
+      firstAction[e.vk] = e.type;
+  for (const vk in firstAction) if (firstAction[vk] === 'mouse_up') held.add(+vk);
+  mouseHeld = rows.map(r => {
+    for (const e of r.events || []) {
+      if (e.type === 'mouse_down') held.add(e.vk);
+      if (e.type === 'mouse_up') held.delete(e.vk);
+    }
+    return new Set(held);
+  });
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('main').style.display = 'flex';
+  vid.addEventListener('loadedmetadata', () => { sizeCanvas(); seekFrame(0); drawTimeline(); }, { once:true });
+  if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
+    const cb = (now, meta) => { syncFromTime(meta.mediaTime); vid.requestVideoFrameCallback(cb); };
+    vid.requestVideoFrameCallback(cb);
+  } else {
+    setInterval(() => { if (playing) syncFromTime(vid.currentTime); }, 20);
+  }
+  new ResizeObserver(sizeCanvas).observe(vid);
+}
+
+function sizeCanvas() {
+  const r = vid.getBoundingClientRect();
+  hud.width = r.width * devicePixelRatio; hud.height = r.height * devicePixelRatio;
+  hud.style.width = r.width+'px'; hud.style.height = r.height+'px';
+  tl.width = tl.clientWidth * devicePixelRatio; tl.height = 46 * devicePixelRatio;
+  render(); drawTimeline();
+}
+
+// ---------- navigation ----------
+function clampIdx(i){ return Math.max(0, Math.min(rows.length-1, i)); }
+function seekFrame(i) {
+  i = clampIdx(i);
+  vid.pause(); playing = false; document.getElementById('playpause').textContent = '播放';
+  vid.currentTime = (i + 0.5) / FPS;
+  setIdx(i);
+}
+function syncFromTime(t) {
+  const i = clampIdx(Math.floor(t * FPS + 1e-4));
+  if (i !== curIdx) setIdx(i);
+}
+function setIdx(i) { curIdx = i; render(); renderInfo(); drawTimeline(); }
+
+const evFrames = () => rows.map((r,i)=>[i,r]).filter(([i,r]) => (r.events||[]).some(e => e.type!=='mouse_move')).map(([i])=>i);
+function jumpEvent(dir) {
+  const fs = evFrames();
+  const next = dir > 0 ? fs.find(f => f > curIdx) : [...fs].reverse().find(f => f < curIdx);
+  if (next !== undefined) seekFrame(next);
+}
+
+document.getElementById('prev1').onclick = () => seekFrame(curIdx-1);
+document.getElementById('next1').onclick = () => seekFrame(curIdx+1);
+document.getElementById('prev10').onclick = () => seekFrame(curIdx-10);
+document.getElementById('next10').onclick = () => seekFrame(curIdx+10);
+document.getElementById('prevEv').onclick = () => jumpEvent(-1);
+document.getElementById('nextEv').onclick = () => jumpEvent(1);
+document.getElementById('rate').onchange = e => vid.playbackRate = +e.target.value;
+document.getElementById('playpause').onclick = togglePlay;
+function togglePlay() {
+  if (playing) { vid.pause(); playing = false; }
+  else { vid.playbackRate = +document.getElementById('rate').value; vid.play(); playing = true; }
+  document.getElementById('playpause').textContent = playing ? '暂停' : '播放';
+}
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); seekFrame(curIdx-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); seekFrame(curIdx+1); }
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  if (e.key === 'e' || e.key === 'E') jumpEvent(1);
+  if (e.key === 'q' || e.key === 'Q') jumpEvent(-1);
+});
+tl.onclick = e => {
+  const x = e.offsetX / tl.clientWidth;
+  seekFrame(Math.round(x * (rows.length-1)));
+};
+
+// ---------- HUD ----------
+function render() {
+  if (curIdx < 0 || !rows.length) return;
+  const r = rows[curIdx], held = mouseHeld[curIdx];
+  const ctx = hud.getContext('2d');
+  const W = hud.width / devicePixelRatio, H = hud.height / devicePixelRatio;
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  ctx.clearRect(0,0,W,H);
+  const S = Math.max(0.7, W/1280);
+
+  // -- 键盘面板（左下）--
+  const layout = [["Esc","Tab","Q","W","E","R"],["Shift","A","S","D","F","Space"]];
+  const kw = 44*S, kh = 30*S, gap = 5*S, x0 = 14*S, y0 = H - 2*(kh+gap) - 14*S;
+  const heldKeys = new Set(r.keys.map(vkName));
+  ctx.font = `${12*S}px -apple-system, sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  layout.forEach((rowKeys, ri) => rowKeys.forEach((k, ci) => {
+    const x = x0 + ci*(kw+gap), y = y0 + ri*(kh+gap);
+    const w = (k==="Shift"||k==="Space") ? kw*1.25 : kw;
+    ctx.fillStyle = heldKeys.has(k) ? 'rgba(61,133,242,0.92)' : 'rgba(10,10,14,0.62)';
+    ctx.strokeStyle = heldKeys.has(k) ? '#9cc4ff' : 'rgba(255,255,255,0.28)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.roundRect(x, y, w, kh, 5*S); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.fillText(k, x+w/2, y+kh/2);
+  }));
+  // 不在面板里的其他按住键
+  const extra = r.keys.map(vkName).filter(k => !layout.flat().includes(k));
+  if (extra.length) {
+    ctx.fillStyle='rgba(61,133,242,0.92)'; ctx.textAlign='left';
+    ctx.fillText('其他按住: '+extra.join(' '), x0, y0 - 12*S);
+    ctx.textAlign='center';
+  }
+
+  // -- 鼠标面板（右下）--
+  const mx = W - 150*S, my = H - 120*S;
+  ctx.fillStyle='rgba(10,10,14,0.62)';
+  ctx.beginPath(); ctx.roundRect(mx-58*S, my-58*S, 200*S, 112*S, 8*S); ctx.fill();
+  // 左右键
+  const btn = (dx, vk, label) => {
+    const on = held.has(vk);
+    ctx.fillStyle = on ? 'rgba(255,64,64,0.95)' : 'rgba(255,255,255,0.14)';
+    ctx.strokeStyle = on ? '#ffb0b0' : 'rgba(255,255,255,0.3)';
+    ctx.beginPath(); ctx.roundRect(mx+dx, my-50*S, 26*S, 34*S, 5*S); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font=`${9*S}px sans-serif`;
+    ctx.fillText(label, mx+dx+13*S, my-50*S+17*S);
+  };
+  btn(-50*S, 1, 'L'); btn(-20*S, 2, 'R');
+  // 位移矢量
+  const cx = mx+55*S, cy = my-10*S, R = 40*S;
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-R,cy); ctx.lineTo(cx+R,cy); ctx.moveTo(cx,cy-R); ctx.lineTo(cx,cy+R); ctx.stroke();
+  const dx = r.pointerDx, dy = r.pointerDy;
+  if (dx || dy) {
+    const len = Math.hypot(dx,dy), sc = Math.min(1, len/200) * R / Math.max(len,1e-9);
+    const ex = cx + dx*sc, ey = cy + dy*sc;
+    ctx.strokeStyle='#37e08b'; ctx.lineWidth=2.5*S;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(ex,ey); ctx.stroke();
+    ctx.fillStyle='#37e08b'; ctx.beginPath(); ctx.arc(ex,ey,3.5*S,0,7); ctx.fill();
+  }
+  ctx.fillStyle='#cfe9da'; ctx.font=`${11*S}px ui-monospace,monospace`;
+  ctx.fillText(`dx ${dx}  dy ${dy}`, cx, cy+R+13*S);
+  ctx.fillText(`bins [${r.pointerBins}]`, cx, cy+R+27*S);
+
+  // -- 瞬时事件横幅（顶部）--
+  const evs = (r.events||[]).filter(e => e.type !== 'mouse_move');
+  if (evs.length) {
+    const txt = evs.map(e => {
+      if (e.type.startsWith('mouse_')) return (e.type==='mouse_down'?'▼':'▲') + ' ' + vkName(e.vk);
+      if (e.type.startsWith('key_')) return (e.type==='key_down'?'▼':'▲') + ' ' + vkName(e.vk);
+      return e.type;
+    }).join('   ');
+    ctx.font = `bold ${16*S}px -apple-system,sans-serif`;
+    const tw = ctx.measureText(txt).width;
+    ctx.fillStyle='rgba(180,30,30,0.88)';
+    ctx.beginPath(); ctx.roundRect(W/2-tw/2-14*S, 12*S, tw+28*S, 30*S, 6*S); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.fillText(txt, W/2, 27*S);
+  }
+  // 帧号角标
+  ctx.textAlign='left'; ctx.font=`${12*S}px ui-monospace,monospace`;
+  ctx.fillStyle='rgba(10,10,14,0.62)'; ctx.fillRect(10*S, 10*S, 205*S, 22*S);
+  ctx.fillStyle='#ffd479';
+  ctx.fillText(`frame ${r.frame}  gframe ${r.gframe}  t=${(r.frame/FPS).toFixed(2)}s`, 16*S, 21*S);
+}
+
+function renderInfo() {
+  const r = rows[curIdx];
+  document.getElementById('frameinfo').innerHTML =
+    `chunk 内帧 <b>${r.frame}</b> / ${rows.length-1} · 全局帧 <b>${r.gframe}</b><br>` +
+    `clip 内 <b>${(r.frame/FPS).toFixed(3)}s</b> · 全局 video_t_ms <b>${r.video_t_ms}</b><br>` +
+    `按住键: <b>${r.keys.map(vkName).join(' ')||'—'}</b> · 鼠标键按住: <b>${[...mouseHeld[curIdx]].map(vkName).join(' ')||'—'}</b>`;
+  document.getElementById('rowjson').textContent = JSON.stringify(r, null, 1);
+}
+
+function drawTimeline() {
+  const ctx = tl.getContext('2d');
+  const W = tl.width/devicePixelRatio, H = 46;
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  ctx.clearRect(0,0,W,H);
+  const n = rows.length, bw = W/n;
+  rows.forEach((r,i) => {
+    const x = i*bw;
+    if (r.keys.length) { ctx.fillStyle='#3d6ea5'; ctx.fillRect(x, 26, Math.max(bw,1), 8); }
+    if (r.pointerDx||r.pointerDy) { ctx.fillStyle='#37b06b'; ctx.fillRect(x, 36, Math.max(bw,1), 8); }
+    const evs = (r.events||[]).filter(e=>e.type!=='mouse_move');
+    if (evs.some(e=>e.type.startsWith('mouse_'))) { ctx.fillStyle='#ff5252'; ctx.fillRect(x, 2, Math.max(bw,1.5), 10); }
+    else if (evs.length) { ctx.fillStyle='#ffb300'; ctx.fillRect(x, 14, Math.max(bw,1.5), 10); }
+  });
+  if (curIdx>=0) { ctx.fillStyle='#fff'; ctx.fillRect(curIdx*bw, 0, Math.max(bw,1.5), H); }
+}
+</script>
+</body>
+</html>

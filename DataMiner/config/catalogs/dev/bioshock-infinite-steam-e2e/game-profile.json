@@ -1,0 +1,61 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "bioshock-infinite-steam-e2e",
+  "version": "5",
+  "display_name": "BioShock Infinite Steam（本机生产 E2E）",
+  "device_profile_id": "bioshock-infinite-windows-nvidia-gtx1060-v1",
+  "recording_profile_id": "bioshock-infinite-steam-e2e-recording-v1",
+  "mapping_id": "game.bioshock-infinite.steam.pc",
+  "executable_names": [
+    "BioShockInfinite.exe"
+  ],
+  "window_class": "LaunchUnrealUWindowsClient",
+  "executable_sha256": "sha256:c20a42529c4181b1d10eed416d9847a823f9453dd267ca478efb3a10014a0e77",
+  "input_contract": {
+    "keyboard_vks": [
+      16,
+      17,
+      18,
+      32,
+      37,
+      38,
+      39,
+      40,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      65,
+      67,
+      68,
+      69,
+      70,
+      74,
+      78,
+      81,
+      82,
+      83,
+      86,
+      87,
+      90,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

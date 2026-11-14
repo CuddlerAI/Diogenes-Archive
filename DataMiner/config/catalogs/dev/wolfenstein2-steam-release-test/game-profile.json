@@ -1,0 +1,50 @@
+{
+  "schema_version": "dm-game-profile-2",
+  "game_id": "wolfenstein2-steam-release-test",
+  "version": "2",
+  "display_name": "Wolfenstein II: The New Colossus Steam（release 测试，禁止训练）",
+  "device_profile_id": "wolfenstein2-steam-release-test-windows-nvidia-v1",
+  "recording_profile_id": "wolfenstein2-steam-release-test-recording-v1",
+  "mapping_id": "game.wolfenstein2.steam.pc",
+  "executable_names": [
+    "NewColossus_x64vk.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      17,
+      32,
+      49,
+      50,
+      65,
+      67,
+      68,
+      69,
+      70,
+      71,
+      81,
+      82,
+      83,
+      86,
+      87,
+      88,
+      90,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  },
+  "non_trainable": true
+}

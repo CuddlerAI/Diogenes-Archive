@@ -1,0 +1,17 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-hades-ii-steam-release-test",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    { "id": "hades-ii-steam-release-test-windows-nvidia-v2", "version": "5", "content_hash": "sha256:3039ab5484f4429cd530ca0b8114d418e75f4a223cd13ce714aa6fa6cbdf57ea" }
+  ],
+  "recording_profiles": [
+    { "id": "hades-ii-steam-release-test-recording-v1", "version": "2", "content_hash": "sha256:b67f3ca66276d6fd6c62ac4e3c49abba70a3786c904d8a5c45d507ef5a82e70a" }
+  ],
+  "game_profiles": [
+    { "id": "hades-ii-steam-release-test", "version": "6", "content_hash": "sha256:29cdafeb300f7248637a2e359f1e73752e6b4376de5eaf7d362171b9eef82217" }
+  ],
+  "mappings": [
+    { "id": "game.hades-ii.steam.pc", "version": "2026-08-25.0", "content_hash": "sha256:0b6b2427a8d9e905670d0e2fda9316bb608c86eed557d2c99b2b22b0333d6058" }
+  ]
+}

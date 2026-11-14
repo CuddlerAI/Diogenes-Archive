@@ -1,0 +1,47 @@
+{
+  "schema_version": "dm-cp2077-runtime-d6-observation-2",
+  "status": "pass",
+  "observed_at": "2026-08-18",
+  "non_trainable": true,
+  "identity": {
+    "app_id": "1091500",
+    "build_id": "20383525",
+    "executable_relative_path": "bin/x64/Cyberpunk2077.exe",
+    "executable_sha256": "a7de82945c03e041fc7339fcf9066224d98db2f5d80fea50f7947bb350a60991"
+  },
+  "launch": {
+    "method": "exact_executable_with_steam_running",
+    "window_title": "Cyberpunk 2077 (C) 2020 by CD Projekt RED",
+    "window_class": "W2ViewportClass",
+    "controllable_scene_reached": true
+  },
+  "graphics": {
+    "direct3d12_confirmed": true,
+    "loaded_runtime_modules": [
+      "d3d12.dll",
+      "D3D12Core.dll",
+      "dxgi.dll"
+    ]
+  },
+  "protection_and_network": {
+    "known_anticheat_modules_observed": [],
+    "known_anticheat_processes_observed": [],
+    "established_external_tcp_connections": 1,
+    "wildcard_tcp_listener_observed": false,
+    "windows_firewall_permission_prompt_observed": false,
+    "runtime_protection_gate_completed": true,
+    "game_runtime_network_policy": "observe_only_non_blocking"
+  },
+  "blockers": [],
+  "limitations": [
+    "This is a point-in-time exact-build D3D12 and anti-cheat observation, not publisher or counsel approval.",
+    "Game and launcher background networking is observed but does not authorize DataMiner upload, training, publication, or external delivery.",
+    "The generic runtime-gate raw report remains local and is not committed because it contains host, process, and absolute-path identifiers."
+  ],
+  "privacy": {
+    "process_id_recorded": false,
+    "absolute_paths_recorded": false,
+    "device_unique_identifiers_recorded": false,
+    "account_or_save_data_recorded": false
+  }
+}

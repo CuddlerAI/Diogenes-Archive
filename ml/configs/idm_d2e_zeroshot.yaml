@@ -1,0 +1,71 @@
+# D-0：在 D2E 上复核跨游戏 held-out zero-shot —— research/01 §6 的止损判据。
+#
+# 为什么必须复核。#341 测出的「跨游戏 ≈ 平凡基线」是在 gaming-500 上得的，而那份语料
+# 对操作系统绝对光标坐标做差分（指针锁定下有损，跨 session 铺开实测 magnitude_r 甚至
+# 是 −0.062），而且只有一个游戏对（VAL→MC）。用它执行一次不可逆的路线转向，是
+# research/26 里点名「本轮唯一还能避免的错误」。
+#
+# D2E 换掉的正是这两条：pointer 是 raw HID delta，游戏有 30 款。所以本配置留出整整
+# 一族游戏做 zero_shot，train/val 只在其余游戏上；train.py 会自动对 zero_shot 划分
+# 出一份报告，gates.py 把它作为信号项（不拦截）上报。
+#
+# 判读方式与 #341 一致，而且**必须并列平凡基线**：「恒按下」预测器的 macro F1 在
+# minecraft val 上是 0.1169、valorant val 上是 0.1457。跨游戏 macro F1 若压在同语料的
+# 平凡基线之下或齐平，止损条款成立；若明显高出，#341 的读数就是有损标签的产物，
+# D-1/D-5 都要重议。
+#
+# fps：D2E 是变帧率（13 段录制没有两段相同），所以语料必须先用
+#   python -m diogenes_phase0.data.d2e convert --raw <mcap/mkv> --out data/d2e30 \
+#       --target-fps 30 --chunk-frames 120 --codec mp4
+# 重采到统一网格；达不到 30 fps 的录制会被**跳过并打印理由**（不是静默丢弃）。
+# expected_fps 在这里钉死，是为了让「转换时忘了 --target-fps」变成硬失败而不是
+# 一次悄悄的混合 fps 训练。
+run_name: idm-d2e-zeroshot
+seed: 0
+
+data:
+  roots: [data/d2e30]
+  # 留出一整族：Rainbow Six 是战术射击，与训练集里的 Apex/PUBG/BF6 语义邻近但不同作，
+  # 属于「换了游戏但没换 taxonomy」——这是泛化最有可能成立的一档。它都不成立的话，
+  # 跨 taxonomy 更不必谈。
+  holdout_games: [Rainbow_Six]
+  val_fraction: 0.12
+  window: 5
+  stride: 2
+  input_res: [224, 224]
+  delta_scale: 50.0
+  min_key_frac: 0.10
+  expected_fps: 30.0
+  contract_mode: method-validation
+  allow_method_validation_only: true   # CC BY-NC，永不进产品训练语料
+
+model:
+  trunk: dinov2_vits14
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 48
+  # 与 #341 的 epoch 对齐组同一优化预算口径：先用 epoch_align 按训练窗口数换算，
+  # 不要凭手感填。这里的 12000 只是占位下限，启动前必须用
+  #   python -m diogenes_phase0.epoch_align --base configs/idm_valorant.yaml \
+  #       --scaled configs/idm_d2e_zeroshot.yaml --base-steps 12000
+  # 出来的数覆盖它——否则这一轮又会是「算力受限下的读数」，正是 #247 栽过的坑。
+  max_steps: 12000
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 250
+  save_every: 2500
+  num_workers: 6
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+gates:
+  key_exact_min: 0.85
+  key_macro_f1_min: 0.40
+  macro_f1_warn: 0.6
+  # 鼠标 R² 不设门：research/26 D-4 已实测判定它在像素派生量具下上限约 0.5，
+  # 需要重新定义到角度空间 + 标定，而 D2E 没有标定（view_scale_valid 全 false）。
+
+output:
+  dir: runs

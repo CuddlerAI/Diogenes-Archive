@@ -1,0 +1,255 @@
+{
+  "frame_count": 240,
+  "chunk_count": 2,
+  "frame_pair_count": 58,
+  "metadata_keys": [
+    "annotation",
+    "capture",
+    "catalog",
+    "category",
+    "consent_id",
+    "duration_ms",
+    "first_party",
+    "frame_pairs",
+    "game",
+    "is_cutscene",
+    "is_trainable",
+    "non_trainable",
+    "org",
+    "platform",
+    "production_certified",
+    "provenance",
+    "rights",
+    "schema_version",
+    "source_video",
+    "tags",
+    "view_scale",
+    "workflow_id"
+  ],
+  "chunk_meta_keys": [
+    "annotation_source",
+    "catalog",
+    "category",
+    "chunk",
+    "consent_id",
+    "first_party",
+    "game",
+    "is_cutscene",
+    "is_trainable",
+    "key_schema",
+    "non_trainable",
+    "platform",
+    "production_certified",
+    "provenance",
+    "rights",
+    "sample_key",
+    "schema_version",
+    "session",
+    "video"
+  ],
+  "stats_keys": [
+    "compliance",
+    "datacard",
+    "games",
+    "sessions",
+    "total_chunks",
+    "total_frame_pairs",
+    "total_frames",
+    "total_hours"
+  ],
+  "schema_version": "dm-2",
+  "metadata_catalog": null,
+  "chunk0_catalog": null,
+  "non_trainable": true,
+  "production_certified": false,
+  "chunk0_source_segments": [
+    "r0000/00000",
+    "r0000/00001"
+  ],
+  "chunk1_source_segments": [
+    "r0000/00001"
+  ],
+  "frame_pairs": [
+    {
+      "clipId": "fixture-session",
+      "consentId": null,
+      "frameT": 0,
+      "gapH": 8,
+      "chunkT": 0,
+      "chunkTH": 0,
+      "actionT": {
+        "keys": [
+          87
+        ],
+        "buttons": [],
+        "actions": [
+          "move.forward"
+        ],
+        "pointerDx": 0,
+        "pointerDy": 0,
+        "pointerRawDx": 0,
+        "pointerRawDy": 0,
+        "look_yaw_delta_rad": null,
+        "look_pitch_delta_rad": null,
+        "view_scale_valid": false
+      }
+    },
+    {
+      "clipId": "fixture-session",
+      "consentId": null,
+      "frameT": 112,
+      "gapH": 8,
+      "chunkT": 0,
+      "chunkTH": 1,
+      "actionT": {
+        "keys": [],
+        "buttons": [],
+        "actions": [],
+        "pointerDx": 0,
+        "pointerDy": 0,
+        "pointerRawDx": 0,
+        "pointerRawDy": 0,
+        "look_yaw_delta_rad": null,
+        "look_pitch_delta_rad": null,
+        "view_scale_valid": false
+      }
+    },
+    {
+      "clipId": "fixture-session",
+      "consentId": null,
+      "frameT": 228,
+      "gapH": 8,
+      "chunkT": 1,
+      "chunkTH": 1,
+      "actionT": {
+        "keys": [],
+        "buttons": [],
+        "actions": [],
+        "pointerDx": 0,
+        "pointerDy": 0,
+        "pointerRawDx": 0,
+        "pointerRawDy": 0,
+        "look_yaw_delta_rad": null,
+        "look_pitch_delta_rad": null,
+        "view_scale_valid": false
+      }
+    }
+  ],
+  "rows": [
+    {
+      "frame": 0,
+      "gframe": 0,
+      "video_t_ms": 0,
+      "qpc": 10000,
+      "qpc_end": 11000,
+      "keys": [
+        87
+      ],
+      "buttons": [],
+      "actions": [
+        "move.forward"
+      ],
+      "pointerDx": 0,
+      "pointerDy": 0,
+      "pointerRawDx": 0,
+      "pointerRawDy": 0,
+      "look_yaw_delta_rad": null,
+      "look_pitch_delta_rad": null,
+      "view_scale_valid": false,
+      "pointerBins": [
+        0,
+        0
+      ],
+      "events": [
+        {
+          "type": "key_down",
+          "vk": 87,
+          "scan_code": 17,
+          "flags": 0
+        }
+      ],
+      "src": "rec"
+    },
+    {
+      "frame": 1,
+      "gframe": 1,
+      "video_t_ms": 33,
+      "qpc": 11000,
+      "qpc_end": 12000,
+      "keys": [
+        87
+      ],
+      "buttons": [],
+      "actions": [
+        "camera.pitch",
+        "camera.yaw",
+        "move.forward"
+      ],
+      "pointerDx": 120,
+      "pointerDy": -14,
+      "pointerRawDx": 120,
+      "pointerRawDy": -14,
+      "look_yaw_delta_rad": null,
+      "look_pitch_delta_rad": null,
+      "view_scale_valid": false,
+      "pointerBins": [
+        8,
+        -2
+      ],
+      "events": [
+        {
+          "type": "mouse_move",
+          "dx": 120,
+          "dy": -14
+        }
+      ],
+      "src": "rec"
+    },
+    {
+      "frame": 0,
+      "gframe": 120,
+      "video_t_ms": 4000,
+      "qpc": 130000,
+      "qpc_end": 131000,
+      "keys": [],
+      "buttons": [],
+      "actions": [],
+      "pointerDx": 0,
+      "pointerDy": 0,
+      "pointerRawDx": 0,
+      "pointerRawDy": 0,
+      "look_yaw_delta_rad": null,
+      "look_pitch_delta_rad": null,
+      "view_scale_valid": false,
+      "pointerBins": [
+        0,
+        0
+      ],
+      "events": [],
+      "src": "rec"
+    },
+    {
+      "frame": 119,
+      "gframe": 239,
+      "video_t_ms": 7967,
+      "qpc": 249000,
+      "qpc_end": 250000,
+      "keys": [],
+      "buttons": [],
+      "actions": [],
+      "pointerDx": 0,
+      "pointerDy": 0,
+      "pointerRawDx": 0,
+      "pointerRawDy": 0,
+      "look_yaw_delta_rad": null,
+      "look_pitch_delta_rad": null,
+      "view_scale_valid": false,
+      "pointerBins": [
+        0,
+        0
+      ],
+      "events": [],
+      "src": "rec"
+    }
+  ]
+}

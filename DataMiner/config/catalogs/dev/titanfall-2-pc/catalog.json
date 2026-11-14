@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-titanfall-2-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "titanfall-2-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:8f1b85aeebe230a795a517548e234d5db2b847decc7ed9bb26fa6e714d1aedef"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "titanfall-2-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:63d96fc82804c5050c19b67fef8bc32c0ded3f371815655379dea7dc775ec49e"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "titanfall-2-pc",
+      "version": "2",
+      "content_hash": "sha256:fc26e12712d6d36221f9bfa2b168b78dd5f70a5cab623f71f03ebda45d73451c"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.titanfall-2.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:21596d57109955b5cc5d351818d4614a1bdff49f9ecf41d1abb88f67631d197c"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dm-gta-frame/1",
+  "type": "object",
+  "required": [
+    "schema", "lane", "output_frame", "replay_frame", "replay_time_ms", "source_t_ns",
+    "replay_sha256", "render_succeeded", "final_camera", "player_state",
+    "entity_state_hash", "editor_binding", "capture_protocol",
+    "editor_identity_protocol", "capture_fence", "pixel_ready_final_camera_generation",
+    "player_observation_method", "player_observation_t_ns", "player_telemetry_path",
+    "player_telemetry_sha256", "player_telemetry_frame", "output_path", "output_bytes",
+    "output_sha256", "mock"
+  ],
+  "properties": {
+    "schema": {"const": "dm-gta-frame/1"},
+    "lane": {"type": "integer", "minimum": 1, "maximum": 4},
+    "output_frame": {"type": "integer", "minimum": 0},
+    "replay_frame": {"type": "integer", "minimum": 0},
+    "replay_time_ms": {"type": "number", "minimum": 0},
+    "source_t_ns": {"type": "integer", "minimum": 0},
+    "replay_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "render_succeeded": {"const": true},
+    "final_camera": {
+      "type": "object",
+      "required": ["position", "quaternion", "euler_deg", "intrinsics", "focal_mm"],
+      "properties": {
+        "position": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+        "quaternion": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+        "euler_deg": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+        "intrinsics": {
+          "type": "object",
+          "required": ["fx", "fy", "cx", "cy"],
+          "properties": {
+            "fx": {"type": "number", "exclusiveMinimum": 0},
+            "fy": {"type": "number", "exclusiveMinimum": 0},
+            "cx": {"type": "number"},
+            "cy": {"type": "number"}
+          }
+        },
+        "focal_mm": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "player_state": {
+      "type": "object",
+      "description": "Recording-side telemetry estimate; not replay-frame-origin calibrated.",
+      "required": ["position", "quaternion", "euler_deg", "velocity"],
+      "properties": {
+        "position": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+        "quaternion": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+        "euler_deg": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}},
+        "velocity": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}
+      }
+    },
+    "entity_state_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "editor_binding": {
+      "type": "object",
+      "required": [
+        "method", "session_id", "project_name", "clip_count", "clip_index",
+        "clip_identity", "identity_sequence", "identity_heartbeat", "capture_request_id",
+        "final_camera_generation", "render_profile_sha256", "normalized_output_root"
+      ],
+      "properties": {
+        "method": {"const": "replus-present-plan-v2"},
+        "session_id": {"type": "string", "minLength": 1},
+        "project_name": {"type": "string", "minLength": 1},
+        "clip_count": {"const": 1},
+        "clip_index": {"const": 0},
+        "clip_identity": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+        "identity_sequence": {"type": "integer", "minimum": 2, "multipleOf": 2},
+        "identity_heartbeat": {"type": "integer", "minimum": 1},
+        "capture_request_id": {"type": "integer", "minimum": 1},
+        "final_camera_generation": {"type": "integer", "minimum": 1},
+        "render_profile_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "normalized_output_root": {"type": "string", "minLength": 3}
+      }
+    },
+    "capture_protocol": {"const": 18},
+    "editor_identity_protocol": {"const": 4},
+    "capture_fence": {
+      "const": "present_pixel_ready_final_writer_generation_pose_release_ack"
+    },
+    "pixel_ready_final_camera_generation": {"type": "integer", "minimum": 1},
+    "player_observation_method": {
+      "description": "Diagnostic recording-side estimate only; this does not prove replay frame-0 origin.",
+      "const": "record_master_recording-side-estimate-no-catchup-30fps"
+    },
+    "player_observation_t_ns": {"type": "integer", "minimum": 0},
+    "player_telemetry_path": {"type": "string", "minLength": 1},
+    "player_telemetry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "player_telemetry_frame": {"type": "integer", "minimum": 0},
+    "output_path": {"type": "string", "minLength": 1},
+    "output_bytes": {"type": "integer", "minimum": 1},
+    "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "mock": {"type": "boolean"}
+  }
+}

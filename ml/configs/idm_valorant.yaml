@@ -1,0 +1,52 @@
+# IDM Phase 0, single game: uvalorant
+#
+# The doc's Phase 0 is literally "单游戏 IDM 方法验证". Round 1 spread 1.6 h
+# of active footage across 12 games — ~8 minutes each — and the model learned
+# only W (F1 0.596, everything else ~0). Four papers converge on a 50-100 h
+# knee; that run sat 30-60x below it, so it could not answer the question
+# either way. This run concentrates one game into that range.
+#
+# Held-out SESSIONS (not games) measure in-domain recovery, which is what
+# Phase 0 asks. Cross-game transfer is Phase 2 and needs both runs to exist:
+# a Minecraft-trained head evaluated on Valorant frames, and vice versa.
+run_name: idm-valorant
+seed: 0
+
+data:
+  roots: [data/idm_valorant]
+  holdout_games: []       # single game — the split is by session
+  val_fraction: 0.12
+  window: 5
+  stride: 2
+  input_res: [224, 224]
+  delta_scale: 50.0
+  min_key_frac: 0.10
+  contract_mode: method-validation
+  allow_method_validation_only: true
+
+model:
+  trunk: dinov2_vits14
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 48
+  max_steps: 12000        # ~3x round 1, matching the larger corpus
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 250
+  num_workers: 6
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+# key_exact keeps the 0.85 bar but is NOT the VPT comparison: VPT's 90.6% is
+# most likely mean per-key accuracy, which is far more lenient than exact-set
+# match. All three readings are reported; macro F1 is the one a collapse
+# cannot fake, so it is what actually decides whether this worked.
+gates:
+  key_exact_min: 0.85
+  key_macro_f1_min: 0.40
+  macro_f1_warn: 0.6
+
+output:
+  dir: runs

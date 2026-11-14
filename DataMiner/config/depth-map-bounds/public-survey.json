@@ -1,0 +1,393 @@
+{
+  "schema_version": "dm-depth-map-bounds-1",
+  "survey_doc": "DataMiner/docs/82-depth-map-bounds-public-data-survey.md",
+  "surveyed_on": "2026-08-05",
+  "_note": "68 号 §6.1 的「地图比例 + 地图边界 4 坐标」在市售游戏侧的调研结果。除 Fallout 4 的 D-1 已由 Windows 开发机上的 Creation Kit 与 xEdit 独立读值外，其余数值均为桌面调研值；使用规则见 82 号 §5——比例值必须走 calibration.rs 的路①并补锚点交叉验证，边界值必须先做 camera_position 落域检查。confidence 与 sources 两个字段在交付时必须原样带出，不得只给数字。 2026-08-05 第二轮：Fallout 4 的比例矛盾已解（见 docs/82 §9.1）；ETS2/ATS、KCD2、AoE4、Bannerlord 复查无新增。 2026-08-06 第三轮（99 号）：ETS2/ATS 补 world_axes（官方 SDK 头文件一手核验，SOLID），并记下扇区解析器已落码；metric_scale 维持 MED——头文件未逐字声明位置单位，米制是由 m/s 速度通道推出的，不是直接读到的。",
+  "confidence_levels": {
+    "SOLID": "官方文档 / 官方 SDK 直读",
+    "MED": "可信间接：技术媒体、社区多源一致",
+    "SPEC": "工程判断，无直接出处"
+  },
+  "games": [
+    {
+      "game_id": "kingdom-come-deliverance-2",
+      "steam_appid": 1771300,
+      "engine": "cryengine-3.8",
+      "roster": "76 号 P-B3",
+      "metric_scale": {
+        "value": 1.0,
+        "confidence": "MED",
+        "rationale": "CryEngine 世界坐标以米为单位"
+      },
+      "map_bounds": {
+        "worlds": [
+          {
+            "name": "大图",
+            "xz_corners_m": [
+              [
+                0,
+                0
+              ],
+              [
+                4096,
+                0
+              ],
+              [
+                4096,
+                4096
+              ],
+              [
+                0,
+                4096
+              ]
+            ],
+            "y_range_m": null
+          },
+          {
+            "name": "小图",
+            "xz_corners_m": [
+              [
+                0,
+                0
+              ],
+              [
+                2048,
+                0
+              ],
+              [
+                2048,
+                2048
+              ],
+              [
+                0,
+                2048
+              ]
+            ],
+            "y_range_m": null
+          }
+        ],
+        "confidence": "MED",
+        "rationale": "两张地形分别为 2048×2048 m 与 4096×4096 m（多源一致，且与 CryEngine 3.8 仅支持 512/1024/2048/4096 m 四档地形自洽）。CryEngine 地形恒为原点在 (0,0) 的正方形，故四角点是尺寸的直接推论。",
+        "caveats": [
+          "这是地形范围而非可行域，对山体/水域是高估",
+          "原点约定「地形从 (0,0) 起」是 CryEngine 通例 [SPEC]，KCD2 是否照搬未核验",
+          "高度范围 y 未公开，仍缺"
+        ],
+        "runtime_check_required": "采一段数据，确认 camera_position 的 xz 全部落在 [0,4096]² 内；落不进去说明原点被平移过，值作废"
+      },
+      "sources": [
+        "https://steamcommunity.com/app/1771300/discussions/0/732500746974607696"
+      ]
+    },
+    {
+      "game_id": "bioshock-infinite",
+      "steam_appid": 8870,
+      "engine": "ue3",
+      "roster": "73 号直接合格 · 77 号 P1 首个目标",
+      "metric_scale": {
+        "value": 0.02,
+        "confidence": "MED",
+        "rationale": "UE3 默认单位换算 1 uu = 2 cm，多源一致；与 UDK 文档「512k×512k uu ≈ 10 km×10 km」自洽（524288 × 0.02 = 10485.76 m）。与 77 号 §5.5.2 路①及 calibration.rs 的 ENGINE_CONVENTIONS 取值相互印证。"
+      },
+      "map_bounds": null,
+      "map_bounds_absent_reason": "UE3 关卡边界不公开。UE3 世界上限 ±524288 uu（≈10 km 见方）是引擎地址空间上限，不是关卡边界，填进交付物会把 §4 录制上限直接推到 50h 档——错误数据，见 82 号 §4.2。",
+      "sources": [
+        "https://docs.unrealengine.com/udk/Three/TerrainDesign.html"
+      ]
+    },
+    {
+      "game_id": "euro-truck-simulator-2",
+      "steam_appid": 227300,
+      "engine": "prism3d",
+      "roster": "76 号 P-A1",
+      "metric_scale": {
+        "value": 1.0,
+        "confidence": "MED",
+        "rationale": "游戏内坐标系以米为单位，X;Y;Z 即距地图原点的米数；原点在扇区 +0000+0000（Erfurt 西南）"
+      },
+      "map_bounds": null,
+      "map_bounds_absent_reason": "SCS 官方 wiki 明示坐标「可近乎无限延伸」、无公布上限。基础地图的实际占用范围编码在地图档案的扇区文件名里（sec±XXXX±YYYY），取它属于解析游戏私有资产——82 号 §6 待决项 D-2，需单独裁决。",
+      "known_grid": {
+        "sector_size_m": 4000,
+        "sector_naming": "sec±XXXX±YYYY",
+        "confidence": "SOLID",
+        "note": "官方 SCS modding wiki。一旦 D-2 获准，扇区网格坐标 × 4000 m 直接就是边界。",
+        "parser": "depth-lab `map_bounds::SectorGrid::from_sector_names`（2026-08-06 落码并测完）。D-2 一旦获准，从扇区文件名到 4 角是一条命令，不需再写代码。"
+      },
+      "world_axes": {
+        "statement": "In world space the X points to east, Y up and Z south.",
+        "handedness": "right-handed",
+        "local_space_note": "局部（车身）系是 X 右 / Y 上 / Z **向后**，故前向是 −Z。世界系与局部系不是同一套语义，勿混。",
+        "confidence": "SOLID",
+        "rationale": "官方 SDK 1.14 头文件 include/scssdk_value.h 第 86–87 行逐字（本仓 2026-08-06 一手核验，zip SHA-256 c6c1f737…2023a）。",
+        "delivery_note": "68 号交付系是 X 右 / Y 上 / Z **前（北）** 左手系，因此由扇区网格算边界时 **Z 轴必须翻号**；实现与测试见 depth-lab `map_bounds::SectorGrid::to_delivery_bounds_m`。"
+      },
+      "sources": [
+        "https://modding.scssoft.com/wiki/Tutorials/Map_Editor/Introduction_to_the_Map_Editor/Saving,_Loading,_Sectors,_and_Files",
+        "https://promods.net/viewtopic.php?t=20045",
+        "https://download.eurotrucksimulator2.com/scs_sdk_1_14.zip （官方 SDK 1.14，include/scssdk_value.h；MIT，sdk_license.txt）"
+      ]
+    },
+    {
+      "game_id": "american-truck-simulator",
+      "steam_appid": 270880,
+      "engine": "prism3d",
+      "roster": "76 号 P-A2",
+      "metric_scale": {
+        "value": 1.0,
+        "confidence": "MED",
+        "rationale": "与 ETS2 同引擎（Prism3D）；76 号已判定 hook 面与常量缓冲布局大概率复用"
+      },
+      "map_bounds": null,
+      "map_bounds_absent_reason": "同 ETS2，见 D-2",
+      "known_grid": {
+        "sector_size_m": 4000,
+        "sector_naming": "sec±XXXX±YYYY",
+        "confidence": "SOLID",
+        "parser": "depth-lab `map_bounds::SectorGrid::from_sector_names`（2026-08-06 落码并测完）。D-2 一旦获准，从扇区文件名到 4 角是一条命令，不需再写代码。"
+      },
+      "world_axes": {
+        "statement": "In world space the X points to east, Y up and Z south.",
+        "handedness": "right-handed",
+        "local_space_note": "局部（车身）系是 X 右 / Y 上 / Z **向后**，故前向是 −Z。世界系与局部系不是同一套语义，勿混。",
+        "confidence": "SOLID",
+        "rationale": "官方 SDK 1.14 头文件 include/scssdk_value.h 第 86–87 行逐字（本仓 2026-08-06 一手核验，zip SHA-256 c6c1f737…2023a）。",
+        "delivery_note": "68 号交付系是 X 右 / Y 上 / Z **前（北）** 左手系，因此由扇区网格算边界时 **Z 轴必须翻号**；实现与测试见 depth-lab `map_bounds::SectorGrid::to_delivery_bounds_m`。"
+      },
+      "sources": [
+        "https://modding.scssoft.com/wiki/Tutorials/Map_Editor/Introduction_to_the_Map_Editor/Saving,_Loading,_Sectors,_and_Files",
+        "https://download.eurotrucksimulator2.com/scs_sdk_1_14.zip （官方 SDK 1.14，include/scssdk_value.h；MIT，sdk_license.txt）"
+      ]
+    },
+    {
+      "game_id": "halo-infinite",
+      "steam_appid": 1240440,
+      "engine": "slipspace",
+      "roster": "73 号条件合格",
+      "metric_scale": {
+        "value": 0.3048,
+        "confidence": "SOLID",
+        "rationale": "Halo Support 官方 Forge 文档：设计网格一格 = 1 世界单位 = 1 英尺（MP 设计集）。仅覆盖 Forge，战役未覆盖。注意与经典 Blam 的 1 wu ≈ 10 ft 差 10 倍，两代不可互推。"
+      },
+      "map_bounds": {
+        "scope": "仅 Forge 自制地图，战役不适用",
+        "canvas_wu": [
+          400,
+          400,
+          150
+        ],
+        "canvas_m": [
+          121.92,
+          121.92,
+          45.72
+        ],
+        "confidence": "SOLID",
+        "rationale": "官方文档给出 Forge 画布尺寸 400×400×150 世界单位",
+        "caveats": [
+          "仅在采集形态改走 Forge 场景时可用——82 号 §6 待决项 D-3",
+          "画布原点约定未核验，四角点需真机确认后才能写死"
+        ]
+      },
+      "sources": [
+        "https://support.halowaypoint.com/hc/en-us/articles/14796740242708-Community-Forge-Map-Requirements"
+      ]
+    },
+    {
+      "game_id": "halo-reach-mcc",
+      "steam_appid": 976730,
+      "engine": "blam",
+      "roster": "73 号条件合格",
+      "metric_scale": {
+        "value": 3.048,
+        "confidence": "MED",
+        "rationale": "1 world unit = 100 JMS units，1 JMS unit ≈ 1.2 in → 1 wu ≈ 120 in = 3.048 m"
+      },
+      "map_bounds": null,
+      "map_bounds_absent_reason": "无公开的关卡坐标范围",
+      "caveats": [
+        "MCC 六合一，73 号 §4.9 已要求 depth-profile 按单作品分档；比例值是否逐作一致未核验"
+      ],
+      "sources": [
+        "https://c20.reclaimers.net/general/scale/"
+      ]
+    },
+    {
+      "game_id": "fallout-4",
+      "steam_appid": 377160,
+      "engine": "creation-engine",
+      "roster": "73 号直接合格 · 77 号 P1.5",
+      "metric_scale": {
+        "value": 0.0142875,
+        "confidence": "MED",
+        "rationale": "Creation Kit wiki 的引擎级定义：128 units = 6 feet，且同一 wiki 的外部 cell「4096 units = 192 feet」给出同一个数；4096 × 0.0142875 = 58.52 m 复现 falloutck 的 cell = 58.5 m。三数自洽到四位有效数字。",
+        "resolved_conflict": {
+          "resolved_on": "2026-08-05",
+          "superseded_candidate": 0.0127,
+          "why_not_comparable": "0.0127 出自一件美术资产（码尺道具）的包围盒 72 units / 36 inches，不是引擎常量；提出它的帖子自己说明该游戏「没有真正一致的真实比例」。交叉验证的前提是同量纲同定义，这两个值不满足。",
+          "doc": "docs/82 §9.1"
+        },
+        "evidence_caveat": "ck.uesp.net 挂了 Cloudflare 人机验证，本轮未第一手读到 wiki 原页；证据是搜索摘要 + 三数算术自洽。要升 SOLID 需有人在可正常访问的环境抄一次原文。",
+        "still_requires_anchor_cross_check": true
+      },
+      "map_bounds": {
+        "worldspace": "Commonwealth",
+        "cell_grid": {
+          "nw_cell_x": -33,
+          "nw_cell_y": 25,
+          "se_cell_x": 28,
+          "se_cell_y": -36,
+          "usable_dimensions": [
+            0,
+            0
+          ],
+          "usable_dimensions_note": "0 / 0 读作「未设限」而非「零尺寸」；CK 里这对是可选的可玩区限制器，留 0 即不生效。故可玩边界口径就是本 cell_grid。"
+        },
+        "cell_size_game_units": 4096,
+        "cell_extent": [
+          62,
+          62
+        ],
+        "xz_corners_game_units": [
+          [
+            -135168,
+            -147456
+          ],
+          [
+            118784,
+            -147456
+          ],
+          [
+            118784,
+            106496
+          ],
+          [
+            -135168,
+            106496
+          ]
+        ],
+        "corner_order": "SW, SE, NE, NW",
+        "confidence": "SOLID",
+        "rationale": "Creation Kit 1.11.137.0 与 FO4Edit 4.1.5f 对 Fallout4.esm 的 Commonwealth WRLD:0000003C / MNAM 独立读值逐位一致；四角点由 CellGrid::to_bounds(BETHESDA_CELL_UNITS) 换算。metric_scale 未参与。",
+        "runtime_validation": {
+          "required": true,
+          "status": "PASS",
+          "delivery_usable": true,
+          "method": "Windows 开发机临时只读 D3D11 探针读取 Fallout 4 当前绑定的 VS 常量缓冲；两次独立进程均选中 slot 9 / offset 0 / 64-byte col3 view matrix，并由 pose_from_view 得到 camera_position。",
+          "sample_count": 384,
+          "outside_count": 0,
+          "observed_x_range_game_units": [
+            -26607.017578125,
+            -24964.953125
+          ],
+          "observed_z_range_game_units": [
+            -87381.546875,
+            -85248.2265625
+          ],
+          "evidence": "DataMiner/docs/evidence/issue-457/fallout4-camera-runtime-validation-2026-08-04.json",
+          "coverage": {
+            "sampled_window_game_units": [
+              1642.06,
+              2133.32
+            ],
+            "world_size_game_units": [
+              253952,
+              253952
+            ],
+            "area_fraction": 5.43e-05,
+            "margin_to_nearest_edge_game_units": 60074.45,
+            "blind_spot": "原点若被整体平移 60074 游戏单位以内，本闸发现不了",
+            "catches": "数量级错误：原点差十万以上、南北翻转、单位差一个量级、(nw,se) 填反导致的负尺寸",
+            "does_not_catch": "同量级的原点偏移；「边界比真实值大一圈」这类只让包围盒偏保守的错误",
+            "reading": "必要条件已满足，不是充分验证。详见 82 号 §6.1.1",
+            "upgrade_path": "跨区域采样（世界对角两端各一段）——82 号 §6.3 的 W-3"
+          }
+        },
+        "independent_corroboration": "62×62=3844 格的包围盒 vs 公开数据里 Commonwealth 的 2965 个带 navmesh cell → 填充率 77.1%，符合不规则形状预期，并实测印证「AABB 对不规则地图是高估」。",
+        "worldspaces_pending": [
+          {
+            "editor_id": "DLC03FarHarbor",
+            "name": "Far Harbor",
+            "status": "未取",
+            "reason": "2026-08-04 那趟与 Commonwealth 同一次 CK 会话里就能读，漏了",
+            "blocked_on": "需确认该 DLC 已安装；未装则标为不适用，不为取两个数购买 DLC",
+            "runbook": "82 号 §6.2",
+            "todo": "W-1"
+          },
+          {
+            "editor_id": "DLC04NukaWorld",
+            "name": "Nuka-World",
+            "status": "未取",
+            "reason": "同上",
+            "blocked_on": "同上",
+            "runbook": "82 号 §6.2",
+            "todo": "W-2"
+          }
+        ]
+      },
+      "sources": [
+        "https://falloutck.uesp.net/wiki/Cell",
+        "https://falloutck.uesp.net/wiki/WorldSpace",
+        "https://steamcommunity.com/app/377160/discussions/0/350543319567332507/",
+        "DataMiner/docs/evidence/issue-457/fallout4-commonwealth-map-bounds-2026-08-04.md",
+        "DataMiner/docs/evidence/issue-457/creation-kit-commonwealth-worldspace-2026-08-04.jpg",
+        "DataMiner/docs/evidence/issue-457/xedit-commonwealth-mnam-2026-08-04.jpg",
+        "DataMiner/docs/evidence/issue-457/fallout4-camera-runtime-validation-2026-08-04.json",
+        "DataMiner/docs/evidence/issue-457/fallout4-camera-candidates-static-2026-08-04.jsonl",
+        "DataMiner/docs/evidence/issue-457/fallout4-camera-candidates-runtime-2026-08-04.jsonl"
+      ]
+    }
+  ],
+  "no_public_data": [
+    {
+      "game_id": "wolfenstein-2",
+      "steam_appid": 612880,
+      "searched": "id Tech 6 关卡尺寸、mod 文档"
+    },
+    {
+      "game_id": "control",
+      "steam_appid": 870780,
+      "searched": "Northlight、Oldest House 关卡尺寸"
+    },
+    {
+      "game_id": "sekiro",
+      "steam_appid": 814380,
+      "searched": "MSB 格式、DSMapStudio 坐标"
+    },
+    {
+      "game_id": "assassins-creed-origins",
+      "steam_appid": 582160,
+      "searched": "Anvil、世界尺寸；只有「约 80–100 km²」面积口径，见 82 号 §4.1 为何不可用"
+    },
+    {
+      "game_id": "total-war-warhammer-3",
+      "steam_appid": 1142710,
+      "searched": "Assembly Kit、战场尺寸"
+    },
+    {
+      "game_id": "bannerlord",
+      "steam_appid": 261550,
+      "searched": "场景/战役地图 modding"
+    },
+    {
+      "game_id": "nioh-2",
+      "steam_appid": 1325200,
+      "searched": "关卡尺寸、modding"
+    },
+    {
+      "game_id": "wuchang-fallen-feathers",
+      "steam_appid": null,
+      "searched": "UE5 关卡尺寸"
+    },
+    {
+      "game_id": "a-plague-tale-innocence",
+      "steam_appid": 752590,
+      "searched": "关卡尺寸、modding"
+    },
+    {
+      "game_id": "age-of-empires-4",
+      "steam_appid": 1466860,
+      "searched": "地图尺寸档位与世界坐标"
+    }
+  ],
+  "no_public_data_note": "口径是「按上述方向未检索到」，不是「一定不存在」。某款若被排进产线，开工前值得针对该款的 mod 社区再定向查一次。"
+}

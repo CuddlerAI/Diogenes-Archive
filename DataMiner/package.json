@@ -1,0 +1,28 @@
+{
+  "name": "dataminer",
+  "private": true,
+  "version": "0.7.34",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "prebuild": "node ./tools/check-build-toolchain.mjs",
+    "build": "pnpm --filter @dataminer/client build",
+    "prebundle:windows:dev": "node ./tools/check-build-toolchain.mjs",
+    "bundle:windows:dev": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/build-windows-installer.ps1",
+    "prebundle:windows:all-games-dev": "node ./tools/check-build-toolchain.mjs",
+    "bundle:windows:all-games-dev": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/build-windows-installer.ps1 -AllGamesDev",
+    "prebundle:windows:delivered-catalog": "node ./tools/check-build-toolchain.mjs",
+    "bundle:windows:delivered-catalog": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/build-windows-installer.ps1 -DeliveredCatalog",
+    "rust:clippy:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tools/invoke-windows-clippy.ps1",
+    "dev": "pnpm --filter @dataminer/client dev",
+    "tauri": "pnpm --filter @dataminer/client tauri",
+    "tauri:dev": "pnpm --filter @dataminer/client tauri:dev",
+    "typecheck": "pnpm --filter @dataminer/client typecheck",
+    "typecheck:workspace": "pnpm -r typecheck",
+    "check:depth-capabilities": "node ./tools/check-depth-capability-coverage.mjs --self-test",
+    "test:tooling": "node --test ./tools/tests/check-build-toolchain.test.mjs ./tools/tests/check-depth-probe-generation.test.mjs ./tools/tests/check-staging-acceptance.test.mjs ./tools/tests/client-ui-e2e.test.mjs ./tools/tests/verify-console-app-surface.test.mjs",
+    "test:workspace": "pnpm -r test"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "dm-cp2077-hud-objective-metric-observations/v2",
+  "non_trainable": true,
+  "local_only": true,
+  "steam_build_id": 20383525,
+  "executable_sha256": "sha256:a7de82945c03e041fc7339fcf9066224d98db2f5d80fea50f7947bb350a60991",
+  "calibration_session_id": "independent-metric-calibration-session",
+  "calibration_run_id": "hud-visible-straight-radial-run",
+  "capture_operator_id": "replace-with-capture-operator-id",
+  "hud_visible_for_calibration_only": true,
+  "objective_label": "one unchanged tracked objective below 1 km",
+  "motion_protocol": "straight_radial_same_objective",
+  "samples": [
+    {
+      "session_frame": 0,
+      "present_seq": 1001,
+      "qpc": 10000001,
+      "screenshot_file": "hud-metric-0.png",
+      "ocr_text": "OBJECTIVE 150 M",
+      "objective_distance_metres": 150
+    },
+    {
+      "session_frame": 300,
+      "present_seq": 1101,
+      "qpc": 11000001,
+      "screenshot_file": "hud-metric-1.png",
+      "ocr_text": "OBJECTIVE 135 M",
+      "objective_distance_metres": 135
+    },
+    {
+      "session_frame": 600,
+      "present_seq": 1201,
+      "qpc": 12000001,
+      "screenshot_file": "hud-metric-2.png",
+      "ocr_text": "OBJECTIVE 120 M",
+      "objective_distance_metres": 120
+    }
+  ],
+  "review": {
+    "method": "independent_human_transcription",
+    "reviewer_id": "replace-with-a-different-reviewer-id",
+    "reviewed_utc": "2026-08-18T00:00:00Z",
+    "every_screenshot_reviewed": true,
+    "same_objective_confirmed": true
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.bioshock-infinite.steam.pc",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "bioshock-infinite-steam-e2e",
+    "name": "BioShock Infinite Steam（本机生产 E2E）",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "first_person_shooter",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "bioshock-infinite-steam-e2e-recording-v1",
+  "bindings": [
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 72,
+      "extended": true,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 80,
+      "extended": true,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 75,
+      "extended": true,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 77,
+      "extended": true,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump_or_skyline"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "move.crouch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "move.crouch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "move.walk"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "interact.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "combat.reload"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "combat.melee"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "combat.aim"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "inventory.swap_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "inventory.vigor_menu"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "inventory.equip_vigor_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "inventory.equip_vigor_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "inventory.equip_vigor_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 5,
+      "extended": false,
+      "semantic": "inventory.equip_vigor_4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 6,
+      "extended": false,
+      "semantic": "inventory.equip_vigor_5"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 7,
+      "extended": false,
+      "semantic": "inventory.equip_vigor_6"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 8,
+      "extended": false,
+      "semantic": "inventory.equip_vigor_7"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 9,
+      "extended": false,
+      "semantic": "inventory.equip_vigor_8"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 36,
+      "extended": false,
+      "semantic": "ui.play_voxophone"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 49,
+      "extended": false,
+      "semantic": "ui.nav_aid"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 11,
+      "extended": false,
+      "semantic": "ui.gameplay_menu"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.primary_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.fire_vigor"
+    },
+    {
+      "device": "mouse",
+      "button": 4,
+      "semantic": "combat.aim"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "inventory.cycle_weapon"
+    }
+  ]
+}

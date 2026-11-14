@@ -1,0 +1,46 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "halo-reach-mcc-s0",
+  "version": "4",
+  "display_name": "Halo: Reach (MCC) Steam S0",
+  "device_profile_id": "halo-reach-mcc-s0-windows-nvidia-v1",
+  "recording_profile_id": "halo-reach-mcc-s0-recording-v1",
+  "mapping_id": "game.halo-reach.mcc.steam.pc",
+  "executable_names": [
+    "MCC-Win64-Shipping.exe",
+    "mcclauncher.exe"
+  ],
+  "window_class": "UnrealWindow",
+  "executable_sha256": "sha256:be70d6dcd1a884f10ceb342a7a2dcb35ee0fa43181b66a1d19c3d830e9834691",
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      13,
+      16,
+      17,
+      32,
+      65,
+      68,
+      69,
+      70,
+      71,
+      82,
+      83,
+      86,
+      87,
+      88,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

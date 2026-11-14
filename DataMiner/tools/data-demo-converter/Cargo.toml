@@ -1,0 +1,28 @@
+[package]
+name = "data-demo-converter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "dataminer-data-demo"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+capture-core = { path = "../../crates/capture-core" }
+view-scale = { path = "../../crates/view-scale" }
+claxon = "0.4.3"
+flacenc = { version = "0.5.1", default-features = false }
+mp4 = "0.14.0"
+serde.workspace = true
+serde_json.workspace = true
+sha2 = "0.10.9"
+zstd = "0.13.3"
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = ["Win32_Storage_FileSystem"] }
+
+[dev-dependencies]
+tempfile = "3.23.0"

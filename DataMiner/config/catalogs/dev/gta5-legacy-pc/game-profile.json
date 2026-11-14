@@ -1,0 +1,52 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "gta5-legacy-pc",
+  "version": "3",
+  "display_name": "侠盗猎车手 V Legacy（单人徒步，PC 本地）",
+  "device_profile_id": "gta5-legacy-pc-windows-nvidia-v1",
+  "recording_profile_id": "gta5-legacy-pc-recording-v1",
+  "mapping_id": "game.gta5-legacy.pc",
+  "executable_names": [
+    "GTA5.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": "sha256:677e4e355cfbdb13273b1d992407e3c261b3a108dc4dd5c8a0c4c1da651802e5",
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      17,
+      32,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      65,
+      67,
+      68,
+      69,
+      71,
+      81,
+      82,
+      83,
+      87,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

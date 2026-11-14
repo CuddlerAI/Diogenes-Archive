@@ -1,0 +1,14 @@
+{
+    "name": "Diogenes.EngineCapture.Runtime",
+    "rootNamespace": "Diogenes.EngineCapture",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

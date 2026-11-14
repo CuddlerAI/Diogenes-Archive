@@ -1,0 +1,39 @@
+{
+  "schema": "camera-binding/v1",
+  "binding_id": "ets2-steam-1.61.2.6s-main-camera-v1",
+  "binding_version": "1",
+  "profile_id": "ets2-steam-1.61.2.6s",
+  "profile_version": "dm-depth-profile-1",
+  "executable_sha256": "sha256:b7dffe6b27402c7db6dfd52cf982cd5bf292584138b35e3eb8efb311814ab3f8",
+  "render_width": 1920,
+  "render_height": 1080,
+  "view_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 1,
+      "draw_ordinal": 1,
+      "buffer_bytes": 512,
+      "offset": 0,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "view",
+      "translation": "col3"
+    }
+  ],
+  "projection_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 1,
+      "draw_ordinal": 1,
+      "buffer_bytes": 512,
+      "offset": 208,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": true,
+      "role": "projection"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-wuchang-fallen-feathers-steam-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "wuchang-fallen-feathers-windows-nvidia-gtx1060-v1",
+      "version": "5",
+      "content_hash": "sha256:c586db74c968c406d98c1b6c39f2d813e86b1426b04eb665065ff69218f8e466"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "wuchang-fallen-feathers-steam-recording-v1",
+      "version": "3",
+      "content_hash": "sha256:86036bfb9626f85605fd10bac23110b446683693e5c84757c6193a29284795df"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "wuchang-fallen-feathers-steam",
+      "version": "3",
+      "content_hash": "sha256:83d610e46f7d03bd39cc3cd7e01ed04ffacbb37eead2088fd04c5e7e7555b25f"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.wuchang-fallen-feathers.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:9d39eefeea277f7d39bd2d6e81f8bfe07dd65ec53c9140e8473f00da3945e76b"
+    }
+  ]
+}

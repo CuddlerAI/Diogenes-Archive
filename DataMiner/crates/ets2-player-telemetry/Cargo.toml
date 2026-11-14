@@ -1,0 +1,13 @@
+[package]
+name = "ets2-player-telemetry"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+serde.workspace = true
+telemetry-geometry = { path = "../telemetry-geometry" }
+
+[dev-dependencies]
+serde_json.workspace = true

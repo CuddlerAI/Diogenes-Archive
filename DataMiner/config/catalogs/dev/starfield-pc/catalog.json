@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-starfield-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "starfield-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:65efe03e2349f7e4d186d38a7947884e5330f971b9f658661b7c655647cf9719"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "starfield-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:18e6ff1f49c9978a33a96a69f40412b43122af6c89346ff9b97d6d14b97ca723"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "starfield-pc",
+      "version": "2",
+      "content_hash": "sha256:4bb4d7bf81d1978afca9d41ccd3a4a924df4a006f99b2bf5e9ad265dc51c46b5"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.starfield.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:9b8671ec1b2c972735a5581bad9c86b27cf24ae17a8e163e94d49126534218bf"
+    }
+  ]
+}

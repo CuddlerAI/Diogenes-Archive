@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-recording-profile-2",
+  "profile_id": "titanfall-2-pc-recording-v1",
+  "version": "2",
+  "game_id": "titanfall-2-pc",
+  "capture_backend": "native_wgc_window_v1",
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "width": 1920,
+  "height": 1080,
+  "fps_num": 30,
+  "fps_den": 1,
+  "bitrate_bps": 16000000,
+  "max_bitrate_bps": 24000000,
+  "gop_frames": 120,
+  "segment_seconds": 10,
+  "test_segments": 3,
+  "audio": {
+    "mode": "process_loopback",
+    "sample_rate_hz": 48000,
+    "channels": 2,
+    "bits_per_sample": 16,
+    "sample_format": "pcm_s16le",
+    "channel_mask": 3,
+    "compression": "zstd"
+  },
+  "accepted_encoder_relaxations": null,
+  "window_mode": "any",
+  "hdr": false,
+  "cursor_capture": true,
+  "in_game_mouse_sensitivity": null,
+  "field_of_view_degrees": null,
+  "view_scale": null
+}

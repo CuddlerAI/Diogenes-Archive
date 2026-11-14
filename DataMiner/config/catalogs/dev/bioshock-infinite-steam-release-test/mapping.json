@@ -1,0 +1,121 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.bioshock-infinite.steam.pc",
+  "version": "2026-07-29.1",
+  "game": {
+    "id": "bioshock-infinite-steam-release-test",
+    "name": "BioShock Infinite Steam（release 测试，禁止训练）",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "first_person_shooter",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "bioshock-infinite-steam-release-test-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "move.crouch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.walk"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "combat.reload"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "combat.melee"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "weapon.switch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "power.select_radial"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "interact.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 15,
+      "extended": false,
+      "semantic": "ui.map"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.primary_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "power.cast"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "weapon.switch"
+    }
+  ]
+}

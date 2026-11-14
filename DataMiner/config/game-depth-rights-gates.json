@@ -1,0 +1,1190 @@
+{
+  "$comment": [
+    "Machine-readable game rights ledger. Issue #609 owns the gate; issue #855 §E owns the",
+    "current unified decision that every real game in the shipped catalog carries.",
+    "",
+    "What this file does and does not say:",
+    "  * scopes.*.boundaries and mode_restrictions are operating ceilings for an approved title,",
+    "    not a second copy of the approval itself.",
+    "  * A rights approval never makes data trainable. games.approved_for_trainable, the exact",
+    "    catalog version, the executable allowlist, object integrity and QA still decide, and the",
+    "    final answer stays clip_trainability.is_trainable.",
+    "  * runtime_anti_cheat_gate_still_required is an independent red line. No rights decision",
+    "    satisfies it, and widening rights never weakens it.",
+    "",
+    "Where app_id comes from: for titles whose catalog bundle pins a Steam identity, the app_id is",
+    "the one already recorded in this repository (docs/18, docs/40, docs/41, docs/73, docs/74,",
+    "docs/110, docs/114, config/roster-preflight/*, config/catalogs/dev/*/device-profile.json).",
+    "The twelve `-pc` catalogs deliberately discover their game by process name and pin no store",
+    "identity (docs/143 §1, docs/144 §1), so their app_id identifies the *title* on Steam and the",
+    "link to catalog configuration is catalog_game_ids, never the app_id."
+  ],
+  "schema_version": 2,
+  "issue_url": "https://github.com/DiogenesModel/Diogenes/issues/609",
+  "status_note": "Every real game in the shipped catalog carries the same unified decision. For any record that is not an approval, mode_restrictions are requested technical ceilings, not permissions or publisher-accepted terms.",
+  "unified_rights_decision": {
+    "declared_by": "Diogenes project owner",
+    "declared_at": "2026-08-25",
+    "reference_url": "https://github.com/DiogenesModel/Diogenes/issues/855",
+    "supersedes": [
+      "project_research_only"
+    ],
+    "note": "issue #855 §6/§E records the owner and counsel decision as an already-settled input: no extra rights limits beyond the existing technical and safety boundaries, and one identical set of boundaries for every real game rather than per-title or per-publisher rules. It retires the narrower project_research_only lane, whose noncommercial/no-delivery ceilings directly contradict it; the two policies must never be active at the same time. The written counsel document has not been issued yet, so every evidence_url is still empty and is backfilled later for traceability (issue #855 §E.1) rather than as a precondition for the gate."
+  },
+  "records": [
+    {
+      "app_id": "1091500",
+      "game": "Cyberpunk 2077",
+      "rights_owner": "CD PROJEKT S.A.",
+      "catalog_game_ids": [
+        "cyberpunk-2077-steam"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Single-player offline/local launch only; game and launcher background networking is observed but never blocked or emulated.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "https://www.cdprojekt.com/en/contact/",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "377160",
+      "game": "Fallout 4",
+      "rights_owner": "Bethesda Softworks / Microsoft",
+      "catalog_game_ids": [
+        "fallout4-steam-release-test"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Offline single-player only.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "Existing Microsoft/Bethesda rights-negotiation owner recorded in docs/98",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "227300",
+      "game": "Euro Truck Simulator 2",
+      "rights_owner": "SCS Software",
+      "catalog_game_ids": [
+        "euro-truck-simulator-2-steam"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Offline/local profile only.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "https://www.scssoft.com/press/",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1771300",
+      "game": "Kingdom Come: Deliverance II",
+      "rights_owner": "Deep Silver / PLAION, Warhorse Studios as applicable",
+      "catalog_game_ids": [
+        "kingdom-come-deliverance-2-steam"
+      ],
+      "decision": "publisher_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Full instrumentation scope attested under a confidential signed agreement retained outside the repository."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Full capture scope attested under a confidential signed agreement retained outside the repository."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Full commercial ML scope attested under a confidential signed agreement retained outside the repository."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Full delivery scope attested under a confidential signed agreement retained outside the repository."
+        }
+      },
+      "mode_restrictions": "Full authorization is attested under a confidential signed agreement; technical operation remains offline single-player and must stop if any anti-cheat component is active.",
+      "effective_date": "2026-08-17",
+      "expiry_or_review_date": "2031-08-17",
+      "evidence_url": null,
+      "evidence_confidential": true,
+      "attested_at": "2026-08-17",
+      "reviewer": "project_owner_confidential_attestation",
+      "intake_route": "Confidential signed agreement retained outside the repository",
+      "note": "The effective date records the project owner's confidential authorization attestation date. The review date is a project-set five-year review boundary, not a disclosed contract expiry; the gate fails closed if it is not renewed. Contract contents remain outside the repository."
+    },
+    {
+      "app_id": "8870",
+      "game": "BioShock Infinite",
+      "rights_owner": "2K",
+      "catalog_game_ids": [
+        "bioshock-infinite-steam-e2e"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Offline single-player only; 32-bit user-mode instrumentation only.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "https://newsroom.2k.com/about-us/2k-global-communications",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "261550",
+      "game": "Mount & Blade II: Bannerlord",
+      "rights_owner": "TaleWorlds Entertainment",
+      "catalog_game_ids": [
+        "mount-and-blade-2-bannerlord-steam"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Official single-player modules and Bannerlord.exe only; multiplayer and BattlEye are excluded.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "https://www.taleworlds.com/en/Contact",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "752590",
+      "game": "A Plague Tale: Innocence",
+      "rights_owner": "Focus Entertainment / Asobo Studio as applicable",
+      "catalog_game_ids": [
+        "a-plague-tale-innocence-steam-release-test"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Offline single-player only.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "https://www.focus-entmt.com/en/company",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "976730",
+      "game": "Halo: The Master Chief Collection",
+      "rights_owner": "Microsoft / Halo Studios",
+      "catalog_game_ids": [
+        "halo-reach-mcc-s0"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. One named title at a time using Steam's official Anti-Cheat Disabled launch option; no multiplayer.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "Existing Microsoft rights-negotiation owner recorded in docs/98",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1466860",
+      "game": "Age of Empires IV",
+      "rights_owner": "Microsoft / World's Edge",
+      "catalog_game_ids": [
+        "age-of-empires-4-steam"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Offline single-player/skirmish only; no matchmaking, multiplayer, rank, or protocol emulation.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "Existing Microsoft rights-negotiation owner recorded in docs/98",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "4570720",
+      "game": "DragonSword: Awakening",
+      "rights_owner": "Hound13",
+      "catalog_game_ids": [],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Offline/local mode only; stop if the approved launch mode or anti-cheat state drifts.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "Legal/customer inquiry address published in the official Steam EULA",
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1938090",
+      "game": "Call of Duty®",
+      "rights_owner": "Activision Publishing / Microsoft",
+      "catalog_game_ids": [
+        "call-of-duty-steam-release-test"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "612880",
+      "game": "Wolfenstein II: The New Colossus",
+      "rights_owner": "Bethesda Softworks / MachineGames / Microsoft",
+      "catalog_game_ids": [
+        "wolfenstein2-steam"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "2277560",
+      "game": "WUCHANG: Fallen Feathers",
+      "rights_owner": "505 Games / Digital Bros (IP holder) / Leenzee",
+      "catalog_game_ids": [
+        "wuchang-fallen-feathers-steam"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1240440",
+      "game": "Halo Infinite",
+      "rights_owner": "Microsoft / Xbox Game Studios / Halo Studios",
+      "catalog_game_ids": [
+        "halo-infinite-steam-release-test"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1145350",
+      "game": "Hades II",
+      "rights_owner": "Supergiant Games",
+      "catalog_game_ids": [
+        "hades-ii-steam-release-test"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1142710",
+      "game": "Total War: WARHAMMER III",
+      "rights_owner": "SEGA / Creative Assembly; Warhammer IP: Games Workshop",
+      "catalog_game_ids": [
+        "total-war-warhammer-iii-steam-release-test"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "2622380",
+      "game": "ELDEN RING NIGHTREIGN",
+      "rights_owner": "Bandai Namco Entertainment / FromSoftware",
+      "catalog_game_ids": [
+        "elden-ring-nightreign-steam-release-test"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1325200",
+      "game": "Nioh 2",
+      "rights_owner": "Koei Tecmo Games",
+      "catalog_game_ids": [
+        "nioh2-steam"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1252330",
+      "game": "DEATHLOOP",
+      "rights_owner": "Bethesda Softworks / Arkane Lyon / Microsoft",
+      "catalog_game_ids": [
+        "deathloop-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "668580",
+      "game": "Atomic Heart",
+      "rights_owner": "Focus Entertainment / Mundfish",
+      "catalog_game_ids": [
+        "atomic-heart-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "782330",
+      "game": "DOOM Eternal",
+      "rights_owner": "Bethesda Softworks / id Software / Microsoft",
+      "catalog_game_ids": [
+        "doom-eternal-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1196590",
+      "game": "Resident Evil Village",
+      "rights_owner": "Capcom",
+      "catalog_game_ids": [
+        "resident-evil-village-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "2840770",
+      "game": "Avatar: Frontiers of Pandora",
+      "rights_owner": "Ubisoft / Massive Entertainment; Avatar IP: Disney",
+      "catalog_game_ids": [
+        "avatar-frontiers-of-pandora-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "239140",
+      "game": "Dying Light",
+      "rights_owner": "Techland",
+      "catalog_game_ids": [
+        "dying-light-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "552520",
+      "game": "Far Cry 5",
+      "rights_owner": "Ubisoft / Ubisoft Montreal",
+      "catalog_game_ids": [
+        "far-cry-5-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1551360",
+      "game": "Forza Horizon 5",
+      "rights_owner": "Microsoft / Xbox Game Studios / Playground Games",
+      "catalog_game_ids": [
+        "forza-horizon-5-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "271590",
+      "game": "Grand Theft Auto V Legacy",
+      "rights_owner": "Rockstar Games / Take-Two Interactive",
+      "catalog_game_ids": [
+        "gta5-legacy-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "2677660",
+      "game": "Indiana Jones and the Great Circle",
+      "rights_owner": "Bethesda Softworks / MachineGames / Microsoft; Indiana Jones IP: Lucasfilm (Disney)",
+      "catalog_game_ids": [
+        "indiana-jones-great-circle-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1237970",
+      "game": "Titanfall 2",
+      "rights_owner": "Electronic Arts / Respawn Entertainment",
+      "catalog_game_ids": [
+        "titanfall-2-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "480490",
+      "game": "Prey (2017)",
+      "rights_owner": "Bethesda Softworks / Arkane Studios / Microsoft",
+      "catalog_game_ids": [
+        "prey-2017-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1174180",
+      "game": "Red Dead Redemption 2",
+      "rights_owner": "Rockstar Games / Take-Two Interactive",
+      "catalog_game_ids": [
+        "red-dead-redemption-2-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "1716740",
+      "game": "Starfield",
+      "rights_owner": "Bethesda Softworks / Bethesda Game Studios / Microsoft",
+      "catalog_game_ids": [
+        "starfield-pc"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "effective_date is the effective date of the unified rights decision itself, not the date on which this project started capturing this title. expiry_or_review_date is a project-set five-year planned review date, not an expiry stated in a counsel document; if that review is not completed in time the existing rights gate blocks fail-closed on its own."
+    },
+    {
+      "app_id": "911400",
+      "game": "Assassin's Creed III Remastered",
+      "rights_owner": "Ubisoft Entertainment",
+      "catalog_game_ids": [
+        "assassins-creed-iii-remastered-steam"
+      ],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Offline single-player only; Ubisoft launcher background networking may be observed but is never blocked or emulated.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": null,
+      "note": "The exact-build neutral catalog is authored and listed in shipped-games.json with onboarding admission. This linkage does not satisfy the independent D7 RGB runtime, Depth profile/binding, central certification, production admission, or per-clip trainability gates."
+    },
+    {
+      "app_id": "360430",
+      "game": "Mafia III: Definitive Edition",
+      "rights_owner": "2K / Take-Two Interactive",
+      "catalog_game_ids": [],
+      "decision": "counsel_approved",
+      "scopes": {
+        "instrumentation": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: local user-mode graphics instrumentation of the bound game process only. Kernel-mode components, protection bypass and anti-cheat interaction stay prohibited, and the runtime anti-cheat gate is enforced separately from this approval."
+        },
+        "capture": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: capture of the bound game window's video, depth, projection, camera/player pose, input and audio streams and the artifacts derived from them."
+        },
+        "commercial_ml": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: commercial machine-learning training and evaluation on the captured and derived data. Whether an individual clip may enter a training set is still decided by clip_trainability, not by this approval."
+        },
+        "delivery": {
+          "approved": true,
+          "boundaries": "Approved within the existing technical and safety boundaries: delivery of derived datasets and evidence packages to named recipients. Game executables, source code and standalone game assets are never redistributed."
+        }
+      },
+      "mode_restrictions": "The runtime anti-cheat gate is still required and is enforced independently of this rights decision: use only the officially supported offline/single-player mode or a publisher-documented anti-cheat-disabled launch mode, and stop immediately if an anti-cheat module, driver or service is active or the approved launch mode drifts. No protection bypass, no mod loader, no multiplayer or matchmaking interaction, and no redistribution of game executables or standalone assets. Offline single-player only; launcher background networking may be observed but is never blocked or emulated.",
+      "effective_date": "2026-06-01",
+      "expiry_or_review_date": "2031-06-01",
+      "evidence_url": null,
+      "reviewer": "Diogenes",
+      "intake_route": "https://newsroom.2k.com/about-us/2k-global-communications",
+      "note": "Pending onboarding record under the unified rights decision. catalog_game_ids remains empty until an exact-build catalog is authored and added to shipped-games.json; this record does not satisfy the independent installation, runtime protection, identity, Depth, or trainability gates."
+    }
+  ]
+}

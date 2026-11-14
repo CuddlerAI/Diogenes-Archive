@@ -1,0 +1,60 @@
+# IDM Phase 0, minecraft at corpus scale (the shallow run's ~6x).
+#
+# The shallow run capped conversion at 12 min/session and reached 4.6 usable
+# hours — 9% of what the dataset holds for this game (75 sessions, ~53 h raw,
+# ~28 h after the action-density filter). That cap was a leftover from the
+# 12-game round and was the binding constraint, not the dataset.
+#
+# max_steps stays at 12000, deliberately. Holding the optimization budget
+# fixed makes data volume the only variable: the shallow run sees ~2.4
+# epochs, this one ~0.4. If this wins at fewer passes over more unique
+# frames, more data is the answer and the 50-100 h knee is worth buying. If
+# it ties, the ceiling is the architecture or the labels, and the next round
+# should not be more footage. Training longer is a separate question and
+# needs its own run to stay interpretable.
+#
+# Frames here are H.264 (CRF 18), not npz. Lossy video is the regime VPT
+# trained its IDM on, but it is still a confound against the shallow npz
+# runs — measured separately by scoring one checkpoint on a split and on a
+# re-encode of that same split (data/reencode.py).
+run_name: idm-minecraft-deep
+seed: 0
+
+data:
+  roots: [data/idm_minecraft_deep]
+  holdout_games: []       # single game — the split is by session
+  val_fraction: 0.12
+  window: 5
+  stride: 2
+  input_res: [224, 224]
+  delta_scale: 50.0
+  min_key_frac: 0.10
+  contract_mode: method-validation
+  allow_method_validation_only: true
+
+model:
+  trunk: dinov2_vits14
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 48
+  max_steps: 12000        # matched to the shallow run on purpose
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 250
+  num_workers: 6
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+# key_exact keeps the 0.85 bar but is NOT the VPT comparison: VPT's 90.6% is
+# most likely mean per-key accuracy, which is far more lenient than exact-set
+# match. All three readings are reported; macro F1 is the one a collapse
+# cannot fake, so it is what actually decides whether this worked.
+gates:
+  key_exact_min: 0.85
+  key_macro_f1_min: 0.40
+  macro_f1_warn: 0.6
+
+output:
+  dir: runs

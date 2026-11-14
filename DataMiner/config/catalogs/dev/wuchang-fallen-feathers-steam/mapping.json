@@ -1,0 +1,199 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.wuchang-fallen-feathers.steam.pc",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "wuchang-fallen-feathers-steam",
+    "name": "WUCHANG: Fallen Feathers (Steam)",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "action_role_playing",
+    "view": "third_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "wuchang-fallen-feathers-steam-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "move.walk"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.dodge_sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "interact.action"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "camera.lock_on_reset"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 1,
+      "extended": false,
+      "semantic": "ui.menu"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "inventory.use_item"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "combat.instant_slash"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 21,
+      "extended": false,
+      "semantic": "ui.posture"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "magic.cast"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "magic.cycle"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "inventory.previous_item"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "inventory.next_item"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "combat.skill_modifier"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "inventory.quick_item_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "inventory.quick_item_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "inventory.quick_item_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 5,
+      "extended": false,
+      "semantic": "inventory.quick_item_4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 59,
+      "extended": false,
+      "semantic": "magic.quick_slot_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 60,
+      "extended": false,
+      "semantic": "magic.quick_slot_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 61,
+      "extended": false,
+      "semantic": "magic.quick_slot_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 62,
+      "extended": false,
+      "semantic": "magic.quick_slot_4"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.light_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.heavy_attack"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "inventory.cycle_weapon_or_magic"
+    }
+  ]
+}

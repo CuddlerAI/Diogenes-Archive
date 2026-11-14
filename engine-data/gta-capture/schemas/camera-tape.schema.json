@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dm-gta-camera-tape/1",
+  "type": "object",
+  "required": [
+    "schema", "clip_id", "fps_num", "fps_den", "duration_s", "n_frames",
+    "timestamp_semantics", "filmback_id", "coordinate_convention", "lanes"
+  ],
+  "properties": {
+    "schema": {"const": "dm-gta-camera-tape/1"},
+    "fps_num": {"const": 30},
+    "fps_den": {"const": 1},
+    "timestamp_semantics": {"const": "source_replay_timeline"},
+    "coordinate_convention": {"type": "string", "minLength": 1},
+    "lanes": {
+      "type": "object",
+      "required": ["1", "2", "3", "4"],
+      "additionalProperties": false
+    }
+  }
+}

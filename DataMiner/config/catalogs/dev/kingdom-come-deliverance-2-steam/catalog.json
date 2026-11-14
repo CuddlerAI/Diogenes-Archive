@@ -1,0 +1,47 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-kingdom-come-deliverance-2-steam",
+  "catalog_version": "2026-09-11.0",
+  "device_profiles": [
+    {
+      "id": "kingdom-come-deliverance-2-steam-windows-nvidia-v1",
+      "version": "1",
+      "content_hash": "sha256:d503174ebf066bd387e1ebbc3999133ef07129ce4f8925019b3417f340862d7e"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "kingdom-come-deliverance-2-steam-recording-v1",
+      "version": "1",
+      "content_hash": "sha256:06493ebf549187d954226e4a220950e285b89ea2230a2ebc71da60784e94d639"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "kingdom-come-deliverance-2-steam",
+      "version": "1",
+      "content_hash": "sha256:9546798b4baaa29f6052de090de81168c99c326db154259befbfa0f464666a7f"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.kingdom-come-deliverance-2.steam.pc",
+      "version": "2026-09-07.0",
+      "content_hash": "sha256:717273b82ae151c3a597c6a596b7cac9fdff8f7f520e5dfbf0003dbd6f94035c"
+    }
+  ],
+  "depth_profiles": [
+    {
+      "id": "kingdom-come-deliverance-2-steam",
+      "version": "1",
+      "content_hash": "sha256:4d506e31d4a7a19be3e7b6cde25c0320b2038a06f81a8b45d770865737345dbe"
+    }
+  ],
+  "camera_bindings": [
+    {
+      "id": "kcd2-steam-23914554-combined-vp-v2",
+      "version": "2",
+      "content_hash": "sha256:3f45fef3a5a23a93d05a4b6e1a084c3b571a4751c6b60cef64128ce9f9ca00d4"
+    }
+  ]
+}

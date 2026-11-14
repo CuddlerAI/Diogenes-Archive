@@ -1,0 +1,4743 @@
+{
+  "$comment": "issue #643 §1 P0 零成本机检表。70 款逐款：appid 校验 / 反作弊披露 / EULA / 商店页元数据。",
+  "spec": "https://github.com/DiogenesModel/Diogenes/issues/643",
+  "roster_doc": "DataMiner/docs/110-fifty-game-collectable-roster-target.md",
+  "decision_doc": "DataMiner/docs/112-cloud-gpu-windows-prep-machine-decision.md",
+  "collected_at": "2026-08-08",
+  "provenance": "http-only-no-machine",
+  "method": {
+    "p0_1": "Steam appdetails 反查 appid，比对 docs/110 表内名称。",
+    "p0_2": "抓 store.steampowered.com/app/<APPID>/ 全页 HTML（带 birthtime 过龄闸 cookie）后去标签 grep。⚠️ 不依赖 appdetails.drm_notice——本轮实测 70 款里它只有 4 款非空，覆盖面远小于商店页披露区。但反过来它也有商店页抓不到的信息（#22 的「5 a day machine activation limit」只在 drm_notice 里），故两者都记。",
+    "p0_3": "⚠️ 不能猜 `<APPID>_eula_0`。实测 slot 枚举会返回 ~14.7KB 的占位页（title 就是 slug 本身），看着有内容实则是空壳。正确做法：从商店页 HTML 提取 /eula/ 链接，只抓真实挂载的那几份。判据：ai_verbatim = 该游戏**自己挂载的** EULA 里逐字出现 generative ai / artificial intelligence / machine learning / neural network / deep learning。bare 'training' 等词噪声过大，只作 ai_soft_hit_terms 附证，不作判据。",
+    "p0_4": "appdetails.categories/genres：cat17 Includes level editor、Steam Workshop、单人/多人标签。"
+  },
+  "known_method_limitation": "⚠️ 本表的 ai_verbatim 只覆盖「该 appid 自己挂载的 EULA」。发行商另行托管、且未挂到该 appid EULA 槽位的条款（典型：Take-Two Terms of Service，挂在 49520 而非 8870）本表**不会命中**。docs/110 §7.5 的 Take-Two 敞口即属此类，须人工跟进发行商母条款，不能只信本表。",
+  "discrepancies_vs_110": [
+    {
+      "roster_index": 4,
+      "name": "Age of Empires IV",
+      "doc_110_says": "🟡 EAC，74 §7.5 已排除出 depth 线",
+      "measured_2026_08_08": "商店页披露区只有 VAC，无 EAC、无内核级",
+      "action": "docs/110 的 EAC 标注在当前商店页无据。可能是已移除或来源不同 —— 回写前需确认来源。"
+    },
+    {
+      "roster_index": 15,
+      "name": "Mount & Blade II: Bannerlord",
+      "doc_110_says": "BattlEye 仅多人，须实测单人无驱动",
+      "measured_2026_08_08": "商店页披露区无 BattlEye，只有 VAC",
+      "action": "「须实测单人」这条前提本身可能已不成立；仍建议 P1 装机时确认无驱动加载。"
+    },
+    {
+      "roster_index": 21,
+      "name": "Assassin's Creed Origins",
+      "doc_110_says": "⚠️ 育碧对 Far Cry 5 / Watch_Dogs 2 后加过 EAC，须复核披露区",
+      "measured_2026_08_08": "无 EAC。但有 Denuvo + Requires 3rd-Party Account（Ubisoft Connect）",
+      "action": "EAC 担忧不成立；真实约束换成 Denuvo 与强制第三方账号。"
+    },
+    {
+      "roster_index": 22,
+      "name": "Assassin's Creed Odyssey",
+      "doc_110_says": "未提及任何 DRM",
+      "measured_2026_08_08": "Denuvo Anti-Tamper + **5 a day machine activation limit** + 3rd-Party Account",
+      "action": "🔴 docs/110 漏项。激活次数上限直接影响任何「换机器取证」方案（见 docs/112 §5-④）。"
+    },
+    {
+      "roster_index": 23,
+      "name": "Red Dead Redemption 2",
+      "doc_110_says": "Vulkan 零注入，不触碰 77 §1.2 红线",
+      "measured_2026_08_08": "商店页披露 Requires 3rd-Party Account（Rockstar）",
+      "action": "Vulkan 结论不受影响，但强制第三方账号是独立事实，docs/110 未记。"
+    },
+    {
+      "roster_index": 53,
+      "name": "Dead Rising Deluxe Remaster",
+      "doc_110_says": "§4.7 闸（实测）= ✅ 净",
+      "measured_2026_08_08": "反作弊确实净；但 drm_notice = The Enigma Protector（DRM 壳）",
+      "action": "「净」指反作弊，标注不必改；装机时需知道有 DRM 壳。"
+    },
+    {
+      "roster_index": 12,
+      "name": "Halo: Reach (MCC)",
+      "doc_110_says": "表内名为 Halo: Reach (MCC)",
+      "measured_2026_08_08": "appid 976730 的 Steam 名为 Halo: The Master Chief Collection",
+      "action": "appid 无误；docs/110 §3 已自记「MCC 六合一，executable_sha256 钉不住在玩哪一作」。"
+    }
+  ],
+  "g3_third_party_account_consistency_note": "docs/110 §7.4 把「Requires 3rd-Party Account」与内核级反作弊并列为 GTA V 出局的 G3 硬门。按同一判据，本轮实测命中该披露的还有：#1 CoD、#6 Halo Infinite、#12 MCC、#21 AC Origins、#22 AC Odyssey、#23 RDR2。**docs/110 对 GTA V 适用 G3、对这几款未适用，判据不一致。**本文件只记录事实，不代 owner 裁决 G3 的确切边界（「强制第三方账号」与「常在线」是否必须同时成立）。",
+  "summary": {
+    "games_total": 70,
+    "verdict_pass": 27,
+    "verdict_pass_eula_unscanned": 34,
+    "verdict_review": 6,
+    "verdict_excluded_candidate": 3,
+    "appid_resolve_failures": [],
+    "name_mismatches": [
+      12
+    ],
+    "gate_g1_kernel_anticheat": [
+      1,
+      6,
+      13
+    ],
+    "gate_ai_verbatim_in_own_eula": [],
+    "eula_scanned_conclusive": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      8,
+      9,
+      11,
+      12,
+      13,
+      14,
+      17,
+      18,
+      19,
+      21,
+      22,
+      23,
+      26,
+      27,
+      28,
+      35,
+      39,
+      40,
+      45,
+      47,
+      49,
+      53,
+      54,
+      55,
+      56,
+      57,
+      62,
+      63,
+      65,
+      70
+    ],
+    "eula_absent_p0_3_inconclusive": [
+      6,
+      7,
+      10,
+      15,
+      16,
+      20,
+      24,
+      25,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      36,
+      37,
+      38,
+      41,
+      42,
+      43,
+      44,
+      46,
+      48,
+      50,
+      51,
+      52,
+      58,
+      59,
+      60,
+      61,
+      64,
+      66,
+      67,
+      68,
+      69
+    ],
+    "conflicts_needing_owner_decision": [
+      1,
+      6,
+      13
+    ],
+    "suspect_placeholder_misclassified": [
+      {
+        "roster_index": 34,
+        "slug": "1128920_eula_0",
+        "title": "Analytics",
+        "bytes": 15361
+      },
+      {
+        "roster_index": 38,
+        "slug": "1817230_eula_1",
+        "title": "Terms of Service",
+        "bytes": 15350
+      }
+    ]
+  },
+  "games": [
+    {
+      "roster_index": 1,
+      "appid": 1938090,
+      "roster_name": "Call of Duty",
+      "steam_name": "Call of Duty®",
+      "current_roster_state": {
+        "admission": "admitted",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 161.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 357433,
+        "kernel_level_anticheat": true,
+        "disclosure_terms": [
+          "3rd-Party Account",
+          "Anti-Cheat",
+          "Kernel Level Anti-Cheat",
+          "RICOCHET",
+          "VAC",
+          "anti-cheat"
+        ],
+        "disclosure_context": {
+          "Kernel Level Anti-Cheat": [
+            "3rd-Party Account: Activision Account (Supports Linking to Steam Account) Uses Kernel Level Anti-Cheat RICOCHET Anti-Cheat Boot Protection - Requires both Secure Boot & TPM 2.0 Requires agreement to a 3rd-party EULA Call of Duty® EULA Languages : English and 13"
+          ],
+          "3rd-Party Account": [
+            "r Steam Achievements Captions available In-App Purchases HDR available Requires 3rd-Party Account: Activision Account (Supports Linking to Steam Account) Uses Kernel Level Anti-Cheat RICOCHET Anti-Cheat Boot Protection - Requires both Secure Boot & TPM 2.0"
+          ]
+        },
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1938090_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1938090_eula_0",
+            "title": "SOFTWARE LICENSE AND SERVICE AGREEMENT",
+            "bytes": 99503,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "Activision"
+        ]
+      },
+      "verdict": "excluded_candidate",
+      "verdict_reasons": [
+        "G1 内核级反作弊（issue #643 P0.2 硬闸）",
+        "商店页披露 3rd-Party Account"
+      ],
+      "conflict_with_current_roster": "命中 P0 硬闸但当前状态为 `admitted`（采集深度 D7✅）。issue #643 P0 写「立即移出正表」，但 docs/110 §1 的 A 线（能不能采 RGB+输入）与 B 线（能不能出 depth）判据不同，内核级反作弊是 B 线硬门。**此项需 owner 裁决，本文件不代下结论。**"
+    },
+    {
+      "roster_index": 2,
+      "appid": 8870,
+      "roster_name": "BioShock Infinite",
+      "steam_name": "BioShock Infinite",
+      "current_roster_state": {
+        "admission": "admitted",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 213480,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "8870_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "8870_eula_0",
+            "title": "TAKE-TWO LIMITED SOFTWARE WARRANTY AND LICENSE AGREEMENT",
+            "bytes": 54316,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "2K"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 3,
+      "appid": 612880,
+      "roster_name": "Wolfenstein II",
+      "steam_name": "Wolfenstein II: The New Colossus",
+      "current_roster_state": {
+        "admission": "admitted",
+        "capture_depth": "D7⚠️",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 55.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 170884,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "612880_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "612880_eula_0",
+            "title": "Wolfenstein II: The New Colossus",
+            "bytes": 186976,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "Bethesda Softworks"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 4,
+      "appid": 1466860,
+      "roster_name": "Age of Empires IV",
+      "steam_name": "Age of Empires IV: Anniversary Edition",
+      "current_roster_state": {
+        "admission": "admitted",
+        "capture_depth": "D7⚠️",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 50.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 231752,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1466860_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1466860_eula_0",
+            "title": "Age of Empires IV: Anniversary Edition EULA",
+            "bytes": 20902,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Strategy"
+        ],
+        "publishers": [
+          "Xbox Game Studios"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 5,
+      "appid": 2277560,
+      "roster_name": "WUCHANG: Fallen Feathers",
+      "steam_name": "WUCHANG: Fallen Feathers",
+      "current_roster_state": {
+        "admission": "admitted",
+        "capture_depth": "D7⚠️",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 60.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 223601,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "2277560_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "2277560_eula_0",
+            "title": "WUCHANG: FALLEN FEATHERS END USER LICENSE AGREEMENT (EULA)",
+            "bytes": 54668,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "RPG"
+        ],
+        "publishers": [
+          "505 Games"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 6,
+      "appid": 1240440,
+      "roster_name": "Halo Infinite",
+      "steam_name": "Halo Infinite",
+      "current_roster_state": {
+        "admission": "admitted",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 50.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 181445,
+        "kernel_level_anticheat": true,
+        "disclosure_terms": [
+          "3rd-Party Account",
+          "Anti-Cheat",
+          "Easy Anti-Cheat",
+          "Kernel Level Anti-Cheat",
+          "VAC",
+          "anti-cheat"
+        ],
+        "disclosure_context": {
+          "Kernel Level Anti-Cheat": [
+            "tor Remote Play on TV Family Sharing Requires 3rd-Party Account: Xbox Live Uses Kernel Level Anti-Cheat Easy Anti-Cheat - Requires manual removal after game uninstall Languages : English and 17 more Interface Full Audio Subtitles English ✔ ✔ ✔ French ✔ ✔ ✔ Italia"
+          ],
+          "Easy Anti-Cheat": [
+            "mily Sharing Requires 3rd-Party Account: Xbox Live Uses Kernel Level Anti-Cheat Easy Anti-Cheat - Requires manual removal after game uninstall Languages : English and 17 more Interface Full Audio Subtitles English ✔ ✔ ✔ French ✔ ✔ ✔ Italian ✔ ✔ ✔ German ✔"
+          ],
+          "3rd-Party Account": [
+            "ses Steam Cloud Includes level editor Remote Play on TV Family Sharing Requires 3rd-Party Account: Xbox Live Uses Kernel Level Anti-Cheat Easy Anti-Cheat - Requires manual removal after game uninstall Languages : English and 17 more Interface Full Audio Sub"
+          ]
+        },
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1240440_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1240440_eula_0",
+            "title": "1240440_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": true,
+        "has_workshop": false,
+        "has_singleplayer": false,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Free To Play"
+        ],
+        "publishers": [
+          "Xbox Game Studios"
+        ]
+      },
+      "verdict": "excluded_candidate",
+      "verdict_reasons": [
+        "G1 内核级反作弊（issue #643 P0.2 硬闸）",
+        "商店页披露 3rd-Party Account",
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ],
+      "conflict_with_current_roster": "命中 P0 硬闸但当前状态为 `admitted`（采集深度 D7✅）。issue #643 P0 写「立即移出正表」，但 docs/110 §1 的 A 线（能不能采 RGB+输入）与 B 线（能不能出 depth）判据不同，内核级反作弊是 B 线硬门。**此项需 owner 裁决，本文件不代下结论。**"
+    },
+    {
+      "roster_index": 7,
+      "appid": 227300,
+      "roster_name": "Euro Truck Simulator 2",
+      "steam_name": "Euro Truck Simulator 2",
+      "current_roster_state": {
+        "admission": "admitted",
+        "capture_depth": "D6✅",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 25.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 395372,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "227300_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "227300_eula_0",
+            "title": "227300_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": true,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Indie",
+          "Simulation"
+        ],
+        "publishers": [
+          "SCS Software"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 8,
+      "appid": 377160,
+      "roster_name": "Fallout 4",
+      "steam_name": "Fallout 4",
+      "current_roster_state": {
+        "admission": "admitted",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 30.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 255378,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "377160_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "377160_eula_0",
+            "title": "Fallout 4 EULA",
+            "bytes": 125170,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "RPG"
+        ],
+        "publishers": [
+          "Bethesda Softworks"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 9,
+      "appid": 752590,
+      "roster_name": "A Plague Tale: Innocence",
+      "steam_name": "A Plague Tale: Innocence",
+      "current_roster_state": {
+        "admission": "onboarding",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 50.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 197344,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "752590_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "752590_eula_0",
+            "title": "End user license agreement",
+            "bytes": 81103,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Focus Entertainment"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 10,
+      "appid": 1145350,
+      "roster_name": "Hades II",
+      "steam_name": "Hades II",
+      "current_roster_state": {
+        "admission": "onboarding",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 11.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 203408,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1145350_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1145350_eula_0",
+            "title": "1145350_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Indie",
+          "RPG"
+        ],
+        "publishers": [
+          "Supergiant Games"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 11,
+      "appid": 1142710,
+      "roster_name": "Total War: WARHAMMER III",
+      "steam_name": "Total War: WARHAMMER III",
+      "current_roster_state": {
+        "admission": "onboarding",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 120.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 250253,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "Anti-tamper",
+          "Denuvo",
+          "VAC"
+        ],
+        "disclosure_context": {
+          "Denuvo": [
+            "ents Steam Trading Cards Steam Cloud Family Sharing Incorporates 3rd-party DRM: Denuvo Anti-tamper Requires agreement to a 3rd-party EULA Total War: WARHAMMER III EULA Languages : English and 12 more Interface Full Audio Subtitles English ✔ ✔ ✔ F"
+          ],
+          "Anti-tamper": [
+            "eam Trading Cards Steam Cloud Family Sharing Incorporates 3rd-party DRM: Denuvo Anti-tamper Requires agreement to a 3rd-party EULA Total War: WARHAMMER III EULA Languages : English and 12 more Interface Full Audio Subtitles English ✔ ✔ ✔ French ✔ ✔ It"
+          ]
+        },
+        "drm_notice": "Denuvo Anti-tamper"
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1142710_eula_1"
+        ],
+        "documents": [
+          {
+            "slug": "1142710_eula_1",
+            "title": "SEGA END USER LICENSE AGREEMENT (“SEGA EULA”)",
+            "bytes": 88479,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Strategy"
+        ],
+        "publishers": [
+          "SEGA",
+          "Feral Interactive"
+        ]
+      },
+      "verdict": "review",
+      "verdict_reasons": [
+        "商店页披露 Denuvo",
+        "商店页披露 Anti-tamper",
+        "drm_notice: Denuvo Anti-tamper"
+      ]
+    },
+    {
+      "roster_index": 12,
+      "appid": 976730,
+      "roster_name": "Halo: Reach (MCC)",
+      "steam_name": "Halo: The Master Chief Collection",
+      "current_roster_state": {
+        "admission": "onboarding",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 43.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": false
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 201268,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "3rd-Party Account",
+          "VAC"
+        ],
+        "disclosure_context": {
+          "3rd-Party Account": [
+            "e Play on Phone Remote Play on Tablet Remote Play on TV Family Sharing Requires 3rd-Party Account: Xbox Live Requires agreement to a 3rd-party EULA Halo: The Master Chief Collection EULA Languages : English and 11 more Interface Full Audio Subtitles English"
+          ]
+        },
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "976730_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "976730_eula_0",
+            "title": "Halo: The Master Chief Collection EULA",
+            "bytes": 50465,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "Xbox Game Studios"
+        ]
+      },
+      "verdict": "review",
+      "verdict_reasons": [
+        "商店页披露 3rd-Party Account"
+      ]
+    },
+    {
+      "roster_index": 13,
+      "appid": 2622380,
+      "roster_name": "ELDEN RING NIGHTREIGN",
+      "steam_name": "ELDEN RING NIGHTREIGN",
+      "current_roster_state": {
+        "admission": "onboarding",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 30.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 154283,
+        "kernel_level_anticheat": true,
+        "disclosure_terms": [
+          "Anti-Cheat",
+          "Easy Anti-Cheat",
+          "GuardIT",
+          "Kernel Level Anti-Cheat",
+          "VAC",
+          "anti-cheat"
+        ],
+        "disclosure_context": {
+          "Kernel Level Anti-Cheat": [
+            "chievements Steam Cloud Family Sharing Incorporates 3rd-party DRM: GuardIT Uses Kernel Level Anti-Cheat Easy Anti-Cheat - Requires manual removal after game uninstall Requires agreement to a 3rd-party EULA ELDEN RING NIGHTREIGN EULA ELDEN RING NIGHTREIGN EULA (JP"
+          ],
+          "Easy Anti-Cheat": [
+            "Family Sharing Incorporates 3rd-party DRM: GuardIT Uses Kernel Level Anti-Cheat Easy Anti-Cheat - Requires manual removal after game uninstall Requires agreement to a 3rd-party EULA ELDEN RING NIGHTREIGN EULA ELDEN RING NIGHTREIGN EULA (JP) Languages : En"
+          ]
+        },
+        "drm_notice": "GuardIT"
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "2622380_eula_0",
+          "2622380_eula_1"
+        ],
+        "documents": [
+          {
+            "slug": "2622380_eula_0",
+            "title": "END USER LICENSE AGREEMENT",
+            "bytes": 67888,
+            "is_placeholder": false
+          },
+          {
+            "slug": "2622380_eula_1",
+            "title": "END USER LICENSE AGREEMENT",
+            "bytes": 29490,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "RPG"
+        ],
+        "publishers": [
+          "FromSoftware, Inc.",
+          "Bandai Namco Entertainment"
+        ]
+      },
+      "verdict": "excluded_candidate",
+      "verdict_reasons": [
+        "G1 内核级反作弊（issue #643 P0.2 硬闸）",
+        "drm_notice: GuardIT"
+      ],
+      "conflict_with_current_roster": "命中 P0 硬闸但当前状态为 `onboarding`（采集深度 D7✅）。issue #643 P0 写「立即移出正表」，但 docs/110 §1 的 A 线（能不能采 RGB+输入）与 B 线（能不能出 depth）判据不同，内核级反作弊是 B 线硬门。**此项需 owner 裁决，本文件不代下结论。**"
+    },
+    {
+      "roster_index": 14,
+      "appid": 1325200,
+      "roster_name": "Nioh 2",
+      "steam_name": "Nioh 2 – The Complete Edition",
+      "current_roster_state": {
+        "admission": "onboarding",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 85.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 158407,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1325200_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1325200_eula_0",
+            "title": "『Nioh 2 – The Complete Edition』 License Agreement",
+            "bytes": 24545,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "RPG"
+        ],
+        "publishers": [
+          "KOEI TECMO GAMES CO., LTD."
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 15,
+      "appid": 261550,
+      "roster_name": "Bannerlord",
+      "steam_name": "Mount & Blade II: Bannerlord",
+      "current_roster_state": {
+        "admission": "onboarding",
+        "capture_depth": "D7✅",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 60.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 207191,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "261550_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "261550_eula_0",
+            "title": "261550_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": true,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Indie",
+          "RPG",
+          "Simulation",
+          "Strategy"
+        ],
+        "publishers": [
+          "TaleWorlds Entertainment"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 16,
+      "appid": 270880,
+      "roster_name": "American Truck Simulator",
+      "steam_name": "American Truck Simulator",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 25.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 317410,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "270880_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "270880_eula_0",
+            "title": "270880_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": true,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Indie",
+          "Simulation"
+        ],
+        "publishers": [
+          "SCS Software"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 17,
+      "appid": 489830,
+      "roster_name": "The Elder Scrolls V: Skyrim SE",
+      "steam_name": "The Elder Scrolls V: Skyrim Special Edition",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 12.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 189498,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "489830_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "489830_eula_0",
+            "title": "Skyrim Special Edition EULA",
+            "bytes": 157665,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "RPG"
+        ],
+        "publishers": [
+          "Bethesda Softworks"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 18,
+      "appid": 201810,
+      "roster_name": "Wolfenstein: The New Order",
+      "steam_name": "Wolfenstein: The New Order",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 50.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 148663,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "201810_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "201810_eula_0",
+            "title": "End-user license agreement",
+            "bytes": 81136,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "Bethesda Softworks"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 19,
+      "appid": 1771300,
+      "roster_name": "Kingdom Come: Deliverance II",
+      "steam_name": "Kingdom Come: Deliverance II",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 100.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 371114,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1771300_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1771300_eula_0",
+            "title": "KINGDOM COME: DELIVERANCE II - END USER LICENSE AGREEMENT (“EULA”)",
+            "bytes": 48850,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": [
+          "data mining"
+        ]
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "RPG"
+        ],
+        "publishers": [
+          "Deep Silver"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 20,
+      "appid": 814380,
+      "roster_name": "Sekiro: Shadows Die Twice",
+      "steam_name": "Sekiro™: Shadows Die Twice - GOTY Edition",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 25.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 146459,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "814380_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "814380_eula_0",
+            "title": "814380_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Activision (Excluding Japan and Asia)",
+          "FromSoftware, Inc. (Japan)",
+          "方块游戏 (Asia)"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 21,
+      "appid": 582160,
+      "roster_name": "Assassin's Creed Origins",
+      "steam_name": "Assassin's Creed® Origins",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 42.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 196177,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "3rd-Party Account",
+          "Denuvo",
+          "VAC"
+        ],
+        "disclosure_context": {
+          "Denuvo": [
+            "GB available space Additional Notes: Video Preset: Lowest (720p). Game contains Denuvo and VMProtect anti-piracy technology. Recommended: Requires a 64-bit processor and operating system OS: Windows 10 (64-bit versions only) Processor: Intel Core"
+          ],
+          "3rd-Party Account": [
+            "aptions available In-App Purchases Remote Play on Tablet HDR available Requires 3rd-Party Account: Ubisoft Account (Supports Linking to Steam Account) Requires agreement to a 3rd-party EULA Assassin's Creed Origins EULA Languages : English and 14 more Inter"
+          ]
+        },
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "582160_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "582160_eula_0",
+            "title": "END USER LICENCE AGREEMENT",
+            "bytes": 55898,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "RPG"
+        ],
+        "publishers": [
+          "Ubisoft"
+        ]
+      },
+      "verdict": "review",
+      "verdict_reasons": [
+        "商店页披露 Denuvo",
+        "商店页披露 3rd-Party Account"
+      ]
+    },
+    {
+      "roster_index": 22,
+      "appid": 812140,
+      "roster_name": "Assassin's Creed Odyssey",
+      "steam_name": "Assassin's Creed® Odyssey",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 246918,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "3rd-Party Account",
+          "Anti-tamper",
+          "Denuvo",
+          "VAC"
+        ],
+        "disclosure_context": {
+          "Denuvo": [
+            "e Play on Phone Remote Play on Tablet HDR available Incorporates 3rd-party DRM: Denuvo Anti-Tamper 5 a day machine activation limit Requires 3rd-Party Account: Ubisoft Connect launcher (Supports Linking to Steam Account) Requires agreement to a 3"
+          ],
+          "Anti-tamper": [
+            "on Phone Remote Play on Tablet HDR available Incorporates 3rd-party DRM: Denuvo Anti-Tamper 5 a day machine activation limit Requires 3rd-Party Account: Ubisoft Connect launcher (Supports Linking to Steam Account) Requires agreement to a 3rd-party EUL"
+          ],
+          "3rd-Party Account": [
+            "tes 3rd-party DRM: Denuvo Anti-Tamper 5 a day machine activation limit Requires 3rd-Party Account: Ubisoft Connect launcher (Supports Linking to Steam Account) Requires agreement to a 3rd-party EULA Assassin's Creed Odyssey EULA Languages : English and 14 m"
+          ]
+        },
+        "drm_notice": "Denuvo Anti-Tamper<br>5 a day machine activation limit"
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "812140_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "812140_eula_0",
+            "title": "END USER LICENCE AGREEMENT",
+            "bytes": 55898,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "RPG"
+        ],
+        "publishers": [
+          "Ubisoft"
+        ]
+      },
+      "verdict": "review",
+      "verdict_reasons": [
+        "商店页披露 Denuvo",
+        "商店页披露 Anti-tamper",
+        "商店页披露 3rd-Party Account",
+        "drm_notice 明写激活次数上限：Denuvo Anti-Tamper<br>5 a day machine activation limit"
+      ]
+    },
+    {
+      "roster_index": 23,
+      "appid": 1174180,
+      "roster_name": "Red Dead Redemption 2",
+      "steam_name": "Red Dead Redemption 2",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 150.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 151347,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "3rd-Party Account",
+          "VAC"
+        ],
+        "disclosure_context": {
+          "3rd-Party Account": [
+            "hievements In-App Purchases Remote Play on Phone Remote Play on Tablet Requires 3rd-Party Account: Rockstar Games (Supports Linking to Steam Account) Requires agreement to a 3rd-party EULA Red Dead Redemption 2 EULA Languages : English and 12 more Interface"
+          ]
+        },
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1174180_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1174180_eula_0",
+            "title": "Terms of Service",
+            "bytes": 16951,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Rockstar Games"
+        ]
+      },
+      "verdict": "review",
+      "verdict_reasons": [
+        "商店页披露 3rd-Party Account"
+      ]
+    },
+    {
+      "roster_index": 24,
+      "appid": 1326470,
+      "roster_name": "Sons of The Forest",
+      "steam_name": "Sons Of The Forest",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 20.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 139190,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1326470_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1326470_eula_0",
+            "title": "1326470_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Adventure",
+          "Indie",
+          "Simulation"
+        ],
+        "publishers": [
+          "Newnight "
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 25,
+      "appid": 305620,
+      "roster_name": "The Long Dark",
+      "steam_name": "The Long Dark",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 7.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 290617,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "305620_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "305620_eula_0",
+            "title": "305620_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Adventure",
+          "Indie",
+          "Simulation",
+          "Strategy"
+        ],
+        "publishers": [
+          "Hinterland Studio Inc."
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 26,
+      "appid": 1091500,
+      "roster_name": "Cyberpunk 2077",
+      "steam_name": "Cyberpunk 2077",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 70.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 292306,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1091500_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1091500_eula_0",
+            "title": "CYBERPUNK 2077 – END USER LICENCE AGREEMENT",
+            "bytes": 82888,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": [
+          "data mining"
+        ]
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "RPG"
+        ],
+        "publishers": [
+          "CD PROJEKT RED"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 27,
+      "appid": 1659040,
+      "roster_name": "HITMAN World of Assassination",
+      "steam_name": "HITMAN World of Assassination",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 60.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 220599,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1659040_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1659040_eula_0",
+            "title": "HITMAN 3 EULA",
+            "bytes": 26689,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "IO Interactive A/S"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 28,
+      "appid": 638970,
+      "roster_name": "Yakuza 0",
+      "steam_name": "Yakuza 0",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 137232,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "638970_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "638970_eula_0",
+            "title": "END USER LICENSE AGREEMENT",
+            "bytes": 62007,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Adventure",
+          "RPG"
+        ],
+        "publishers": [
+          "SEGA"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 29,
+      "appid": 526870,
+      "roster_name": "Satisfactory",
+      "steam_name": "Satisfactory",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 20.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 216485,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "526870_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "526870_eula_0",
+            "title": "526870_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Adventure",
+          "Indie",
+          "Simulation",
+          "Strategy"
+        ],
+        "publishers": [
+          "Coffee Stain Publishing"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 30,
+      "appid": 427410,
+      "roster_name": "Abiotic Factor",
+      "steam_name": "Abiotic Factor",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 10.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 247496,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "427410_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "427410_eula_0",
+            "title": "427410_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Adventure",
+          "RPG",
+          "Simulation"
+        ],
+        "publishers": [
+          "Playstack"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 31,
+      "appid": 287390,
+      "roster_name": "Metro: Last Light Redux",
+      "steam_name": "Metro: Last Light Redux",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 10.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 163441,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "287390_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "287390_eula_0",
+            "title": "287390_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "Deep Silver"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 32,
+      "appid": 2362300,
+      "roster_name": "Train Sim World 4",
+      "steam_name": "Train Sim World® 4",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 80.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 250906,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "2362300_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "2362300_eula_0",
+            "title": "2362300_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Simulation"
+        ],
+        "publishers": [
+          "Dovetail Games - TSW"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 33,
+      "appid": 2124490,
+      "roster_name": "Silent Hill 2",
+      "steam_name": "SILENT HILL 2",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 50.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 182525,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "2124490_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "2124490_eula_0",
+            "title": "2124490_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "KONAMI"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 34,
+      "appid": 1128920,
+      "roster_name": "EVERSPACE 2",
+      "steam_name": "EVERSPACE™ 2",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 35.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 233383,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1128920_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1128920_eula_0",
+            "title": "Analytics",
+            "bytes": 15361,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "RPG",
+          "Simulation"
+        ],
+        "publishers": [
+          "ROCKFISH Games"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 35,
+      "appid": 275850,
+      "roster_name": "No Man's Sky",
+      "steam_name": "No Man's Sky",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 15.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 370600,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "275850_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "275850_eula_0",
+            "title": "No Man's Sky EULA",
+            "bytes": 38686,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Hello Games"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 36,
+      "appid": 264710,
+      "roster_name": "Subnautica",
+      "steam_name": "Subnautica",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 20.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 202680,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "264710_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "264710_eula_0",
+            "title": "264710_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Adventure",
+          "Indie"
+        ],
+        "publishers": [
+          "Unknown Worlds Entertainment"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 37,
+      "appid": 620,
+      "roster_name": "Portal 2",
+      "steam_name": "Portal 2",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 8.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 200828,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "RICOCHET",
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "620_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "620_eula_0",
+            "title": "620_eula_0",
+            "bytes": 14673,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": true,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Valve"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 38,
+      "appid": 1817230,
+      "roster_name": "Hi-Fi RUSH",
+      "steam_name": "Hi-Fi RUSH",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 20.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 196396,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1817230_eula_1"
+        ],
+        "documents": [
+          {
+            "slug": "1817230_eula_1",
+            "title": "Terms of Service",
+            "bytes": 15350,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "KRAFTON, Inc."
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 39,
+      "appid": 1167630,
+      "roster_name": "Teardown",
+      "steam_name": "Teardown",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 12.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 178198,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1167630_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1167630_eula_0",
+            "title": "Teardown Terms of Use",
+            "bytes": 45010,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": true,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Indie",
+          "Simulation",
+          "Strategy"
+        ],
+        "publishers": [
+          "Tuxedo Labs"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 40,
+      "appid": 870780,
+      "roster_name": "Control Ultimate Edition",
+      "steam_name": "CONTROL Ultimate Edition",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 42.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 180679,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "870780_eula_1"
+        ],
+        "documents": [
+          {
+            "slug": "870780_eula_1",
+            "title": "REMEDY END-USER LICENSE AGREEMENT",
+            "bytes": 41859,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Remedy Entertainment"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 41,
+      "appid": 753640,
+      "roster_name": "Outer Wilds",
+      "steam_name": "Outer Wilds",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 8.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 159674,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "753640_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "753640_eula_0",
+            "title": "753640_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Annapurna Interactive"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 42,
+      "appid": 962130,
+      "roster_name": "Grounded",
+      "steam_name": "Grounded",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 8.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 183097,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "962130_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "962130_eula_0",
+            "title": "962130_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Xbox Game Studios"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 43,
+      "appid": 1458140,
+      "roster_name": "Pacific Drive",
+      "steam_name": "Pacific Drive",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 18.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 208157,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1458140_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1458140_eula_0",
+            "title": "1458140_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "Indie",
+          "Racing",
+          "Simulation"
+        ],
+        "publishers": [
+          "Kepler Interactive"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 44,
+      "appid": 323190,
+      "roster_name": "Frostpunk",
+      "steam_name": "Frostpunk",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 8.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 230117,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "323190_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "323190_eula_0",
+            "title": "323190_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Simulation",
+          "Strategy"
+        ],
+        "publishers": [
+          "11 bit studios"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 45,
+      "appid": 255710,
+      "roster_name": "Cities: Skylines",
+      "steam_name": "Cities: Skylines",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 4.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 376368,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "255710_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "255710_eula_0",
+            "title": "User Agreement",
+            "bytes": 16718,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": true,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Simulation",
+          "Strategy"
+        ],
+        "publishers": [
+          "Paradox Interactive"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 46,
+      "appid": 1363080,
+      "roster_name": "Manor Lords",
+      "steam_name": "Manor Lords",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 15.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 267054,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1363080_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1363080_eula_0",
+            "title": "1363080_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Simulation",
+          "Strategy",
+          "Early Access"
+        ],
+        "publishers": [
+          "Hooded Horse"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 47,
+      "appid": 2677660,
+      "roster_name": "Indiana Jones and the Great Circle",
+      "steam_name": "Indiana Jones and the Great Circle",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 120.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 246444,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "2677660_eula_1"
+        ],
+        "documents": [
+          {
+            "slug": "2677660_eula_1",
+            "title": "Indiana Jones and the Great Circle End User License Agreement",
+            "bytes": 47234,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Bethesda Softworks"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 48,
+      "appid": 257510,
+      "roster_name": "The Talos Principle",
+      "steam_name": "The Talos Principle",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 8.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 185626,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "257510_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "257510_eula_0",
+            "title": "257510_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": true,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "Indie"
+        ],
+        "publishers": [
+          "Devolver Digital",
+          "Croteam"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 49,
+      "appid": 1086940,
+      "roster_name": "Baldur's Gate 3",
+      "steam_name": "Baldur's Gate 3",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 150.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 197382,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1086940_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1086940_eula_0",
+            "title": "End User License Agreement",
+            "bytes": 36452,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Adventure",
+          "RPG",
+          "Strategy"
+        ],
+        "publishers": [
+          "Larian Studios"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 50,
+      "appid": 22380,
+      "roster_name": "Fallout: New Vegas",
+      "steam_name": "Fallout: New Vegas",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 172853,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "22380_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "22380_eula_0",
+            "title": "22380_eula_0",
+            "bytes": 14679,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "RPG"
+        ],
+        "publishers": [
+          "Bethesda Softworks"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 51,
+      "appid": 1144200,
+      "roster_name": "Ready or Not",
+      "steam_name": "Ready or Not",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 60.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 204572,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1144200_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1144200_eula_0",
+            "title": "1144200_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Adventure",
+          "Indie"
+        ],
+        "publishers": [
+          "VOID Interactive"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 52,
+      "appid": 466130,
+      "roster_name": "White Day: A Labyrinth Named School",
+      "steam_name": "White Day: A Labyrinth Named School",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 10.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 254614,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "466130_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "466130_eula_0",
+            "title": "466130_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "Indie"
+        ],
+        "publishers": [
+          "PQube",
+          "SONNORI Corp"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 53,
+      "appid": 2527390,
+      "roster_name": "Dead Rising Deluxe Remaster",
+      "steam_name": "Dead Rising Deluxe Remaster",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 214129,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "Enigma Protector",
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": "The Enigma Protector"
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "2527390_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "2527390_eula_0",
+            "title": "EULA",
+            "bytes": 25153,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "CAPCOM Co., Ltd."
+        ]
+      },
+      "verdict": "review",
+      "verdict_reasons": [
+        "drm_notice: The Enigma Protector"
+      ]
+    },
+    {
+      "roster_index": 54,
+      "appid": 883710,
+      "roster_name": "Resident Evil 2",
+      "steam_name": "Resident Evil 2",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 26.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 204709,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "883710_eula_1"
+        ],
+        "documents": [
+          {
+            "slug": "883710_eula_1",
+            "title": "RESIDENT EVIL 2 / BIOHAZARD RE:2 EULA",
+            "bytes": 25252,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "CAPCOM Co., Ltd."
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 55,
+      "appid": 952060,
+      "roster_name": "Resident Evil 3",
+      "steam_name": "Resident Evil 3",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 45.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 170192,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "952060_eula_1"
+        ],
+        "documents": [
+          {
+            "slug": "952060_eula_1",
+            "title": "RESIDENT EVIL 3 / BIOHAZARD RE:3 EULA",
+            "bytes": 25252,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "CAPCOM Co., Ltd."
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 56,
+      "appid": 307690,
+      "roster_name": "Sleeping Dogs: Definitive Edition",
+      "steam_name": "Sleeping Dogs: Definitive Edition",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 20.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 140367,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "307690_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "307690_eula_0",
+            "title": "END USER LICENSE AGREEMENT",
+            "bytes": 47674,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "Racing"
+        ],
+        "publishers": [
+          "Square Enix",
+          "Feral Interactive (Mac)"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 57,
+      "appid": 1475810,
+      "roster_name": "Ghostwire: Tokyo",
+      "steam_name": "Ghostwire: Tokyo",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 26.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 170150,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1475810_eula_1"
+        ],
+        "documents": [
+          {
+            "slug": "1475810_eula_1",
+            "title": "End User License Agreement (“EULA”)",
+            "bytes": 52655,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "Bethesda Softworks"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 58,
+      "appid": 1643320,
+      "roster_name": "S.T.A.L.K.E.R. 2",
+      "steam_name": "S.T.A.L.K.E.R. 2: Heart of Chornobyl",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 160.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 237754,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1643320_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1643320_eula_0",
+            "title": "1643320_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "RPG"
+        ],
+        "publishers": [
+          "GSC Game World (worldwide)",
+          "SEGA (Japan)",
+          "4Divinity (China and South East Asia)"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 59,
+      "appid": 1622910,
+      "roster_name": "Still Wakes the Deep",
+      "steam_name": "Still Wakes the Deep",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 9.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 190037,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1622910_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1622910_eula_0",
+            "title": "1622910_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "Indie"
+        ],
+        "publishers": [
+          "Secret Mode"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 60,
+      "appid": 2138710,
+      "roster_name": "Sifu",
+      "steam_name": "Sifu",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 22.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 269525,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "2138710_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "2138710_eula_0",
+            "title": "2138710_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Indie"
+        ],
+        "publishers": [
+          "Sloclap",
+          "Kepler Interactive"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 61,
+      "appid": 286690,
+      "roster_name": "Metro 2033 Redux",
+      "steam_name": "Metro 2033 Redux",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 10.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 168537,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "286690_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "286690_eula_0",
+            "title": "286690_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action"
+        ],
+        "publishers": [
+          "Deep Silver"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 62,
+      "appid": 2967990,
+      "roster_name": "Train Sim World 5",
+      "steam_name": "Train Sim World® 5",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 80.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 284725,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "2967990_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "2967990_eula_0",
+            "title": "Dovetail End User Licence Agreement",
+            "bytes": 36726,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": [
+          "training"
+        ]
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Simulation"
+        ],
+        "publishers": [
+          "Dovetail Games - TSW"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 63,
+      "appid": 225540,
+      "roster_name": "Just Cause 3",
+      "steam_name": "Just Cause™ 3",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 54.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 232789,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "225540_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "225540_eula_0",
+            "title": "EULA",
+            "bytes": 47572,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Square Enix"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 64,
+      "appid": 1574240,
+      "roster_name": "Dread Delusion",
+      "steam_name": "Dread Delusion",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 2.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 149465,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "1574240_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "1574240_eula_0",
+            "title": "1574240_eula_0",
+            "bytes": 14685,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure",
+          "Indie",
+          "RPG"
+        ],
+        "publishers": [
+          "DreadXP"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 65,
+      "appid": 519860,
+      "roster_name": "DUSK",
+      "steam_name": "DUSK",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 2.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 183536,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "519860_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "519860_eula_0",
+            "title": "DUSK EULA",
+            "bytes": 37268,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": true,
+        "has_singleplayer": true,
+        "has_multiplayer": true,
+        "genres": [
+          "Action",
+          "Indie"
+        ],
+        "publishers": [
+          "New Blood Interactive"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    },
+    {
+      "roster_index": 66,
+      "appid": 265690,
+      "roster_name": "NaissanceE",
+      "steam_name": "NaissanceE",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 2.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 130918,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "265690_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "265690_eula_0",
+            "title": "265690_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Adventure",
+          "Indie"
+        ],
+        "publishers": [
+          "Limasse Five"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 67,
+      "appid": 210970,
+      "roster_name": "The Witness",
+      "steam_name": "The Witness",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 5.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 146270,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "210970_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "210970_eula_0",
+            "title": "210970_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Adventure",
+          "Indie"
+        ],
+        "publishers": [
+          "Thekla, Inc."
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 68,
+      "appid": 757310,
+      "roster_name": "Sable",
+      "steam_name": "Sable",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 3.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 172798,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "757310_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "757310_eula_0",
+            "title": "757310_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Adventure",
+          "Indie",
+          "RPG"
+        ],
+        "publishers": [
+          "Raw Fury"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 69,
+      "appid": 607080,
+      "roster_name": "Psychonauts 2",
+      "steam_name": "Psychonauts 2",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "❌"
+      },
+      "install_gb_planning": 30.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 203404,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "607080_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "607080_eula_0",
+            "title": "607080_eula_0",
+            "bytes": 14682,
+            "is_placeholder": true
+          }
+        ],
+        "has_custom_eula": false,
+        "scannable": false,
+        "p0_3_conclusive": false,
+        "not_conclusive_reason": "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）",
+        "ai_verbatim": null,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Xbox Game Studios"
+        ]
+      },
+      "verdict": "pass_eula_unscanned",
+      "verdict_reasons": [
+        "Steam 上无自挂 EULA —— P0.3 对本款未产生任何结论（不是「通过」）"
+      ]
+    },
+    {
+      "roster_index": 70,
+      "appid": 391220,
+      "roster_name": "Rise of the Tomb Raider",
+      "steam_name": "Rise of the Tomb Raider™",
+      "current_roster_state": {
+        "admission": "未内置",
+        "capture_depth": "—",
+        "license_flag_in_110": "⚠️"
+      },
+      "install_gb_planning": 25.0,
+      "p0_1_appid_check": {
+        "appdetails_resolved": true,
+        "name_matches_roster": true
+      },
+      "p0_2_anticheat": {
+        "store_page_http": 200,
+        "store_page_bytes": 185266,
+        "kernel_level_anticheat": false,
+        "disclosure_terms": [
+          "VAC"
+        ],
+        "disclosure_context": {},
+        "drm_notice": null
+      },
+      "p0_3_eula": {
+        "slugs_linked_from_store_page": [
+          "391220_eula_0"
+        ],
+        "documents": [
+          {
+            "slug": "391220_eula_0",
+            "title": "EULA",
+            "bytes": 60362,
+            "is_placeholder": false
+          }
+        ],
+        "has_custom_eula": true,
+        "scannable": true,
+        "p0_3_conclusive": true,
+        "not_conclusive_reason": null,
+        "ai_verbatim": false,
+        "ai_hard_hit_terms": [],
+        "ai_hard_hit_context": {},
+        "ai_soft_hit_terms": []
+      },
+      "p0_4_store_metadata": {
+        "has_level_editor_cat17": false,
+        "has_workshop": false,
+        "has_singleplayer": true,
+        "has_multiplayer": false,
+        "genres": [
+          "Action",
+          "Adventure"
+        ],
+        "publishers": [
+          "Crystal Dynamics",
+          "Feral Interactive (Mac)",
+          "Feral Interactive (Linux)"
+        ]
+      },
+      "verdict": "pass",
+      "verdict_reasons": []
+    }
+  ]
+}

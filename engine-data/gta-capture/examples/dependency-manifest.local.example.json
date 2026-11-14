@@ -1,0 +1,130 @@
+{
+  "schema": "dm-gta-dependency-manifest/1",
+  "game": {
+    "path": "C:\\Games\\Grand Theft Auto V Legacy\\GTA5.exe",
+    "sha256": "",
+    "actual_file_version": "",
+    "expected_build": "1.0.3889.0",
+    "process_name": "GTA5.exe"
+  },
+  "gpu": {
+    "vendor": "NVIDIA",
+    "adapter_name": "pending-pin-from-Win32_VideoController.Name",
+    "driver_version": "pending-pin-from-Win32_VideoController.DriverVersion"
+  },
+  "components": {
+    "scripthook_dll": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\ScriptHookV.dll",
+      "sha256": ""
+    },
+    "asi_loader": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\dinput8.dll",
+      "sha256": ""
+    },
+    "replus_asi": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\RockstarEditorPlus.asi",
+      "sha256": ""
+    },
+    "replus_capture_addon": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\IgcsConnector.addon64",
+      "sha256": ""
+    },
+    "reshade_dxgi": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\ReShade64.asi",
+      "sha256": ""
+    },
+    "replus_render_ini": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\RockstarEditorPlus\\Render.ini",
+      "sha256": ""
+    },
+    "replus_main_ini": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\RockstarEditorPlus\\RockstarEditorPlus.ini",
+      "sha256": ""
+    },
+    "replus_lights_ini": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\RockstarEditorPlus\\Lights.ini",
+      "sha256": ""
+    },
+    "replus_settings_exe": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\RockstarEditorPlus\\RE+ Render Settings.exe",
+      "sha256": ""
+    },
+    "igcs_dof_shader": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\reshade-shaders\\Shaders\\IgcsDof.fx",
+      "sha256": ""
+    },
+    "reshade_install_receipt": {
+      "path": "C:\\capture\\gta\\reshade-install-receipt.json",
+      "sha256": ""
+    },
+    "capture_build_receipt": {
+      "path": "C:\\capture\\gta\\capture-build-receipt.json",
+      "sha256": ""
+    },
+    "diogenes_controller_asi": {
+      "path": "C:\\Games\\Grand Theft Auto V Legacy\\DiogenesGtaController.asi",
+      "sha256": ""
+    },
+    "gta_settings_xml": {
+      "path": "%USERPROFILE%\\Documents\\Rockstar Games\\GTA V\\settings.xml",
+      "sha256": ""
+    },
+    "ffmpeg": {
+      "path": "ffmpeg",
+      "sha256": "",
+      "allow_path_lookup": true
+    },
+    "ffprobe": {
+      "path": "ffprobe",
+      "sha256": "",
+      "allow_path_lookup": true
+    }
+  },
+  "source_pins": {
+    "scripthook_release": "v3889.0 / 1158.13",
+    "scripthook_runtime_zip_sha256": "b64c97c3353906f14621e7e9511e4aec2a7d436ecc21ed124d3816585e2e6188",
+    "scripthook_sdk_zip_sha256": "56b6ad265b2b93aa4e73f79f97949d72f3683a35576b977e63dde91c6485fe22",
+    "replus_commit": "c6eba57160ca444817b149b3304ed1454e0ba2d9",
+      "replus_patch_sha256": "4582b99830b47f6816b16ccf16dec274d90d9c822430be3f482c3f610cad03aa",
+    "igcs_fork_commit": "13c92ef2565403ffcc2501f779ca7cd935e5d598",
+    "igcs_patch_sha256": "5acb2d375748a0ee91ee7fc0c5f0f38e349139dfff0e78963c4ace89f524d4f5",
+    "reshade_release": "6.8.0 full add-on support",
+    "reshade_setup_sha256": "afe4c8f13048306307983b8b3d41d5bf00a86820440b0e57dea10950e1176445",
+    "reshade_signer_thumbprint": "589690208A5E52FB96980C4A6698F50ACD47C49F",
+    "reshade_dll_sha256": "",
+    "controller_git_commit": ""
+  },
+  "render": {
+    "fps": 30,
+    "graphics_api": "DX11",
+    "frame_step_mode": "fixed_replay_timeline",
+    "render_samples": 1,
+    "motion_blur": false,
+    "width": 1920,
+    "height": 1080
+  },
+  "calibration": {
+    "calibration_id": "pending-approved-projection-calibration",
+    "filmback_id": "pending-customer-confirmation",
+    "metric_scale": 1.0,
+    "metric_scale_approved": false,
+    "acceptance": {
+      "max_reprojection_error_px": 1.0,
+      "min_sample_count": 100
+    },
+    "projection_evidence": {
+      "path": "C:\\capture-calibration\\gta-legacy-3889-projection.json",
+      "sha256": ""
+    }
+  },
+  "policy": {
+    "purpose": "internal_nontrainable_poc",
+    "story_mode_only": true,
+    "online_forbidden": true,
+    "non_trainable": true,
+    "upload_enabled": false,
+    "customer_replay_sync_accepted": false,
+    "customer_metadata_semantics_accepted": false,
+    "commercial_rights_approved": false
+  }
+}

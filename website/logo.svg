@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Diogenes">
+  <title>Diogenes</title>
+  <!-- The lamp Diogenes carried through the market at noon, looking for an honest
+       man; its flame is the brand slash. Proportions are tuned for legibility at
+       favicon size: a narrow hood (a wide one reads as a fuel can), a glass taller
+       than it is wide, and a flame heavy enough to survive at 16px.
+       A straight hanger rather than an arched handle — an arch over the body reads
+       as a padlock. Colours are literal rather than currentColor because this file
+       loads as <img> and as the favicon, where the site stylesheet does not apply.
+       The site only ever places it on the light layer; on a dark browser tab strip
+       the ink recedes and the green flame carries the mark. -->
+  <path d="M24 5v5.5" stroke="#0D1310" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M15.5 19.5 20 11h8l4.5 8.5h-17Z" fill="#0D1310"/>
+  <path d="M17 20.5h14v13.5a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5V20.5Z"
+        fill="none" stroke="#0D1310" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M27.4 24.4 21 34.8" stroke="#A3E635" stroke-width="4.6" stroke-linecap="round"/>
+</svg>

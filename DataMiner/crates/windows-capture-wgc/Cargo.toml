@@ -1,0 +1,27 @@
+[package]
+name = "windows-capture-wgc"
+version = "2.0.0-dataminer.1"
+edition.workspace = true
+license = "MIT"
+description = "DataMiner HWND-only fork of windows-capture 2.0.0"
+repository = "https://github.com/NiiightmareXD/windows-capture"
+
+[dependencies]
+parking_lot.workspace = true
+thiserror.workspace = true
+windows = { workspace = true, features = [
+  "Foundation",
+  "Foundation_Metadata",
+  "Graphics_Capture",
+  "Graphics_DirectX",
+  "Graphics_DirectX_Direct3D11",
+  "Win32_Foundation",
+  "Win32_Graphics_Direct3D11",
+  "Win32_Graphics_Dxgi",
+  "Win32_Graphics_Dxgi_Common",
+  "Win32_System_Com",
+  "Win32_System_WinRT",
+  "Win32_System_WinRT_Direct3D11",
+  "Win32_System_WinRT_Graphics_Capture",
+  "Win32_UI_WindowsAndMessaging",
+] }

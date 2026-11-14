@@ -1,0 +1,749 @@
+{
+  "schema_version": 1,
+  "issue_url": "https://github.com/DiogenesModel/Diogenes/issues/609",
+  "observed_at": "2026-09-07",
+  "scope": "Final classifications for the observed installed builds under issue #609's depth/action-camera requirements.",
+  "records": [
+    {
+      "app_id": "1466860",
+      "game": "Age of Empires IV: Anniversary Edition",
+      "classification": "not_adaptable",
+      "final_for_observed_build": true,
+      "no_injection": true,
+      "executable": {
+        "relative_install_path": "Age of Empires IV\\RelicCardinal.exe",
+        "sha256": "5380c577805565817f528af6eac385263413fa6815553f9a31fa62561cb45e8c"
+      },
+      "appmanifest_sha256": "bc3d7d8b631c71d352e3be802a50479ea514fda9554811dddd603e4b2723a30a",
+      "exclusion_codes": [
+        "G1_EMBEDDED_ANTI_TAMPER_NO_DISABLED_MODE"
+      ],
+      "rationale": "The pinned release executable embeds Aegis stealth-startup, virtualization, instruction filtering, and block-list protection. The installed Steam build exposes no supported anti-tamper-disabled launch item. Native DLL injection would cross that protection boundary, so no bypass or depth discovery was attempted.",
+      "installed_security_files": [
+        {
+          "relative_install_path": "Age of Empires IV\\Aegis_RelicCardinal.log",
+          "length": 1611,
+          "sha256": "1936e78ff0d424348c6d4799bc54b0f277213b877fe0e43c950a92688c691dcd"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/issue-609-runtime-gates/aoe4-aegis-blocker-20260811.json",
+          "locator": "embedded_protection / blocking",
+          "facts": [
+            "Pinned Aegis build-log lines record release mode, stealth startup, instruction filtering, block-list inclusion, and successful virtualization",
+            "No supported disabled launch was found and no injection was attempted"
+          ]
+        },
+        {
+          "kind": "repository_survey",
+          "repo_path": "DataMiner/docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "section 0.1 / AoE4 / PR #697",
+          "facts": [
+            "The representative-build audit supersedes the startup-only absence-of-module observation",
+            "Aegis is embedded in the release executable and therefore does not require a separately loaded anti-cheat module"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "The publisher provides a supported protection-disabled build for the pinned single-player scope.",
+        "The publisher exposes a native depth export that does not require injection across the Aegis boundary."
+      ]
+    },
+    {
+      "app_id": "1240440",
+      "game": "Halo Infinite",
+      "classification": "not_adaptable",
+      "final_for_observed_build": true,
+      "no_injection": true,
+      "executable": {
+        "relative_install_path": "Halo Infinite\\game\\HaloInfinite.exe",
+        "sha256": "5da518ec21f5ab7baeb021aeed2b9892eeb65320dc17d2682f8f55271c203da8"
+      },
+      "appmanifest_sha256": "16ddb3f5f43179a3a7fb644b0f8574540eb1aafb4c56219e0e9f407ddc7daea3",
+      "exclusion_codes": [
+        "G1_KERNEL_ANTI_CHEAT",
+        "G8_NO_CERTIFIABLE_CAMERA_PLAYER_CHANNEL"
+      ],
+      "rationale": "The current Steam disclosure and installed tree both identify kernel-level Easy Anti-Cheat. The existing Forge survey also found no certifiable camera/player export channel. Issue #609 forbids injection when kernel anti-cheat is present.",
+      "installed_security_files": [
+        {
+          "relative_install_path": "Halo Infinite\\EasyAntiCheat\\EasyAntiCheat_EOS_Setup.exe",
+          "length": 959216,
+          "sha256": "f6a52adbb75c0155c2de073bafeca731ec5268d9b558f9cbe3449928584f210a"
+        },
+        {
+          "relative_install_path": "Halo Infinite\\subgames\\CampaignS1\\start_protected_game.exe",
+          "length": 3975920,
+          "sha256": "903e7aba292448d68976597efe3f0dc6f5cc66ef1889e3c1efcaf3eaf4e614d1"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "official_store_disclosure",
+          "url": "https://store.steampowered.com/app/1240440/Halo_Infinite/",
+          "facts": [
+            "Uses Kernel Level Anti-Cheat: Easy Anti-Cheat",
+            "Requires a third-party Xbox Live account"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/config/roster-preflight/110-machine-check.json",
+          "locator": "games[appid=1240440].p0_2_anticheat",
+          "facts": [
+            "Store snapshot recorded kernel_level_anticheat=true"
+          ]
+        },
+        {
+          "kind": "repository_survey",
+          "repo_path": "DataMiner/docs/98-steam-wide-map-metric-actioncamera-source-survey.md",
+          "locator": "Halo Infinite / Forge rows",
+          "facts": [
+            "831 Forge nodes contained no camera node",
+            "No certifiable player export channel was identified"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "Microsoft provides a written, publisher-supported no-kernel-anti-cheat capture mode for the named build and requested scope.",
+        "A certifiable camera and player-pose channel becomes available and the issue owner reopens the taxonomy decision."
+      ]
+    },
+    {
+      "app_id": "2622380",
+      "game": "ELDEN RING NIGHTREIGN",
+      "classification": "not_adaptable",
+      "final_for_observed_build": true,
+      "no_injection": true,
+      "executable": {
+        "relative_install_path": "ELDEN RING NIGHTREIGN\\Game\\nightreign.exe",
+        "sha256": "9545e8732919bb6a63904cb73223641b3c4f9a67869be5722612acca413e8b3a"
+      },
+      "appmanifest_sha256": "c4c38a7eb7e216bbfefa01b7ac936ef056e3b6fa13ecf0fc5e8afda8c2b5020b",
+      "exclusion_codes": [
+        "G1_KERNEL_ANTI_CHEAT",
+        "G3_PROTECTED_ONLINE_PRODUCT"
+      ],
+      "rationale": "The current Steam snapshot and installed tree identify kernel-level Easy Anti-Cheat, GuardIT, and a protected launcher. This is a hard no-injection state for issue #609.",
+      "installed_security_files": [
+        {
+          "relative_install_path": "ELDEN RING NIGHTREIGN\\Game\\start_protected_game.exe",
+          "length": 3977000,
+          "sha256": "123665879cc19340348ebb43439dadfb6c813b3b3c890530fe412cad917aa69d"
+        },
+        {
+          "relative_install_path": "ELDEN RING NIGHTREIGN\\Game\\easyanticheat\\easyanticheat_eos_setup.exe",
+          "length": 965416,
+          "sha256": "533e8fec61dd4fa10cd9569eff32b4383a89656e8d951177a0331996ae074eb1"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "official_store_disclosure",
+          "url": "https://store.steampowered.com/app/2622380/ELDEN_RING_NIGHTREIGN/",
+          "facts": [
+            "Uses Kernel Level Anti-Cheat: Easy Anti-Cheat",
+            "Incorporates third-party DRM: GuardIT"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/config/roster-preflight/110-machine-check.json",
+          "locator": "games[appid=2622380].p0_2_anticheat",
+          "facts": [
+            "Store snapshot recorded kernel_level_anticheat=true and drm_notice=GuardIT"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "The publisher ships and documents an offline no-kernel-anti-cheat mode and grants the complete requested capture rights."
+      ]
+    },
+    {
+      "app_id": "1145350",
+      "game": "Hades II",
+      "classification": "not_adaptable",
+      "final_for_observed_build": true,
+      "no_injection": true,
+      "executable": {
+        "relative_install_path": "Hades II\\Ship\\Hades2.exe",
+        "sha256": "c3ff02904199dba56b4841581ec9938a0a7c7fbf3e83e0d8e6cb6179d9645d1f"
+      },
+      "appmanifest_sha256": "98601f8e690e5aaa4ce69ac8048cc03e9638af84ca35654b835fc175213c1236",
+      "exclusion_codes": [
+        "G8_FIXED_ISOMETRIC_NO_ACTION_CAMERA"
+      ],
+      "rationale": "The product is a fixed isometric action game. Under issue #609's action-camera and camera/player-pose requirements, the observed build does not supply the target camera domain; this is a scope/taxonomy exclusion, not an anti-cheat claim.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "official_store_taxonomy",
+          "url": "https://store.steampowered.com/app/1145350/Hades_II/",
+          "facts": [
+            "Steam product tags include Isometric",
+            "The product is single-player"
+          ]
+        },
+        {
+          "kind": "repository_survey",
+          "repo_path": "DataMiner/docs/73-steam-roster-depth-capture-eligibility-survey.md",
+          "locator": "section 4.12",
+          "facts": [
+            "Survey records a fixed isometric camera and near-zero target depth/action-camera value"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A free or certifiable action-camera mode is added.",
+        "Issue #609's target taxonomy is explicitly expanded to fixed isometric camera datasets."
+      ]
+    },
+    {
+      "app_id": "1150690",
+      "game": "OMORI",
+      "classification": "not_adaptable",
+      "final_for_observed_build": true,
+      "no_injection": true,
+      "executable": {
+        "relative_install_path": "OMORI\\OMORI.exe",
+        "sha256": "a6a79c04ac729c156405399ce22c087c48b84f3f0bfaa07cb2692cd734f8fc81"
+      },
+      "appmanifest_sha256": "6e622df4f569d3deb2745df0139275790b1f824e39076ae1a3c85b9b495c2a76",
+      "exclusion_codes": [
+        "G8_NO_3D_ACTION_CAMERA_DOMAIN"
+      ],
+      "rationale": "The official product page identifies a 2D pixel-graphics RPG. It has no qualifying 3D main-scene depth/action-camera domain for issue #609.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "official_store_taxonomy",
+          "url": "https://store.steampowered.com/app/1150690/OMORI/",
+          "facts": [
+            "Steam product tags include 2D and Pixel Graphics",
+            "System requirements target DirectX 9/OpenGL"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "not adaptable table / OMORI",
+          "facts": [
+            "Roster records a 2D RPG with fixed camera and no certifiable 3D scene"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A qualifying 3D free/action-camera mode is shipped.",
+        "Issue #609 is expanded to 2D screen-space or synthetic depth."
+      ]
+    },
+    {
+      "app_id": "206440",
+      "game": "To the Moon",
+      "classification": "not_adaptable",
+      "final_for_observed_build": true,
+      "no_injection": true,
+      "executable": {
+        "relative_install_path": "To the Moon\\To the Moon\\To the Moon.exe",
+        "sha256": "a17176d7bbf94753667b39dde762945457894176ad4e5bfc740e6f2bba8e8440"
+      },
+      "appmanifest_sha256": "d452f04aa80dd19525de425541973dedf707873a404b26f2badcb76c27a1dcfe",
+      "exclusion_codes": [
+        "G8_NO_3D_ACTION_CAMERA_DOMAIN"
+      ],
+      "rationale": "The official product page identifies a 2D pixel-graphics, story-driven RPG/interactive-fiction experience. It has no qualifying 3D main-scene depth/action-camera domain for issue #609.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "official_store_taxonomy",
+          "url": "https://store.steampowered.com/app/206440/To_the_Moon/",
+          "facts": [
+            "Steam product tags include 2D and Pixel Graphics",
+            "The product description calls it a story-driven experience"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "not adaptable table / To the Moon",
+          "facts": [
+            "Roster records a 2D pixel narrative with fixed camera"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A qualifying 3D free/action-camera mode is shipped.",
+        "Issue #609 is expanded to 2D screen-space or synthetic depth."
+      ]
+    },
+    {
+      "app_id": "3561220",
+      "game": "Pass the Fear",
+      "classification": "not_adaptable",
+      "final_for_observed_build": true,
+      "no_injection": true,
+      "executable": {
+        "relative_install_path": "Pass The Fear\\PassTheFear.exe",
+        "sha256": "dc8b63a26d39a413892ffa281fb4d0145b6034118e5b5acf941a9abab7125460"
+      },
+      "appmanifest_sha256": "0ba5dfe625abb88851f1e26c6106876297e3b8ffe0c6ed76f3b495a8506eccfe",
+      "exclusion_codes": [
+        "G8_FIXED_2D_BULLET_HELL_CAMERA"
+      ],
+      "rationale": "The official product page classifies the observed product as a 2D bullet-hell roguelite. Its fixed gameplay camera is outside issue #609's target action-camera domain.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "official_store_taxonomy",
+          "url": "https://store.steampowered.com/app/3561220/Pass_the_Fear/",
+          "facts": [
+            "Steam product tags include 2D and Bullet Hell",
+            "The official short description calls it a roguelite bullet-hell shooter"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "not adaptable table / Pass the Fear",
+          "facts": [
+            "Roster excludes the fixed bullet-hell camera from the target pool"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A qualifying free/action-camera mode is shipped.",
+        "Issue #609's target taxonomy is explicitly expanded to fixed 2D camera datasets."
+      ]
+    },
+    {
+      "app_id": "4532590",
+      "game": "BSide: Olivia Lin",
+      "classification": "not_adaptable",
+      "final_for_observed_build": true,
+      "no_injection": true,
+      "executable": {
+        "relative_install_path": "BSide Olivia Lin Test\\0.0.9.615\\Olivia.exe",
+        "sha256": "cb077942c9c637314c4b5f500bdfc15c21f961b03b29fd4177334bbeb873f84b"
+      },
+      "appmanifest_sha256": "ebf277db1cc63438415c3847a5575b0e1e98f7aff63af17e83dffea8d9f7d647",
+      "exclusion_codes": [
+        "OUT_OF_SCOPE_UTILITY_NOT_GAME"
+      ],
+      "rationale": "The official product page categorizes this title as Utilities/Early Access software centered on music playback, MIDI video generation, letters, and a desktop wallpaper. It is not a target game lane for issue #609.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "official_store_taxonomy",
+          "url": "https://store.steampowered.com/app/4532590/BSide_Olivia_Lin/",
+          "facts": [
+            "Steam categorizes the product as Utilities and Early Access",
+            "The page labels the product as software and requires a MiHoYo account"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "not adaptable table / BSide: Olivia Lin",
+          "facts": [
+            "Roster excludes the desktop character/music utility from the depth game lane"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "The product is reclassified and ships a qualifying game mode with a certifiable 3D action camera.",
+        "Issue #609 is explicitly expanded from games to desktop utility content."
+      ]
+    },
+    {
+      "app_id": "227300",
+      "game": "Euro Truck Simulator 2",
+      "classification": "blocked",
+      "final_for_observed_build": false,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "Euro Truck Simulator 2\\bin\\win_x64\\eurotrucks2.exe",
+        "sha256": "b7dffe6b27402c7db6dfd52cf982cd5bf292584138b35e3eb8efb311814ab3f8"
+      },
+      "appmanifest_sha256": "68e0e33df44c67bf651b9244a2451f328fa9e5c7bdaaa1e31a552e7d876ce1ba",
+      "exclusion_codes": [
+        "B_60S_ZERO_REALIGN_EVIDENCE_MISSING",
+        "B_PLAYER_POSE_EVIDENCE_MISSING"
+      ],
+      "rationale": "The pinned D3D11.1 depth/profile path is technically viable, but the committed production evidence contains only 8 depth rows and does not attest player-pose rows. It therefore does not meet issue #609's 60-second, zero-realign, camera-plus-player completion contract.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/tools/pr405-ets2/evidence/ets2-production-validation-20260810.json",
+          "locator": "capture / depth and camera counts",
+          "facts": [
+            "The production validation records 8 depth rows and 1,124 camera rows",
+            "No 1,800-frame 60-second run or player-pose row count is recorded"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/issue-609-runtime-gates/ets2-227300-20260810T062941Z.json",
+          "locator": "graphics / anti_cheat / status",
+          "facts": [
+            "The observed process exposed D3D11/DXGI and passed the no-running-anti-cheat gate",
+            "The blocker is completion evidence, not runtime eligibility"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A pinned representative-scene run records at least 1,800 contiguous 30 Hz depth rows with matching camera and player pose rows.",
+        "The same evidence pack records every-present clip planning with realign_drops equal to zero and local delivery validation exit 0."
+      ]
+    },
+    {
+      "app_id": "377160",
+      "game": "Fallout 4",
+      "classification": "adapted",
+      "final_for_observed_build": true,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "Fallout 4\\Fallout4.exe",
+        "sha256": "428f9996cc4248e26c0f62f9fdd3eaf0e5eb305834b67ee5996538e593218b61"
+      },
+      "appmanifest_sha256": "bd07000e9098304a0074186134fdcca66ca00e16c308e3f1b10aa860e00dfe33",
+      "exclusion_codes": [],
+      "rationale": "The observed build has pinned unique depth, per-frame projection, two-chain metric scale, camera and player poses, a 30 fps audio catalog, a contiguous 60-second run, a five-minute stability run, zero-realign local clip planning, and local delivery validation. This classification is limited to the authorized offline research-only lane.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/tools/pr405-fallout4/evidence/fallout4-production-certification-20260810.json",
+          "locator": "sixty_second / five_minute / local_rgb_delivery_smoke",
+          "facts": [
+            "The 60-second run records 1,800 contiguous depth frames with camera and player poses",
+            "The five-minute run records 9,000 frames and the local delivery smoke records zero realign drops"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/config/catalogs/dev/fallout4-steam-release-test/catalog.json",
+          "locator": "recording_profiles",
+          "facts": [
+            "The exact-byte catalog references the 30 fps recording profile",
+            "The recording profile includes process-loopback audio"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "The executable, appmanifest, profile, binding, or catalog hash changes.",
+        "A repeated 60-second or local delivery validation fails any production invariant."
+      ]
+    },
+    {
+      "app_id": "1771300",
+      "game": "Kingdom Come: Deliverance II",
+      "classification": "adapted",
+      "final_for_observed_build": true,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "KingdomComeDeliverance2\\Bin\\Win64MasterMasterSteamPGO\\KingdomCome.exe",
+        "sha256": "d85b5355842d16290dc0d97e1d02856c6f2811a2021c8957aa24d7782a771b77"
+      },
+      "appmanifest_sha256": "fe3f53e1a4c477c5db9cdaf0534a4739a45eef393df27af74d2177815167857a",
+      "exclusion_codes": [],
+      "rationale": "The observed Steam build has an exact D3D12 runtime gate, a stable D24 selector with exact-draw pass-end fallback, a same-Present combined view-projection and player-root binding, and game-specific authored-level metric scale. Static adaptation is complete; runtime Ready and performance certification remain generation- and device-gated.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/kcd2/kcd2-runtime-gate-redacted-20260907.json",
+          "locator": "process / graphics / anti_cheat / source report identity",
+          "facts": [
+            "The exact KingdomCome.exe bytes were observed with D3D12 and DXGI loaded",
+            "Module, service and driver enumeration completed with zero running anti-cheat matches"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/config/depth-profiles/kcd2-d3d12-mainline-candidate.json",
+          "locator": "profile / live_pose_plan / admission blockers",
+          "facts": [
+            "The exact build has a stable R24G8/D24 selector and a build-pinned exact-draw fallback",
+            "The combined view-projection and horizontal player-root plan requires same-Present pairing"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/config/depth-map-bounds/kcd2-metric-scale-evidence.json",
+          "locator": "metric_scale / levels / derivation",
+          "facts": [
+            "Three shipped level archives pin HeightmapUnitSize to one metre per engine unit",
+            "Metric conversion remains bound to the exact executable and evidence bytes"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "The executable, Steam appmanifest, DepthProfile, CameraBinding, or metric evidence hash changes.",
+        "A mainline Ready, 60-second capture, four-stage performance certification, or delivery validation fails."
+      ]
+    },
+    {
+      "app_id": "8870",
+      "game": "BioShock Infinite",
+      "classification": "blocked",
+      "final_for_observed_build": true,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "BioShock Infinite\\Binaries\\Win32\\BioShockInfinite.exe",
+        "sha256": "c20a42529c4181b1d10eed416d9847a823f9453dd267ca478efb3a10014a0e77"
+      },
+      "appmanifest_sha256": "ac9fb6d88100598b40d32f4d8d135e041b23155e0e5181e2ecdedee013984037",
+      "exclusion_codes": [
+        "B_PROJECTION_CAMERA_UNRESOLVED",
+        "B_METRIC_SCALE_SECOND_CHAIN_MISSING"
+      ],
+      "rationale": "D24S8 capture is observable, but the pinned build did not yield a unique reliable projection/view source, a causal camera channel, or two independent metric-scale chains. Storage quantization also collapsed the surveyed depth candidates, so no profile is certified.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/tools/pr405-bioshock/evidence/bioshock-blocker-20260810.json",
+          "locator": "blocking / projection and storage diagnostics",
+          "facts": [
+            "The diagnostic run records mutually inconsistent projection candidates and unresolved camera causality",
+            "The surveyed stored depth path exhibits quantization collapse"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/issue-609-runtime-gates/bioshock-infinite-8870-20260810T065707Z.json",
+          "locator": "module_enumeration / graphics / status",
+          "facts": [
+            "The x86 collector enumerated the real process and observed D3D11/DXGI",
+            "Runtime eligibility passed; the remaining blocker is the depth/camera evidence contract"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A new observed build or deterministic scene yields one causal view/projection binding with stable non-collapsed depth.",
+        "Two independent metric-scale chains agree and a 60-second dual-pose certification passes."
+      ]
+    },
+    {
+      "app_id": "261550",
+      "game": "Mount & Blade II: Bannerlord",
+      "classification": "blocked",
+      "final_for_observed_build": false,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "Mount & Blade II Bannerlord\\bin\\Win64_Shipping_Client\\Bannerlord.exe",
+        "sha256": "97476d34e3b6de9a6e4df9a290a2f8a5408cfd319c208b2f1438fc213dedd83f"
+      },
+      "appmanifest_sha256": "90d23fd6a9628c6e6f3e09b3b3dd91858e38e43bfe254b5d5c413fe3b367e0cd",
+      "exclusion_codes": [
+        "B_60S_ZERO_REALIGN_EVIDENCE_MISSING"
+      ],
+      "rationale": "Depth, camera, and player channels are present on the pinned single-player renderer, but the committed certification records only 60 depth rows rather than the required 1,800-row 60-second run and does not include a zero-realign local delivery pack.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/tools/pr609-bannerlord/evidence/bannerlord-depth-certification-20260811.json",
+          "locator": "summary / depth, camera, and player rows",
+          "facts": [
+            "The certification records 60 depth rows with camera and player pose streams",
+            "The run is approximately two seconds at the required 30 Hz cadence"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/issue-609-runtime-gates/bannerlord-261550-20260810T063631Z.json",
+          "locator": "process / graphics / status",
+          "facts": [
+            "The real Bannerlord.exe single-player renderer passed the D3D11 runtime gate",
+            "No running anti-cheat module, service, or driver blocked the observed session"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "The representative campaign scene produces at least 1,800 contiguous depth rows with matching camera and player rows.",
+        "A local 30 fps audio catalog capture and every-present clip plan complete with zero realign drops and delivery exit 0."
+      ]
+    },
+    {
+      "app_id": "752590",
+      "game": "A Plague Tale: Innocence",
+      "classification": "blocked",
+      "final_for_observed_build": false,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "A Plague Tale Innocence\\APlagueTaleInnocence_x64.exe",
+        "sha256": "fb5f31c3bd07f89142281fa8469fc4db7811e94992c7a46fdc14e0f5af07b329"
+      },
+      "appmanifest_sha256": "b1f1bcf31fb29b740325601ba3d0779578b665dab04e187c5ca5b6fd32d16d1b",
+      "exclusion_codes": [
+        "B_PLAYER_POSE_EVIDENCE_MISSING",
+        "B_60S_ZERO_REALIGN_EVIDENCE_MISSING",
+        "B_METRIC_SCALE_SECOND_CHAIN_MISSING"
+      ],
+      "rationale": "The representative sample proves a depth and camera path, but records zero player rows, only 60 depth frames, and no independent second metric-scale chain. PR #694 upgrades the 30 fps recording profile to immutable v2 with validated process-loopback audio. The current process was later observed outside the pinned gameplay scene and correctly faulted warmup rather than producing false evidence.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "section 0 / A Plague Tale row",
+          "facts": [
+            "The roster records 60 depth rows, 1,719 camera rows, and zero player rows",
+            "The committed status explicitly keeps player pose blocked"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/issue-609-runtime-gates/a-plague-tale-innocence-752590-20260810T063724Z.json",
+          "locator": "graphics / anti_cheat / status",
+          "facts": [
+            "The observed process passed the D3D11 runtime gate",
+            "The remaining blockers are evidence completeness and missing channels"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A causal player-pose source and independent metric-scale anchor are pinned for the observed build.",
+        "A 60-second dual-pose run plus a zero-realign local delivery pack pass."
+      ]
+    },
+    {
+      "app_id": "4570720",
+      "game": "DragonSword: Awakening",
+      "classification": "blocked",
+      "final_for_observed_build": false,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "DragonSword  Awakening\\DS\\Binaries\\Win64\\DSClient-Win64-Shipping.exe",
+        "sha256": "0c9d54a35d7160e671a3db10c5e645140fdad15a7293314681e9eda7e360c1fe"
+      },
+      "appmanifest_sha256": "cd6246aa7ab88046ccebd0787bff4207b2de7df6fc37e7730b0026e28647af88",
+      "exclusion_codes": [
+        "B_PLAYER_POSE_EVIDENCE_MISSING",
+        "B_60S_ZERO_REALIGN_EVIDENCE_MISSING",
+        "B_METRIC_SCALE_SECOND_CHAIN_MISSING"
+      ],
+      "rationale": "The pinned DX11 gameplay sample proves depth and camera capture, but records zero player rows and only 60 depth frames. Its scale cross-check repeats the authored factor instead of providing an independent chain. PR #695 now carries a validated five-file 30 fps/process-audio preflight catalog and separately rejects a sealed 1,800-frame static startup-sphere run rather than promoting it.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "section 0 / DragonSword row",
+          "facts": [
+            "The roster records 60 depth rows, 96 camera rows, and zero player rows",
+            "The committed status explicitly keeps player pose blocked"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/issue-609-runtime-gates/dragonsword-4570720-20260810T063808Z.json",
+          "locator": "graphics / anti_cheat / status",
+          "facts": [
+            "The initial observed process passed the D3D12 runtime gate",
+            "The later exact -dx11 session also recorded no running anti-cheat module, service, or driver"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A causal player-pose source and independent known-distance scale chain are pinned for the exact build.",
+        "A 60-second main-scene dual-pose run plus a zero-realign local delivery pack pass."
+      ]
+    },
+    {
+      "app_id": "976730",
+      "game": "Halo: Reach (The Master Chief Collection)",
+      "classification": "blocked",
+      "final_for_observed_build": false,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "Halo The Master Chief Collection\\MCC\\Binaries\\Win64\\MCC-Win64-Shipping.exe",
+        "sha256": "be70d6dcd1a884f10ceb342a7a2dcb35ee0fa43181b66a1d19c3d830e9834691"
+      },
+      "appmanifest_sha256": "dd5b2ad87c252bc851cab8203178fca01d9430955a7abff7010174ed6907390f",
+      "exclusion_codes": [
+        "B_PLAYER_POSE_EVIDENCE_MISSING",
+        "B_60S_ZERO_REALIGN_EVIDENCE_MISSING",
+        "B_SCALE_LIVE_ANCHOR_MISSING"
+      ],
+      "rationale": "The official Anti-Cheat Disabled launch path permits the observed depth/camera experiment, but the certification has zero player rows and only 60 depth frames. The 3.048 scale lacks a live independent anchor. PR #696 upgrades the preflight recording profile to immutable v2 with validated 30 fps process-loopback audio.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/114-dm-capture-host-game-adaptation-roster.md",
+          "locator": "section 0 / Halo Reach row",
+          "facts": [
+            "The roster records 60 depth rows, 76 camera rows, and zero player rows",
+            "The committed status explicitly keeps player pose blocked"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/issue-609-runtime-gates/halo-mcc-976730-20260810T063855Z.json",
+          "locator": "process / anti_cheat / status",
+          "facts": [
+            "The observed MCC session used the official no-EAC launch mode and passed the runtime gate",
+            "The classification does not authorize protected or online launch modes"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "A causal player-pose source and live known-distance scale anchor are pinned in the official Anti-Cheat Disabled mode.",
+        "A 60-second dual-pose run plus a zero-realign local delivery pack pass."
+      ]
+    },
+    {
+      "app_id": "1091500",
+      "game": "Cyberpunk 2077",
+      "classification": "adapted",
+      "final_for_observed_build": true,
+      "no_injection": false,
+      "executable": {
+        "relative_install_path": "Cyberpunk 2077\\bin\\x64\\Cyberpunk2077.exe",
+        "sha256": "a7de82945c03e041fc7339fcf9066224d98db2f5d80fea50f7947bb350a60991"
+      },
+      "appmanifest_sha256": "c817882acb2c63f3a030bf94bd490c3eb1f3fab10ba4f18a1b0239c8eab9bf8a",
+      "exclusion_codes": [],
+      "rationale": "The observed Steam build 20383525 has an exact D3D12 runtime gate with zero running anti-cheat matches, a pinned D32S8 depth selection, a holstered first-person camera binding re-proven over 120 exact Presents at every start, a player root joined to each Present by the rendered camera content, and a checked one-metre-per-unit scale. Formal recording is limited to on-foot, empty-handed first-person play; runtime Ready and performance certification remain generation- and device-gated.",
+      "installed_security_files": [],
+      "evidence": [
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/docs/evidence/cp2077/cp2077-runtime-gate-redacted-20260918.json",
+          "locator": "process / graphics / anti_cheat / source report identity",
+          "facts": [
+            "The exact Cyberpunk2077.exe bytes were observed with D3D12 and DXGI loaded",
+            "Module, service and driver enumeration completed with zero running anti-cheat matches"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/config/catalogs/dev/cyberpunk-2077-steam/camera-binding.json",
+          "locator": "camera-binding/cp2077-holstered-v3 aliases / axis mapping / exact executable",
+          "facts": [
+            "The binding pins the physical CopyBufferRegion camera source and the exact executable",
+            "The same bytes passed the 2026-09-18 four-tier performance certification"
+          ]
+        },
+        {
+          "kind": "repository_record",
+          "repo_path": "DataMiner/config/cp2077-local-depth/local-depth-evidence.json",
+          "locator": "metric scale / source evidence referenced by the formal DepthProfile",
+          "facts": [
+            "The DepthProfile pins this evidence by path and SHA-256",
+            "Measured scale 0.988 agrees with the engine's one metre per unit within 5%"
+          ]
+        }
+      ],
+      "reopen_if": [
+        "The executable, Steam appmanifest, DepthProfile, CameraBinding, or metric evidence hash changes.",
+        "A formal Ready, a long on-foot capture, a four-stage performance certification, or delivery validation fails."
+      ]
+    }
+  ]
+}

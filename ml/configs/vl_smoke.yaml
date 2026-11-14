@@ -1,0 +1,31 @@
+# VL pipeline smoke: synthetic images + stub teacher + tiny random VL model.
+# Validates MECHANICS end-to-end (bench -> teacher -> SFT -> eval -> report);
+# a tiny random model learns nothing real, so all gates stay informational
+# here. Real thresholds live in vl_gaming500.yaml.
+run_name: vl-smoke
+seed: 0
+
+data:
+  bench_dir: data/bench_synth
+  labels: [data/bench_synth/labels.jsonl]
+  train_split: test    # bench sessions are split-disjoint; test rows train, val rows eval
+
+model:
+  name: yujiepan/qwen2-vl-tiny-random   # verified against transformers 5.x
+  lora_r: 8
+  lora_alpha: 16
+  lora_targets: [q_proj, k_proj, v_proj, o_proj]
+
+train:
+  max_steps: 8
+  grad_accum: 2
+  lr: 1.0e-4
+  log_every: 2
+
+eval:
+  max_new_tokens: 64
+
+gates: {}   # smoke: mechanics only — no quality thresholds
+
+output:
+  dir: runs

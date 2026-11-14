@@ -1,0 +1,52 @@
+# AB-P0 (research/35 §3.3): phase0 IDM 头在 COD 具结语料上的域内微调。
+#
+# 架构/超参对齐 P1 论文五 head 的公共配置(papers/game-data-for-embodied-ai/
+# analysis/data/config_reference.yaml): 冻结 DINOv2 ViT-S/14 + 3 层 transformer
+# 头(d_model 256 / 8 heads), window 5 / stride 2 / 224² / delta_scale 50 /
+# min_key_frac 0.10 / lr 3e-4 / bs 48 / loss weights {1.0, 0.5, 2.0}。
+# 与参考位相比只动了三处, 每处都有单独的理由:
+#
+#   contract_mode: dm1-attested  COD chunk 是 dm-1 映射, 走 contract.py 的具结
+#                                车道(治理门全开 + 词表外份额必报);
+#   holdout_sessions: 2          划分从 hash 换成会话尾 2(与 wm01/MV 同口径,
+#                                消融臂与伪标注头共享同一条 holdout 边界);
+#   max_steps: 6000              epoch 对齐: 254,587 帧 × (1-尾2会话) / stride 2
+#                                ≈ 11.5 万训练窗, 6000 步 × bs48 ≈ 2.5 epoch,
+#                                对齐 P1 浅语料参考位的 2.47 epoch(epoch_align
+#                                口径), 而不是照抄它的绝对步数。
+#
+# 运行(GPU runbook 全文在 diogenes_wm/ab_p0/finetune.py 模块注释):
+#   python -m diogenes_wm.ab_p0.finetune --config configs/ab_p0_cod.yaml --device cuda
+run_name: ab-p0-cod-idm
+seed: 0
+
+data:
+  roots: [data/cod_attested]   # cod_adapter --rights first_party --consent-id … 的产物
+  window: 5
+  stride: 2
+  input_res: [224, 224]
+  delta_scale: 50.0
+  min_key_frac: 0.10
+  contract_mode: dm1-attested
+  expected_fps: 30             # 微调与伪标注都在 30 fps chunk 侧
+  cache_chunks: 4              # 帧走 p0.npz 预转(precompute_frames.py)后此值不敏感; mp4 回退时防 OOM
+  holdout_sessions: 2          # 会话 id 升序取尾 2 —— wm01/readiness.py 同口径
+
+model:
+  trunk: dinov2_vits14
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 48
+  max_steps: 6000
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 250
+  save_every: 1000             # 必设: finetune 对 save_every<=0 拒绝启动
+  num_workers: 4                 # 1080p mp4 回退路径下 6 worker × cache 8 会打爆 64G 宿主内存
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+output:
+  dir: runs

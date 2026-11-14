@@ -1,0 +1,17 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-total-war-warhammer-iii-steam-release-test",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    { "id": "total-war-warhammer-iii-steam-release-test-windows-nvidia-v1", "version": "3", "content_hash": "sha256:006fa6b889540e4a286c65151235ef69e1e3d8a38dfdd2e202660603c4cfd60a" }
+  ],
+  "recording_profiles": [
+    { "id": "total-war-warhammer-iii-steam-release-test-recording-v1", "version": "2", "content_hash": "sha256:76ede185e236388db39cbe6d59535ac970e24b66c7de7af6c0c3eda11162e694" }
+  ],
+  "game_profiles": [
+    { "id": "total-war-warhammer-iii-steam-release-test", "version": "4", "content_hash": "sha256:66076b528278dbec1839390dc4a756840fdb71d965a6a8aeb75c6db1ce12e823" }
+  ],
+  "mappings": [
+    { "id": "game.total-war-warhammer-iii.steam.pc", "version": "2026-08-25.0", "content_hash": "sha256:6daa08d2a3036371b70cbd8e8b2b9a5ebf898d0e2243a30a2b7d90454874c071" }
+  ]
+}

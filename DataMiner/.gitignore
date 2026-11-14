@@ -1,0 +1,12 @@
+**/node_modules/
+/target/
+/services/depth-ingest/target/
+/apps/client/dist/
+/apps/api/dist/
+/apps/console-api/dist/
+/apps/console-web/dist/
+/apps/console-api/.mail-outbox/
+/apps/client/src-tauri/gen/schemas/
+/tools/capture-lab/out/
+/tools/installer-tests/out/
+*.pdb

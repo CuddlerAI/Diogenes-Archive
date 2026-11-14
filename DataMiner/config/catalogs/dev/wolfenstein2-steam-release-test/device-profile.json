@@ -1,0 +1,15 @@
+{
+  "schema_version": "dm-device-profile-2",
+  "profile_id": "wolfenstein2-steam-release-test-windows-nvidia-v1",
+  "version": "2",
+  "non_trainable": true,
+  "platform": "windows",
+  "minimum_windows_build": 19045,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [],
+  "minimum_driver_version": null,
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "wolfenstein2_steam_release_test_profile_test_without_grant_or_game_identity_pins"
+}

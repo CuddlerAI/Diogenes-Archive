@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "69 MC action_camera cam2-4（仅蓝色字段=每相机必含集，0803 底色实测判定）",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "time",
+      "fps",
+      "frame",
+      "camera_position",
+      "camera_rotation_quaternion",
+      "camera_Follow Offset",
+      "camera_intrinsics",
+      "camera_speed"
+    ],
+    "properties": {
+      "time": {
+        "type": "string"
+      },
+      "fps": {
+        "type": "number",
+        "minimum": 0
+      },
+      "frame": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "camera_position": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "camera_rotation_quaternion": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "camera_Follow Offset": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "camera_intrinsics": {
+        "type": "object",
+        "required": [
+          "fx",
+          "fy",
+          "cx",
+          "cy"
+        ],
+        "properties": {
+          "fx": {
+            "type": "number"
+          },
+          "fy": {
+            "type": "number"
+          },
+          "cx": {
+            "type": "number"
+          },
+          "cy": {
+            "type": "number"
+          }
+        }
+      },
+      "camera_speed": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      }
+    },
+    "additionalProperties": true
+  }
+}

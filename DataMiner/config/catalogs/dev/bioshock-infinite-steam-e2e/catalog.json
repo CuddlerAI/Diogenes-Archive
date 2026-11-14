@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-bioshock-infinite-steam-e2e",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "bioshock-infinite-windows-nvidia-gtx1060-v1",
+      "version": "4",
+      "content_hash": "sha256:f3bc87b0368039d7316f4bd060f310be162b9309803c33c7e3daf251ffad7ab8"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "bioshock-infinite-steam-e2e-recording-v1",
+      "version": "3",
+      "content_hash": "sha256:9d67a832ce40176c683a3bda99909ef7d869fb1d693e4491030500487d5f2c3e"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "bioshock-infinite-steam-e2e",
+      "version": "5",
+      "content_hash": "sha256:ae1fa9b60a70a52359681030faa86b35818ccf6088a652a7c840937dc29a528d"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.bioshock-infinite.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:44749e17916cc0ec4a91cb3a18d73b1fb38d0814defee17e1fe803ce8129ded7"
+    }
+  ]
+}

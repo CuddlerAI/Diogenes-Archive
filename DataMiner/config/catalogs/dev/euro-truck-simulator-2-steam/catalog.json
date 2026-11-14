@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-euro-truck-simulator-2-steam-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "euro-truck-simulator-2-windows-nvidia-rtx5060ti-v1",
+      "version": "2",
+      "content_hash": "sha256:9786a5274e1b00a40cb96ba2bf66eb950c369d9106ee2e91dc8fd82b806a0f4e"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "euro-truck-simulator-2-steam-recording-v1",
+      "version": "3",
+      "content_hash": "sha256:509079a211699da4a1b501d50165d7c8e8b606497061cb8646924d3c484c4e99"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "euro-truck-simulator-2-steam",
+      "version": "2",
+      "content_hash": "sha256:8f3a16a304a189fc5643c36f53a15bb233e3b13f294b7a7a83779be091c2eab0"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.euro-truck-simulator-2.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:aa73a5f10df9df051fce9f82aa44645c2c61a2ccbe676143f9f6ad0b1a98af68"
+    }
+  ]
+}

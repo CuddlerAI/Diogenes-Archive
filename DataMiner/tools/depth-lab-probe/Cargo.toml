@@ -1,0 +1,70 @@
+[package]
+name = "dm-depth-probe"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+# 注入进游戏进程的 DLL。**Windows-only**：非 Windows 平台上整个 crate 编成空壳，
+# 这样 `cargo test --workspace` 在 mac/Linux 上仍然可用（纯逻辑在 depth-lab 里测）。
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+cp2077-diagnostics = []
+local-perf-lab = ["dep:parking_lot"]
+local-perf-lab-page-hash = ["local-perf-lab"]
+local-perf-lab-fine-hash = ["local-perf-lab-page-hash"]
+local-perf-lab-pad-shards = ["local-perf-lab"]
+local-perf-lab-lock-trace = ["local-perf-lab"]
+local-perf-lab-source-cache = ["local-perf-lab"]
+local-perf-lab-inline-plan = ["local-perf-lab", "dep:smallvec"]
+
+[[bin]]
+name = "dm-depth-perf-lab"
+path = "src/bin/dm-depth-perf-lab.rs"
+required-features = ["local-perf-lab"]
+
+[dependencies]
+# exr-out：writer 现在落 fp16 EXR 而不是 raw f32（85 号 §2.2）。编码在 writer
+# 线程做，不在 Present 钩子里——钩子只做拷贝入队。
+# 注入进游戏进程的 DLL 只取明确列出的 feature，避免默认 feature 漂移把
+# zstd-sys 等客户端编排依赖重新带进 probe。漏了 default-features = false，
+# macOS 上就交叉编译不了 probe（zstd-sys 是 C 库，实测报 `stdlib.h not found`），
+# 每改一行都得走一趟 Windows VM。
+depth-lab = { path = "../depth-lab", default-features = false, features = ["exr-out", "selection-validation"] }
+serde.workspace = true
+serde_json = { workspace = true, features = ["raw_value"] }
+
+[target.'cfg(windows)'.dependencies]
+parking_lot = { workspace = true, optional = true }
+smallvec = { version = "1.15.2", optional = true }
+png = "0.18.0"
+sha2 = "0.10.9"
+uuid = { version = "1", features = ["v4"] }
+windows = { workspace = true, features = [
+  "Wdk_Storage_FileSystem",
+  "Win32_Foundation",
+  "Win32_Graphics_Direct3D",
+  "Win32_Graphics_Direct3D_Fxc",
+  "Win32_Graphics_Direct3D11",
+  "Win32_Graphics_Direct3D12",
+  "Win32_Graphics_Dxgi",
+  "Win32_Graphics_Dxgi_Common",
+  "Win32_Graphics_Gdi",
+  "Win32_Media_MediaFoundation",
+  "Win32_System_Diagnostics_ToolHelp",
+  "Win32_Security",
+  "Win32_System_Diagnostics_Debug",
+  "Win32_System_IO",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Memory",
+  "Win32_System_Performance",
+  "Win32_System_ProcessStatus",
+  "Win32_System_SystemServices",
+  "Win32_System_SystemInformation",
+  "Win32_System_Threading",
+  "Win32_System_WindowsProgramming",
+  "Win32_Storage_FileSystem",
+  "Win32_UI_WindowsAndMessaging",
+] }

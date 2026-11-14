@@ -1,0 +1,44 @@
+DataMiner Contributor Terms — Public Dataset with Game Process Audio
+Version: 2026-07-29-audio-public
+
+By registering with an invite code and checking the consent box, you confirm that:
+
+1. You are an authorized DataMiner data contributor.
+
+2. CAPTURED DATA. Your device captures your own gameplay video and input, including
+   keyboard and mouse events, timestamps, a device fingerprint, and derived
+   annotations, indices, and statistics. When audio capture is enabled, the device
+   also records audio emitted by the target game's process tree, including game
+   music, sound effects, and in-game dialogue. It does not intentionally record your
+   microphone, other applications, or system-wide audio.
+
+3. UPLOAD AND RESEARCH USE. You authorize DataMiner to upload, store, process, and
+   analyze the data described in clause 2 for model-training and related research.
+
+4. PUBLIC RELEASE. You also authorize DataMiner to include the data described in
+   clause 2, including captured game-process audio, in a PUBLIC dataset repository
+   on Hugging Face (huggingface.co/DiogenesLab). Once published, it can be downloaded
+   worldwide and may be redistributed and used by third parties under the applicable
+   dataset terms. This is not an internal-only research use.
+
+5. RIGHTS NOTICE. The contributor-authored input and annotation layer is released
+   under CC-BY-NC-4.0. Copyright in the game's own imagery and audio remains with the
+   game's publisher or other applicable rights holders; the dataset does not claim,
+   relicense, or sublicense those underlying game assets.
+
+6. CLEAN CAPTURE AND NO PERSONAL DATA. You capture only your own single-player,
+   cooperative, or bot matches on a clean account. You do not capture real
+   multiplayer sessions or any other person's identifiers, voice, or chat. You keep
+   microphone capture disabled and do not route third-party voice, music, browser,
+   notification, or other application audio through the target game process. No real
+   names, email addresses, or other personal data appear on screen or in captured
+   audio. Client behaviour telemetry is uploaded for diagnostics only and remains
+   limited to the desensitization allowlist.
+
+7. WITHDRAWAL. You may withdraw consent at any time. Withdrawal purges your captured
+   data, including audio, and telemetry from DataMiner systems and excludes it from
+   future dataset releases. However, because a published dataset is public and may
+   already have been downloaded, withdrawal cannot recall copies distributed before
+   you withdrew.
+
+Withdrawal and questions: contact@example.invalid

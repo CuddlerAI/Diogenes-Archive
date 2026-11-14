@@ -1,0 +1,70 @@
+# IDM Phase 0, valorant deep corpus with compute scaled to match its size.
+#
+# The deep config holds max_steps at 12000 so that data volume is the only
+# variable. That answered one question ("more data at the same compute": no,
+# macro F1 0.2055 -> 0.1825) and left the adjacent one open: the deep corpus
+# only got 0.38 epochs against the shallow run's 2.47, so the loss could be
+# undertraining rather than the data being worthless.
+#
+# This run gives the deep corpus the shallow run's epoch count. The step
+# count is derived, not chosen: 233,392 vs 1,529,866 train windows through
+# the run's own filter/split/stride (`python -m diogenes_phase0.epoch_align
+# --base configs/idm_valorant.yaml --scaled configs/idm_valorant_deep.yaml
+# --base-steps 12000`) is 6.55x, and 12000 x 6.55 rounds to 78,750 at a
+# log_every boundary. Both sides then sit at ~2.47 epochs.
+#
+# Read this against idm_valorant_control.yaml, which spends these same 78,750
+# steps on the shallow corpus. Without that arm, "epoch run beats the 12000-step
+# shallow run" cannot separate the extra data from the extra compute — and
+# the control shows compute is the larger half of it.
+#
+# Residual confound, stated because it is not measured away: frames here are
+# H.264 (CRF 18) while the shallow corpus is npz. Both arms are *evaluated* on
+# the same npz val frames, and the eval-time codec cost is measured
+# separately (data/reencode.py), but nothing here rules out a training-time
+# codec effect inside the data attribution.
+#
+# save_every is set because this run is ~15 h: a crash at hour 14 that leaves
+# no weights behind costs the whole round.
+run_name: idm-valorant-epoch
+seed: 0
+
+data:
+  roots: [data/idm_valorant_deep]
+  holdout_games: []       # single game — the split is by session
+  val_fraction: 0.12
+  window: 5
+  stride: 2
+  input_res: [224, 224]
+  delta_scale: 50.0
+  min_key_frac: 0.10
+  contract_mode: method-validation
+  allow_method_validation_only: true
+
+model:
+  trunk: dinov2_vits14
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 48
+  max_steps: 78750        # = 12000 x (1529866 / 233392), rounded to 250
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 250
+  save_every: 2500
+  num_workers: 6
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+# key_exact keeps the 0.85 bar but is NOT the VPT comparison: VPT's 90.6% is
+# most likely mean per-key accuracy, which is far more lenient than exact-set
+# match. All three readings are reported; macro F1 is the one a collapse
+# cannot fake, so it is what actually decides whether this worked.
+gates:
+  key_exact_min: 0.85
+  key_macro_f1_min: 0.40
+  macro_f1_warn: 0.6
+
+output:
+  dir: runs

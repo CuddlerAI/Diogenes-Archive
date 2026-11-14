@@ -1,0 +1,60 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "age-of-empires-4-steam",
+  "version": "3",
+  "display_name": "Age of Empires IV: Anniversary Edition (Steam, RTS subset)",
+  "device_profile_id": "age-of-empires-4-windows-nvidia-gtx1060-v1",
+  "recording_profile_id": "age-of-empires-4-steam-recording-v1",
+  "mapping_id": "game.age-of-empires-4.steam.pc",
+  "executable_names": [
+    "RelicCardinal.exe"
+  ],
+  "window_class": "Plat::Window {DB3DC0D7-BBA3-4d06-BCD8-40CD448B4AE3}",
+  "executable_sha256": "sha256:5380c577805565817f528af6eac385263413fa6815553f9a31fa62561cb45e8c",
+  "input_contract": {
+    "keyboard_vks": [
+      8,
+      9,
+      13,
+      16,
+      17,
+      18,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      65,
+      67,
+      68,
+      69,
+      72,
+      81,
+      82,
+      83,
+      87,
+      88,
+      90,
+      112,
+      113,
+      114,
+      119,
+      121,
+      190
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": false
+  }
+}

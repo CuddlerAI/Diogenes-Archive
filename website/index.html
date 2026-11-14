@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diogenes Lab — gameplay data archive</title>
+<meta name="description" content="Explore Diogenes Lab's gameplay capture demos, source code, and dataset catalog. The project has concluded; find its work on GitHub and Hugging Face.">
+<meta name="theme-color" content="#f7f7f3">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Diogenes Lab — gameplay data archive">
+<meta property="og:description" content="Gameplay, actions, depth, and camera poses. Explore the demos and continue with the code and datasets.">
+<meta property="og:url" content="https://diogenesmodel.com/">
+<link rel="canonical" href="https://diogenesmodel.com/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/archive.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header wrap">
+  <a class="brand" href="/" aria-label="Diogenes Lab home"><img src="/logo.svg" width="30" height="30" alt=""><span>diogenes<span class="slash">/</span><span class="lab">lab</span></span></a>
+  <nav aria-label="Main navigation"><a href="#demos">Demos</a><a href="https://github.com/CuddlerAI/Diogenes-Archive">GitHub ↗</a><a href="https://huggingface.co/DiogenesLab">Hugging Face ↗</a></nav>
+</header>
+<main id="main">
+  <section class="intro wrap" aria-labelledby="intro-title">
+    <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Project archive · 项目归档</p>
+    <h1 id="intro-title">A record of<br>worlds in motion<span class="period">.</span></h1>
+    <p class="lede">Gameplay, player actions, depth, and camera poses.<br>A collection of tools and data for exploring virtual worlds.</p>
+    <p class="translation" lang="zh-CN">记录游戏画面、玩家操作、深度与相机位姿。<br>项目已结束，演示、代码和数据目录保留在这里。</p>
+    <div class="actions"><a class="button primary" href="#demos">Explore the demos ↓</a><a class="button" href="https://huggingface.co/DiogenesLab">Dataset catalog ↗</a></div>
+    <div class="archive-note"><span class="note-label">The work continues here</span><p>The project has concluded. The clean source archive is public on GitHub; five existing Hugging Face datasets are publicly accessible without an application.</p><p lang="zh-CN">项目已关闭。净化后的源代码已在 GitHub 公开；Hugging Face 上五份现有数据集已公开，无需申请即可访问。最新发布状态与使用条件以各仓库说明为准。</p></div>
+  </section>
+  <section class="demos" id="demos" aria-labelledby="demos-title">
+    <div class="wrap">
+      <div class="section-heading"><div><p class="eyebrow">01 / See the data</p><h2 id="demos-title">Two views into the same world.</h2></div><p lang="zh-CN">从动作到空间，查看采集结果的实际形态。</p></div>
+      <div class="demo-grid">
+        <figure><div class="video-shell"><video controls playsinline preload="none" poster="/media/action-record-poster.jpg" aria-label="Gameplay and player action capture demonstration"><source src="https://huggingface.co/datasets/DiogenesLab/Diogenes_Capability_Demo_v01/resolve/main/video/A1-gameplay-action-record-en.mp4" type="video/mp4"><a href="https://huggingface.co/datasets/DiogenesLab/Diogenes_Capability_Demo_v01/resolve/main/video/A1-gameplay-action-record-en.mp4">Download the gameplay and action demo.</a></video><span class="video-label">GAMEPLAY + ACTION</span></div><figcaption><span class="demo-number">01</span><div><h3>What happened. What the player did.</h3><p>A recorded demonstration of gameplay and player input.</p><p lang="zh-CN">游戏画面与玩家操作的录制演示。</p></div></figcaption></figure>
+        <figure><div class="video-shell"><video controls playsinline preload="none" poster="/media/depth-pose-poster.jpg" aria-label="Depth and camera pose capture demonstration"><source src="https://huggingface.co/datasets/DiogenesLab/Diogenes_Capability_Demo_v01/resolve/main/video/A3-depth-fallout4-commonwealth-120s-en.mp4" type="video/mp4"><a href="https://huggingface.co/datasets/DiogenesLab/Diogenes_Capability_Demo_v01/resolve/main/video/A3-depth-fallout4-commonwealth-120s-en.mp4">Download the depth and camera pose demo.</a></video><span class="video-label">DEPTH + CAMERA POSE</span></div><figcaption><span class="demo-number">02</span><div><h3>A view of the space behind the pixels.</h3><p>A recorded demonstration of depth and camera pose data.</p><p lang="zh-CN">深度与相机位姿数据的可视化演示。</p></div></figcaption></figure>
+      </div>
+      <p class="demo-footnote">Recorded examples, not a live service. <span lang="zh-CN">以上为预录演示。</span></p>
+    </div>
+  </section>
+  <section class="resources wrap" id="resources" aria-labelledby="resources-title">
+    <div class="section-heading"><div><p class="eyebrow">02 / Explore the archive</p><h2 id="resources-title">Take a closer look.</h2></div></div>
+    <a class="resource-row" href="https://github.com/CuddlerAI/Diogenes-Archive"><span class="resource-kind">CODE & DOCUMENTATION</span><span class="resource-body"><strong>GitHub</strong><span>Capture tools, data contracts, processing utilities, and research notes.</span><span lang="zh-CN">采集工具、数据契约、处理脚本与研究文档。</span></span><span class="resource-arrow" aria-hidden="true">↗</span></a>
+    <a class="resource-row" href="https://huggingface.co/DiogenesLab"><span class="resource-kind">DATASET CATALOG</span><span class="resource-body"><strong>Hugging Face</strong><span>Dataset cards, available files, release notes, and usage conditions.</span><span lang="zh-CN">数据说明、可下载文件、版本记录与使用条件。</span></span><span class="resource-arrow" aria-hidden="true">↗</span></a>
+    <p class="terms">Access and licensing are specified by each repository and dataset card. A demo preview does not grant additional rights to game content.<br><span lang="zh-CN">访问方式与许可分别以代码仓库和数据卡为准；演示展示不额外授予游戏内容的使用权。</span></p>
+  </section>
+</main>
+<footer class="wrap site-footer"><span>Diogenes Lab</span><span>Project archive / 项目归档 · 2026</span><a href="#main">Back to top ↑</a></footer>
+</body>
+</html>

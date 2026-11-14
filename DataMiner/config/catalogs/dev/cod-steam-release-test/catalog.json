@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-call-of-duty-steam-release-test",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "cod-steam-windows-nvidia-audio-dev-v1",
+      "version": "2",
+      "content_hash": "sha256:91b52da352e218ea5161d9641fc1adfe39f200daa47ea9dcef3c15f29fdc498f"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "cod-steam-release-test-recording-60-audio-v1",
+      "version": "3",
+      "content_hash": "sha256:7f5eb2aaaa70707b90ada92cd1379c9dd9b7d8c7f95d8e9e054ed1ac59099a64"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "call-of-duty-steam-release-test",
+      "version": "12",
+      "content_hash": "sha256:1a27203f75eee7d879a0a2802f891320f64eaa14461cf4d4e6afc15da2262523"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.call-of-duty.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:dd57bc942b4ff22ee9872452138df24d627a4751c4294de0b097b3ac3cd9361d"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-age-of-empires-4-steam-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "age-of-empires-4-windows-nvidia-gtx1060-v1",
+      "version": "4",
+      "content_hash": "sha256:fbf46caa46946ac583601385243e917eb16e34559dafefbc62291cd6c4032ed7"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "age-of-empires-4-steam-recording-v1",
+      "version": "3",
+      "content_hash": "sha256:f3718016c6fb914c5fd02d266993ce9224ddeef1c8d6bd1c18852d85c1f9ee02"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "age-of-empires-4-steam",
+      "version": "3",
+      "content_hash": "sha256:bb961f74ac9bf365f2edaaef049aa1e400d9ffe27ce7efddadd4ef54ef0434c9"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.age-of-empires-4.steam.pc",
+      "version": "2026-07-29.0",
+      "content_hash": "sha256:1549d142a3ddf2dc294b35a56c6052126a49d97a445a49b6fee9282e7e7a8ff2"
+    }
+  ]
+}

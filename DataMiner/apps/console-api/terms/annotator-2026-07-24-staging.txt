@@ -1,0 +1,9 @@
+DataMiner Annotator Terms (STAGING - not for production use)
+Version: 2026-07-24-staging
+
+By registering with an invite code you confirm that:
+1. You are an authorized DataMiner staging tester.
+2. Gameplay capture your device produces is uploaded to DataMiner staging for model-training research.
+3. Client behaviour telemetry (startup, recovery, device binding, faults) is uploaded for diagnostics, limited to the desensitization allowlist.
+4. You may withdraw consent at any time; withdrawal purges your captured data and telemetry.
+5. Do not capture or upload sensitive or personal data in this staging environment.

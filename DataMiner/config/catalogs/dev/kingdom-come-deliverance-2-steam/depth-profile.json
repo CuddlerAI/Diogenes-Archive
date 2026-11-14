@@ -1,0 +1,74 @@
+{
+  "schema_version": "dm-depth-profile-3",
+  "game_id": "kingdom-come-deliverance-2-steam",
+  "renderer_backend": "d3d12",
+  "lane": "lane30",
+  "cadence": "target_hz",
+  "executable_sha256": "sha256:d85b5355842d16290dc0d97e1d02856c6f2811a2021c8957aa24d7782a771b77",
+  "dsv": {
+    "dsv_id": "kcd2-r24g8-d24-main-scene-v1",
+    "expected_width": 1920,
+    "expected_height": 1080,
+    "sample_count": 1,
+    "formats": [
+      "r24_g8_typeless",
+      "d24_unorm_s8_uint"
+    ],
+    "evidence_path": "external-evidence/kcd2-d3d12-linear-depth-1920x1080-v35-audit.json"
+  },
+  "d3d12_selection": {
+    "resource": {
+      "dimension": 3,
+      "width": 1920,
+      "height": 1080,
+      "depth_or_array_size": 1,
+      "mip_levels": 1,
+      "format": "r24_g8_typeless",
+      "sample_count": 1,
+      "sample_quality": 0,
+      "layout": 0,
+      "flags": 2
+    },
+    "view": {
+      "format": "d24_unorm_s8_uint",
+      "dimension": 3,
+      "flags": 0
+    },
+    "transition": {
+      "subresource": 0,
+      "state_before": 16,
+      "state_after": 128,
+      "barrier_flags": 0
+    },
+    "fallback_draw": {
+      "root_signature_sha256": "sha256:9d963c1d850bfb03d1094e0e34162640552c4b0e8e6f07d44e2758cf2e4c0391",
+      "draw_ordinal": 0
+    }
+  },
+  "readback_path": "d3d12_copy_texture_region",
+  "readback_slots": 6,
+  "watermark": {
+    "origin_x": 0,
+    "origin_y": 0
+  },
+  "delivery_width": 1280,
+  "delivery_height": 720,
+  "burst": {
+    "interval_seconds": 300,
+    "duration_seconds": 3
+  },
+  "projection_a": -0.000006250038930842396,
+  "projection_b": 0.05000031366944313,
+  "metric_scale": {
+    "value": 1.0,
+    "source": {
+      "path": "authored_level_metadata",
+      "levels": 3,
+      "unit_size_metres": 1.0
+    },
+    "cross_check": null,
+    "evidence_path": "config/depth-map-bounds/kcd2-metric-scale-evidence.json",
+    "evidence_sha256": "sha256:4d6ae9e814dd33c3b8d0ed559fc513036fce3db3f1c6dc5eac41dac7c735054c"
+  },
+  "projection_source": "constant_buffer"
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "dm-depth-profile-1",
+  "game_id": "mount-and-blade-2-bannerlord-steam-1.4.7.117484",
+  "lane": "lane30",
+  "cadence": "every_present",
+  "executable_sha256": "sha256:5fc59a9da65474a707fd3e868a24c6f0a782e9364edd4d17a8f8813171237de0",
+  "dsv": {
+    "dsv_id": "bannerlord-campaign-map-d32s8-v1",
+    "expected_width": 1920,
+    "expected_height": 1200,
+    "sample_count": 1,
+    "formats": [
+      "r32_g8_x24_typeless",
+      "d32_float_s8_x24_uint"
+    ],
+    "evidence_path": "tools/pr609-bannerlord/evidence/bannerlord-depth-certification-20260811.json"
+  },
+  "readback_path": "copy_to_staging",
+  "readback_slots": 6,
+  "watermark": {
+    "origin_x": 0,
+    "origin_y": 0
+  },
+  "delivery_width": 1280,
+  "delivery_height": 720,
+  "burst": {
+    "interval_seconds": 300,
+    "duration_seconds": 3
+  },
+  "projection_a": 0.0000040322743,
+  "projection_b": 0.01000004,
+  "metric_scale": {
+    "value": 1.0,
+    "source": {
+      "path": "engine_convention",
+      "engine": "bannerlord"
+    },
+    "cross_check": {
+      "convention": 1.0,
+      "measured": 1.0,
+      "ratio": 1.0,
+      "tolerance": 0.1
+    },
+    "evidence_path": "docs/90-bannerlord-campaign-map-bounds-and-metric-evidence.md"
+  },
+  "projection_source": "constant_buffer"
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": "dm-depth-projection-candidate-1",
+  "game_id": "fallout-4",
+  "steam_appid": 377160,
+  "engine": "creation-engine",
+  "_status": "CANDIDATE——不是 profile。缺锚点交叉验证，DepthProfile::validate() 会以 ConventionNotCrossChecked 拒绝。",
+  "doc": "DataMiner/docs/91-fallout4-depth-projection-evidence.md",
+  "z_convention": "traditional",
+  "z_convention_evidence": "探针实测清除值为 1.0f（capture_timing::infer_z_convention 判 Traditional）；ReShade 社区配置 RESHADE_DEPTH_INPUT_IS_REVERSED=0 佐证",
+  "near_game_units": 15.0,
+  "near_source": "fNearDistance 引擎 ini 默认值 15.0（[Display] 段，Creation Engine 家族通用）",
+  "far_game_units": 500000.0,
+  "far_source": "UNDETERMINED——本值仅为占位。20 m 以内不受影响，50 m 处偏差 6%、100 m 处 12%，远场交付前必须定（docs/91 §2.3）",
+  "metric_scale": 0.0142875,
+  "metric_scale_source": "docs/82 §9.1（Creation Kit 128 units = 6 feet，三数自洽）",
+  "projection_a": 1.000030000900027,
+  "projection_b": -15.000450013500405,
+  "_projection_note": "d = a + b/z，z 单位为游戏单位；乘 metric_scale 得米。传统 Z 下 b 为负。",
+  "plausibility_check": {
+    "frame": "depth-retry-20260805-134854/raw/000000003200.f32",
+    "landmarks": [
+      {
+        "what": "帧内最小 d（第一人称武器前端）",
+        "d": 0.009495,
+        "metres": 0.22
+      },
+      {
+        "what": "动力装甲 NPC",
+        "d": 0.830201,
+        "metres": 1.26
+      },
+      {
+        "what": "脚手架",
+        "d": 0.984251,
+        "metres": 13.58
+      },
+      {
+        "what": "帧内最大非清除 d（LOD 裁切）",
+        "d": 0.998495,
+        "metres": 139.6
+      }
+    ],
+    "verdict": "量级全部合理。这是合理性检查，不是测量——不能替代锚点交叉验证。"
+  },
+  "blocking": [
+    "缺锚点交叉验证（#485）",
+    "远平面未定",
+    "缺 executable_sha256 与 DSV 证据（采集机上取）"
+  ]
+}

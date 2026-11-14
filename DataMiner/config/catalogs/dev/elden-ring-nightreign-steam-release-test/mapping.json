@@ -1,0 +1,138 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.elden-ring-nightreign.steam.pc",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "elden-ring-nightreign-steam-release-test",
+    "name": "ELDEN RING NIGHTREIGN Steam",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "action_rpg",
+    "view": "third_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "elden-ring-nightreign-steam-release-test-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "move.sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "combat.dodge_roll"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "combat.heavy_attack"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "skill.ash_of_war"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "class_skill"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "class_ultimate"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "interact.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "item.flask"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "item.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "item.cycle"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.light_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.guard"
+    },
+    {
+      "device": "mouse",
+      "button": 4,
+      "semantic": "target.lock"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "weapon.switch"
+    }
+  ]
+}

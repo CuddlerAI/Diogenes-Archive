@@ -1,0 +1,1284 @@
+{
+  "$comment": [
+    "issue #855 PR 2 产出的**待签名/待发布**清单：32 款 shipped 游戏各一份中性 schema bundle。",
+    "",
+    "本 PR 只生成它，不签名、不发布、不切换 production current——那是 PR 4，前置条件是",
+    "「含新 schema reader 的兼容客户端已发布并达到切换条件」。在那之前 current 仍是旧",
+    "v2 release，旧客户端拉到的字节一个都没变。",
+    "",
+    "为什么是文件而不是 roster：真正的 publish roster 要的是 `trusted_catalog_versions`",
+    "的行 id（UUID），那些 id 只有在对着目标库注册之后才存在。本文件登记的是注册**之前**",
+    "就已确定、且可离线核验的那部分：每款游戏的 catalog identity 与逐份 payload 的",
+    "(kind, id, version, content_hash)。PR 4 按它逐款 register:catalog，再用返回的行 id 组",
+    "roster 发布。",
+    "",
+    "synthetic 与三份 SUPERSEDED 研究快照**不在**本清单里（issue #855 §1）：前者是回归",
+    "基线不是游戏，后者冻结在 legacy schema、不得发布。",
+    "",
+    "由 tools/check-catalog-lifecycle.mjs 生成与校验；漂了 CI 直接红，不要手改。"
+  ],
+  "schemaVersion": "dm-catalog-release-plan-1",
+  "manifestSchemaVersion": "dm-catalog-bundle-3",
+  "signed": false,
+  "published": false,
+  "releases": [
+    {
+      "gameId": "a-plague-tale-innocence-steam-release-test",
+      "catalogDir": "a-plague-tale-innocence-steam-release-test",
+      "catalogId": "dataminer-a-plague-tale-innocence-steam-release-test",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "A Plague Tale: Innocence Steam",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "a-plague-tale-innocence-steam-release-test-windows-nvidia-v1",
+          "version": "3",
+          "contentHash": "sha256:c677290d45ff7424ddbf65cbccc39da52a3556949ca7364148e0e31a8ad45475",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "a-plague-tale-innocence-steam-release-test-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:d54bbb977e37104f4360732265fe1f0efb1e416cd00805bb840d3852de6b448f",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "a-plague-tale-innocence-steam-release-test",
+          "version": "4",
+          "contentHash": "sha256:dc4a45dc878b3cd548016e911b7ff069e2613366f7634e25fb90856ee1a90d5b",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.a-plague-tale-innocence.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:247ce43ba978865a50ee6e2c7785212701f50c9ba1b8103a795565b8cf9caca6",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "age-of-empires-4-steam",
+      "catalogDir": "age-of-empires-4-steam",
+      "catalogId": "dataminer-age-of-empires-4-steam-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Age of Empires IV: Anniversary Edition (Steam, RTS subset)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "age-of-empires-4-windows-nvidia-gtx1060-v1",
+          "version": "4",
+          "contentHash": "sha256:fbf46caa46946ac583601385243e917eb16e34559dafefbc62291cd6c4032ed7",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "age-of-empires-4-steam-recording-v1",
+          "version": "3",
+          "contentHash": "sha256:f3718016c6fb914c5fd02d266993ce9224ddeef1c8d6bd1c18852d85c1f9ee02",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "age-of-empires-4-steam",
+          "version": "3",
+          "contentHash": "sha256:bb961f74ac9bf365f2edaaef049aa1e400d9ffe27ce7efddadd4ef54ef0434c9",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.age-of-empires-4.steam.pc",
+          "version": "2026-07-29.0",
+          "contentHash": "sha256:1549d142a3ddf2dc294b35a56c6052126a49d97a445a49b6fee9282e7e7a8ff2",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "assassins-creed-iii-remastered-steam",
+      "catalogDir": "assassins-creed-iii-remastered-steam",
+      "catalogId": "dataminer-assassins-creed-iii-remastered-steam-dev",
+      "catalogVersion": "2026-09-03.1",
+      "displayName": "Assassin's Creed III Remastered (Steam, single-player on-foot core)",
+      "admission": "onboarding",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "assassins-creed-iii-remastered-steam-windows-nvidia-local-v1",
+          "version": "1",
+          "contentHash": "sha256:8675fb4415a0adf61512d1e5481acd041a47474cd1cf5729f568f9614538ed80",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "assassins-creed-iii-remastered-steam-recording-v1",
+          "version": "1",
+          "contentHash": "sha256:9132136fba738ff706677b4878e1810dcdbf0f8da34054f6c9dc64d92edc44df",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "assassins-creed-iii-remastered-steam",
+          "version": "1",
+          "contentHash": "sha256:0373d3967ef41acaea9c6abc5b8e9322b9e067702c2137d6b6169686de2ddfb9",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.assassins-creed-iii-remastered.steam.pc.on-foot",
+          "version": "2026-09-03.1",
+          "contentHash": "sha256:37950952577817d3cdc758c59458ecb9a343366eed73591dc470091824330ff9",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "atomic-heart-pc",
+      "catalogDir": "atomic-heart-pc",
+      "catalogId": "dataminer-atomic-heart-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Atomic Heart (PC, on-foot only)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "atomic-heart-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:002ef1c08e74add82e4e245c97d1c4de3bc0c5661e64387cb76a95d5c07b70f3",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "atomic-heart-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:ec3d02dbe7f1ed20edaae2939759f606184f0094b426335f0689cd5658c7e01f",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "atomic-heart-pc",
+          "version": "2",
+          "contentHash": "sha256:afd3f1538d33a78a513b168bab58778b225a9a4ca4b35fde54d5977173b6966a",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.atomic-heart.pc",
+          "version": "2026-08-19.0",
+          "contentHash": "sha256:91a152e5dc35c0a7b7de373d9a459a46a05d9480eb778dfed823a23506769d5f",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "avatar-frontiers-of-pandora-pc",
+      "catalogDir": "avatar-frontiers-of-pandora-pc",
+      "catalogId": "dataminer-avatar-frontiers-of-pandora-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Avatar：潘多拉边境（PC 本地步战）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "avatar-frontiers-of-pandora-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:40537238b14e93c44658292b67515182b3fb8717a635780a7d54730a732e7986",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "avatar-frontiers-of-pandora-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:dfa076ca1be4dbd0803d4b13457e14f00893040131e7944965a807a9debc618a",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "avatar-frontiers-of-pandora-pc",
+          "version": "2",
+          "contentHash": "sha256:930deaf7bd9131edf46b38a09bf85c71e4a44ad83ebe4b39276f01b83c02ffbe",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.avatar-frontiers-of-pandora.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:3ccc185fa23eefae4879ad4b5ad659b57967f53c3b53f007b1915c09a7f9c584",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "bioshock-infinite-steam-e2e",
+      "catalogDir": "bioshock-infinite-steam-e2e",
+      "catalogId": "dataminer-bioshock-infinite-steam-e2e",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "BioShock Infinite Steam（本机生产 E2E）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "bioshock-infinite-windows-nvidia-gtx1060-v1",
+          "version": "4",
+          "contentHash": "sha256:f3bc87b0368039d7316f4bd060f310be162b9309803c33c7e3daf251ffad7ab8",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "bioshock-infinite-steam-e2e-recording-v1",
+          "version": "3",
+          "contentHash": "sha256:9d67a832ce40176c683a3bda99909ef7d869fb1d693e4491030500487d5f2c3e",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "bioshock-infinite-steam-e2e",
+          "version": "5",
+          "contentHash": "sha256:ae1fa9b60a70a52359681030faa86b35818ccf6088a652a7c840937dc29a528d",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.bioshock-infinite.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:44749e17916cc0ec4a91cb3a18d73b1fb38d0814defee17e1fe803ce8129ded7",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "call-of-duty-steam-release-test",
+      "catalogDir": "cod-steam-release-test",
+      "catalogId": "dataminer-call-of-duty-steam-release-test",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Call of Duty® Steam",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "cod-steam-windows-nvidia-audio-dev-v1",
+          "version": "2",
+          "contentHash": "sha256:91b52da352e218ea5161d9641fc1adfe39f200daa47ea9dcef3c15f29fdc498f",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "cod-steam-release-test-recording-60-audio-v1",
+          "version": "3",
+          "contentHash": "sha256:7f5eb2aaaa70707b90ada92cd1379c9dd9b7d8c7f95d8e9e054ed1ac59099a64",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "call-of-duty-steam-release-test",
+          "version": "12",
+          "contentHash": "sha256:1a27203f75eee7d879a0a2802f891320f64eaa14461cf4d4e6afc15da2262523",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.call-of-duty.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:dd57bc942b4ff22ee9872452138df24d627a4751c4294de0b097b3ac3cd9361d",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "cyberpunk-2077-steam",
+      "catalogDir": "cyberpunk-2077-steam",
+      "catalogId": "dataminer-cyberpunk-2077-steam-dev",
+      "catalogVersion": "2026-09-18.0",
+      "displayName": "Cyberpunk 2077 (Steam)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "cyberpunk-2077-steam-windows-nvidia-v2",
+          "version": "2",
+          "contentHash": "sha256:0c0fbafa25521bd7df7c71f266f7b2d84770d986dfe89219e22f84f94a30f7ea",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "cyberpunk-2077-steam-recording-v1",
+          "version": "3",
+          "contentHash": "sha256:bf79fc3d1dfe5732702c698225fdffe904d22f516770578e5ea62d1c9a19773c",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "cyberpunk-2077-steam",
+          "version": "4",
+          "contentHash": "sha256:926d5317554e1f18e7b67879bdf9e848e7291094a90cbf1ed1b42ebf2cd7dbf7",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.cyberpunk-2077.steam.pc.on-foot",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:2f476dc670b9036073f265b077f0cb620c582043b354bd5e2745d35b4adbd7df",
+          "file": "mapping.json"
+        },
+        {
+          "kind": "depth_profile",
+          "catalogId": "cyberpunk-2077-steam",
+          "version": "dm-depth-profile-3",
+          "contentHash": "sha256:fa557a62a79c449ed138df7f2bbc56674c13482eea5db6e2608a7b0e9a42d151",
+          "file": "depth-profile.json"
+        },
+        {
+          "kind": "camera_binding",
+          "catalogId": "cp2077-steam-holstered-local-v3",
+          "version": "2026-09-17.0",
+          "contentHash": "sha256:edc26919102745259372c2089e6f48b72bfb97d239e8f3cf53a185ed43374b6c",
+          "file": "camera-binding.json"
+        }
+      ]
+    },
+    {
+      "gameId": "deathloop-pc",
+      "catalogDir": "deathloop-pc",
+      "catalogId": "dataminer-deathloop-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "DEATHLOOP (PC)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "deathloop-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:d021f8ce142267b27933bc16ecd562b64a013a6a5b27dcae7f551aff6cf665f1",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "deathloop-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:678ce8bda537ce321ba474a07e8daf8c4539dbd8ac2bd0e53bae7922413f68ba",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "deathloop-pc",
+          "version": "2",
+          "contentHash": "sha256:c5c35213b8379dba7abb408b4d482bd9e20160418fbb1c527090ca71b5da9054",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.deathloop.pc",
+          "version": "2026-08-19.0",
+          "contentHash": "sha256:20be0dcbec3079f743dc3ce267543dee8299cf978a28092bb7db78772261885b",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "doom-eternal-pc",
+      "catalogDir": "doom-eternal-pc",
+      "catalogId": "dataminer-doom-eternal-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "DOOM Eternal (PC)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "doom-eternal-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:6f4e7da40128480ccd048dac668635a43f32b94c11241bdf6f40a45a23cf4342",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "doom-eternal-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:db5d299a2e79262f486bd4c986456347ee333a115a5a40888e1c8e1dc89aef51",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "doom-eternal-pc",
+          "version": "2",
+          "contentHash": "sha256:6acfbbd7159cbf9cb2e647276718267a898bd8c6e7121647963dc7d90bb10a72",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.doom-eternal.pc",
+          "version": "2026-08-19.0",
+          "contentHash": "sha256:a027875ef1f48121b8e68a46b57c895e4f570b18055f40a7694d045251285c4b",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "dying-light-pc",
+      "catalogDir": "dying-light-pc",
+      "catalogId": "dataminer-dying-light-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "消逝的光芒（PC 本地步战）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "dying-light-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:0b588623c617eb41acc8ce75a0a7cf535296cd2fd65b02c546294ba9634bd876",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "dying-light-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:c74466c69fb9de374ef17675e91e8e081477667480d745bf20d4121f720f320b",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "dying-light-pc",
+          "version": "2",
+          "contentHash": "sha256:ba5acb981d59a5eb9b61a7435d6fcf57d3972cd7a96ecc5b7d81e4bec75fab64",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.dying-light.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:9c930a9250fcd7cf9a131f568e1393e7b6efdec0029a730ef14808f894474a1f",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "elden-ring-nightreign-steam-release-test",
+      "catalogDir": "elden-ring-nightreign-steam-release-test",
+      "catalogId": "dataminer-elden-ring-nightreign-steam-release-test",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "ELDEN RING NIGHTREIGN Steam",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "elden-ring-nightreign-steam-release-test-windows-nvidia-v1",
+          "version": "4",
+          "contentHash": "sha256:d4a92660707035b06dca5049efe7af6e3ef74bf2236dc32bfd8dedf9972ab1be",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "elden-ring-nightreign-steam-release-test-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:b903dcb3f0517c9f3b2874e2f970e79b2a7d8a638ccc690f30954996b502321a",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "elden-ring-nightreign-steam-release-test",
+          "version": "4",
+          "contentHash": "sha256:b5834af6e48b5a0dd26df18c19f2b9a79fb21c47690d7b0ba0e9c015b5830a06",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.elden-ring-nightreign.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:aedc963f1fbb43bce9a1e35f887540379c03b9fefee5cd3f0092f45455b12e41",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "euro-truck-simulator-2-steam",
+      "catalogDir": "euro-truck-simulator-2-steam",
+      "catalogId": "dataminer-euro-truck-simulator-2-steam-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Euro Truck Simulator 2 (Steam, in-cab driving)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "euro-truck-simulator-2-windows-nvidia-rtx5060ti-v1",
+          "version": "2",
+          "contentHash": "sha256:9786a5274e1b00a40cb96ba2bf66eb950c369d9106ee2e91dc8fd82b806a0f4e",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "euro-truck-simulator-2-steam-recording-v1",
+          "version": "3",
+          "contentHash": "sha256:509079a211699da4a1b501d50165d7c8e8b606497061cb8646924d3c484c4e99",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "euro-truck-simulator-2-steam",
+          "version": "2",
+          "contentHash": "sha256:8f3a16a304a189fc5643c36f53a15bb233e3b13f294b7a7a83779be091c2eab0",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.euro-truck-simulator-2.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:aa73a5f10df9df051fce9f82aa44645c2c61a2ccbe676143f9f6ad0b1a98af68",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "fallout4-steam-release-test",
+      "catalogDir": "fallout4-steam-release-test",
+      "catalogId": "dataminer-fallout4-steam-release-test",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Fallout 4 Steam",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "fallout4-steam-release-test-windows-nvidia-v2",
+          "version": "6",
+          "contentHash": "sha256:2bd89b319878b4c0a49a6565727b2ed5f5a35720e931ed917ef2b36e6573d602",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "fallout4-steam-release-test-recording-v1",
+          "version": "5",
+          "contentHash": "sha256:dc5fa2743f2fe1b3f28161cf5cecf8a41f942f8a544c34210f2007b1adfa3d60",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "fallout4-steam-release-test",
+          "version": "6",
+          "contentHash": "sha256:db91d49af2b2b5fef79ae5d5f13e5bd71f8d4336ac764f359484a0d268f335be",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.fallout4.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:f9ba0c0edf94c95a5ace1a9b75d1a227ddfe51f2c9590b2634ab04dbdb871a6a",
+          "file": "mapping.json"
+        },
+        {
+          "kind": "depth_profile",
+          "catalogId": "fallout4-steam-release-test",
+          "version": "1",
+          "contentHash": "sha256:12e564f0a2c9c7c49fc826df798799960c7eff60bdfffcfe066762cb9c1eaa83",
+          "file": "depth-profile.json"
+        },
+        {
+          "kind": "camera_binding",
+          "catalogId": "fallout4-steam-1.11.221-main-camera-v3-render-hybrid",
+          "version": "3",
+          "contentHash": "sha256:3026c8a8140b5f25bd899013daba52ea520bfaabe02913df78b6326cedeab247",
+          "file": "camera-binding.json"
+        }
+      ]
+    },
+    {
+      "gameId": "far-cry-5-pc",
+      "catalogDir": "far-cry-5-pc",
+      "catalogId": "dataminer-far-cry-5-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "孤岛惊魂 5（PC 本地步战）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "far-cry-5-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:973c4a994a7437a20b315d841e6d5c57e8bd8745d95d5fa587a50dedff4a85aa",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "far-cry-5-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:8ceb5ee5102cdd646aa8fc0251ec9ea66f888e66d486eb5854ad77c7233e84c1",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "far-cry-5-pc",
+          "version": "2",
+          "contentHash": "sha256:df854329f976feba8ea7d288ab17bb8b2763cd95b40a4742515fbccdd0c2196e",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.far-cry-5.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:dbeca08872e0e1ed1fb75483a27fbddb820c05204ec8ca4b0db1a5f3f726586c",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "forza-horizon-5-pc",
+      "catalogDir": "forza-horizon-5-pc",
+      "catalogId": "dataminer-forza-horizon-5-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "极限竞速：地平线 5（Default WASD 驾驶，PC 本地）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "forza-horizon-5-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:2f3a7e31aaee697e521b0fe905f52e23defe98ec8f726b976c623dc7838e191d",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "forza-horizon-5-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:3e1b61f9debe288397b402e51820248f0ff4e822d2b92614d216b7897443116d",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "forza-horizon-5-pc",
+          "version": "2",
+          "contentHash": "sha256:3e1a5111d06f7194dc459381a2a2c3185f4969eeecf54dbf6f40ee17a1a11541",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.forza-horizon-5.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:ca745efac34eb578c1d7da442c4194fa9d59681ca835c37ca3b9a18aadcc2ce2",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "gta5-legacy-pc",
+      "catalogDir": "gta5-legacy-pc",
+      "catalogId": "dataminer-gta5-legacy-pc-dev",
+      "catalogVersion": "2026-09-02.0",
+      "displayName": "侠盗猎车手 V Legacy（单人徒步，PC 本地）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "gta5-legacy-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:44cb014fb52d73b54580a38752d4bafb42fe4f11759e54e85ccb87ce81d1039b",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "gta5-legacy-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:f9ad56fc0ecc21c62fc1bf561979b3b91a5d32be3c8ef1fd6e20d75f46694e06",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "gta5-legacy-pc",
+          "version": "3",
+          "contentHash": "sha256:f7d922435f56b2ac64c586041d4b79e6cfc5de8eb82a6503de08938534723c3b",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.gta5-legacy.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:c7cc71db24efbf00bfa00aee8acf8b4107ac92699d88a64e3f87a110af2f229a",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "hades-ii-steam-release-test",
+      "catalogDir": "hades-ii-steam-release-test",
+      "catalogId": "dataminer-hades-ii-steam-release-test",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Hades II Steam",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "hades-ii-steam-release-test-windows-nvidia-v2",
+          "version": "5",
+          "contentHash": "sha256:3039ab5484f4429cd530ca0b8114d418e75f4a223cd13ce714aa6fa6cbdf57ea",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "hades-ii-steam-release-test-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:b67f3ca66276d6fd6c62ac4e3c49abba70a3786c904d8a5c45d507ef5a82e70a",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "hades-ii-steam-release-test",
+          "version": "6",
+          "contentHash": "sha256:29cdafeb300f7248637a2e359f1e73752e6b4376de5eaf7d362171b9eef82217",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.hades-ii.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:0b6b2427a8d9e905670d0e2fda9316bb608c86eed557d2c99b2b22b0333d6058",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "halo-infinite-steam-release-test",
+      "catalogDir": "halo-infinite-steam-release-test",
+      "catalogId": "dataminer-halo-infinite-steam-release-test",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Halo Infinite Steam",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "halo-infinite-steam-release-test-windows-nvidia-v1",
+          "version": "4",
+          "contentHash": "sha256:665367425fa8ee29eb3d5c8b203601dfd4e19ade8069d83dd8febbf3935e0cd8",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "halo-infinite-steam-release-test-recording-v1",
+          "version": "4",
+          "contentHash": "sha256:136308a0093cda45af071508fc158608ec2dff49ac08627b796f2a04939bd72c",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "halo-infinite-steam-release-test",
+          "version": "5",
+          "contentHash": "sha256:cae8def622779cdcdd732b5d2029655621294b642c1604879fe19751f62a4173",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.halo-infinite.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:a50554a53dc181d9a932fca8f06945a10a1d00f12daca0c7661da79b2db17db5",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "halo-reach-mcc-s0",
+      "catalogDir": "halo-reach-mcc-s0",
+      "catalogId": "dataminer-halo-reach-mcc-s0",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Halo: Reach (MCC) Steam S0",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "halo-reach-mcc-s0-windows-nvidia-v1",
+          "version": "4",
+          "contentHash": "sha256:0f5eb3c0d031804f542c010bff2a747d76f23b76e8ead1fa9690ce96f936e592",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "halo-reach-mcc-s0-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:d89c241814a9654fff7778f2f848dc0014fdd2761535cf9e558ded1e2f08ff61",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "halo-reach-mcc-s0",
+          "version": "4",
+          "contentHash": "sha256:a273edce8a169392936bcba9c3f24a509923c7f6e1d2f3ab339da710ac7e0ff2",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.halo-reach.mcc.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:0d33246d53ae0523464157dc6566665567a63be09e1e622e001fe18d1c048dae",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "indiana-jones-great-circle-pc",
+      "catalogDir": "indiana-jones-great-circle-pc",
+      "catalogId": "dataminer-indiana-jones-great-circle-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "夺宝奇兵：古老之圈（单人徒步，PC 本地）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "indiana-jones-great-circle-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:9ef1fb6dc5f333301353668c940298d00075ee275333b193801d4c8228669cd2",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "indiana-jones-great-circle-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:5f70baa86d1cfa2fd623caac553655f90bfb01d0a07b8f5388681d2aa1156f4a",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "indiana-jones-great-circle-pc",
+          "version": "2",
+          "contentHash": "sha256:852118afd02911413eca7fea38ec8ceda3ce7f7c495b67d99fe0ec78d122115b",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.indiana-jones-great-circle.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:9ce59144430b262d40c4d91b99a70e9ba34bf9e5a00ec197f0ff03f06cf26ca0",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "kingdom-come-deliverance-2-steam",
+      "catalogDir": "kingdom-come-deliverance-2-steam",
+      "catalogId": "dataminer-kingdom-come-deliverance-2-steam",
+      "catalogVersion": "2026-09-11.0",
+      "displayName": "Kingdom Come: Deliverance II (Steam)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "kingdom-come-deliverance-2-steam-windows-nvidia-v1",
+          "version": "1",
+          "contentHash": "sha256:d503174ebf066bd387e1ebbc3999133ef07129ce4f8925019b3417f340862d7e",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "kingdom-come-deliverance-2-steam-recording-v1",
+          "version": "1",
+          "contentHash": "sha256:06493ebf549187d954226e4a220950e285b89ea2230a2ebc71da60784e94d639",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "kingdom-come-deliverance-2-steam",
+          "version": "1",
+          "contentHash": "sha256:9546798b4baaa29f6052de090de81168c99c326db154259befbfa0f464666a7f",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.kingdom-come-deliverance-2.steam.pc",
+          "version": "2026-09-07.0",
+          "contentHash": "sha256:717273b82ae151c3a597c6a596b7cac9fdff8f7f520e5dfbf0003dbd6f94035c",
+          "file": "mapping.json"
+        },
+        {
+          "kind": "depth_profile",
+          "catalogId": "kingdom-come-deliverance-2-steam",
+          "version": "1",
+          "contentHash": "sha256:4d506e31d4a7a19be3e7b6cde25c0320b2038a06f81a8b45d770865737345dbe",
+          "file": "depth-profile.json"
+        },
+        {
+          "kind": "camera_binding",
+          "catalogId": "kcd2-steam-23914554-combined-vp-v2",
+          "version": "2",
+          "contentHash": "sha256:3f45fef3a5a23a93d05a4b6e1a084c3b571a4751c6b60cef64128ce9f9ca00d4",
+          "file": "camera-binding.json"
+        }
+      ]
+    },
+    {
+      "gameId": "mount-and-blade-2-bannerlord-steam",
+      "catalogDir": "mount-and-blade-2-bannerlord-steam",
+      "catalogId": "dataminer-mount-and-blade-2-bannerlord-steam-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Mount & Blade II: Bannerlord (Steam combat)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "mount-and-blade-2-bannerlord-steam-windows-nvidia-local-v1",
+          "version": "2",
+          "contentHash": "sha256:f6955e48cee37ba12d56521a62b5fb1df236d82367c32e1afa6ceb66f0c5e1e9",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "mount-and-blade-2-bannerlord-steam-recording-v1",
+          "version": "3",
+          "contentHash": "sha256:a29b303c2a82c100df9a570862251c94b457fddb9c577af5a8ab8ee2069ca227",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "mount-and-blade-2-bannerlord-steam",
+          "version": "3",
+          "contentHash": "sha256:17578c33d337ff8e0ab932db65962e9694e9f379973107c577b7d99a90f84269",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.mount-and-blade-2-bannerlord.steam.pc.combat",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:6c056760727d672644266961af3b693e87f830afb0f355180b1e348de7f443d1",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "nioh2-steam",
+      "catalogDir": "nioh2-steam",
+      "catalogId": "dataminer-nioh2-steam-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Nioh 2 (Steam)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "nioh2-steam-windows-nvidia-local-v1",
+          "version": "2",
+          "contentHash": "sha256:f0aa358412e033a47bfe3f79f2b9d754c55dde7576db0514f590ad31ee3b971d",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "nioh2-steam-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:e58877535c4ed2a04cccd24fd64232ad38b26db9058c9290b607879b0b1fd325",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "nioh2-steam",
+          "version": "2",
+          "contentHash": "sha256:1c78258302aedb7cb65c7169344e70957330ae16de474e6034886afc1b1d7134",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.nioh2.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:06705c23fe3beaa46248df4725e197cc77bf1c56a6cca1e9e4cd997f83c53446",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "prey-2017-pc",
+      "catalogDir": "prey-2017-pc",
+      "catalogId": "dataminer-prey-2017-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Prey（2017 主战役徒步，PC 本地）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "prey-2017-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:5a9527b054ead298fb0581a1e0bb5c39f39fa7ae82cd4c5880a934872e22a014",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "prey-2017-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:82c20a849e7f1d299a297d3d5035a1e9c32ed48b8681bee860cef456891dba59",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "prey-2017-pc",
+          "version": "2",
+          "contentHash": "sha256:0eec0d9f2ca22dab274eba9396a06320c41f1f303f5f711b41533bfc096cc6a8",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.prey-2017.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:d8789099d0b15b6040ccaf8008035c4ffb513cfb20a7ddaee06fe6aad783cef8",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "red-dead-redemption-2-pc",
+      "catalogDir": "red-dead-redemption-2-pc",
+      "catalogId": "dataminer-red-dead-redemption-2-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "荒野大镖客：救赎 2（单人徒步，截图键位待真机复核，PC 本地）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "red-dead-redemption-2-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:d0d5d6373ea73981a90c35b00c865ae1c72cf60e242e08ce4092ce112f2430a4",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "red-dead-redemption-2-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:773ca5053aba0657691eecc54f64c245a2b166fb46bca82be02caa1ebd2dcd3e",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "red-dead-redemption-2-pc",
+          "version": "2",
+          "contentHash": "sha256:694c4990816fd751cbfd47001c34ebe5d858434b32fbff4c439c88cd59f219d9",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.red-dead-redemption-2.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:f5afb159f04dc33c29555b572c9b06af798e3772b2999d9da851686cb3a9920a",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "resident-evil-village-pc",
+      "catalogDir": "resident-evil-village-pc",
+      "catalogId": "dataminer-resident-evil-village-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Resident Evil Village (PC, main campaign)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "resident-evil-village-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:375875710dc7f26fe8dd9b84575dff791c5a9e90e64b916e9b4edd7a884a6cb2",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "resident-evil-village-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:245d55fe49812b05e8a4054f22d494c0f1c60771126de790de1ae39dc511a17f",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "resident-evil-village-pc",
+          "version": "2",
+          "contentHash": "sha256:c6044440249a8887995914121ba88efc287de4c0e0bc974763c3b37c826b196b",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.resident-evil-village.pc",
+          "version": "2026-08-19.0",
+          "contentHash": "sha256:b598da080508d091c4615da36ed75dbf84d87db1b8fd196317e65ec55aad65c0",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "starfield-pc",
+      "catalogDir": "starfield-pc",
+      "catalogId": "dataminer-starfield-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "星空（单人徒步，PC 本地）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "starfield-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:65efe03e2349f7e4d186d38a7947884e5330f971b9f658661b7c655647cf9719",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "starfield-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:18e6ff1f49c9978a33a96a69f40412b43122af6c89346ff9b97d6d14b97ca723",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "starfield-pc",
+          "version": "2",
+          "contentHash": "sha256:4bb4d7bf81d1978afca9d41ccd3a4a924df4a006f99b2bf5e9ad265dc51c46b5",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.starfield.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:9b8671ec1b2c972735a5581bad9c86b27cf24ae17a8e163e94d49126534218bf",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "titanfall-2-pc",
+      "catalogDir": "titanfall-2-pc",
+      "catalogId": "dataminer-titanfall-2-pc-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "泰坦陨落 2（单人 Pilot，PC 本地）",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "titanfall-2-pc-windows-nvidia-v1",
+          "version": "2",
+          "contentHash": "sha256:8f1b85aeebe230a795a517548e234d5db2b847decc7ed9bb26fa6e714d1aedef",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "titanfall-2-pc-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:63d96fc82804c5050c19b67fef8bc32c0ded3f371815655379dea7dc775ec49e",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "titanfall-2-pc",
+          "version": "2",
+          "contentHash": "sha256:fc26e12712d6d36221f9bfa2b168b78dd5f70a5cab623f71f03ebda45d73451c",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.titanfall-2.pc",
+          "version": "2026-08-20.0",
+          "contentHash": "sha256:21596d57109955b5cc5d351818d4614a1bdff49f9ecf41d1abb88f67631d197c",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "total-war-warhammer-iii-steam-release-test",
+      "catalogDir": "total-war-warhammer-iii-steam-release-test",
+      "catalogId": "dataminer-total-war-warhammer-iii-steam-release-test",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Total War: WARHAMMER III Steam",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "total-war-warhammer-iii-steam-release-test-windows-nvidia-v1",
+          "version": "3",
+          "contentHash": "sha256:006fa6b889540e4a286c65151235ef69e1e3d8a38dfdd2e202660603c4cfd60a",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "total-war-warhammer-iii-steam-release-test-recording-v1",
+          "version": "2",
+          "contentHash": "sha256:76ede185e236388db39cbe6d59535ac970e24b66c7de7af6c0c3eda11162e694",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "total-war-warhammer-iii-steam-release-test",
+          "version": "4",
+          "contentHash": "sha256:66076b528278dbec1839390dc4a756840fdb71d965a6a8aeb75c6db1ce12e823",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.total-war-warhammer-iii.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:6daa08d2a3036371b70cbd8e8b2b9a5ebf898d0e2243a30a2b7d90454874c071",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "wolfenstein2-steam",
+      "catalogDir": "wolfenstein2-steam",
+      "catalogId": "dataminer-wolfenstein2-steam-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "Wolfenstein II: The New Colossus (Steam)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "wolfenstein2-steam-windows-nvidia-v1",
+          "version": "5",
+          "contentHash": "sha256:5f025df84bbc7c4d072ec60d3898e8bec1f4c49f84e31e5f87b1c8f0531d4149",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "wolfenstein2-steam-recording-v1",
+          "version": "4",
+          "contentHash": "sha256:8c9ec0c4141eeb0c65aafd8548680e73a65ae96c72574cdd7a092158fdbe0a66",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "wolfenstein2-steam",
+          "version": "3",
+          "contentHash": "sha256:bffc17c668ddbddc47a67a56a0279a9013c1d7e7f274a8cda0b88c69dd77cf63",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.wolfenstein2.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:38314fe151683c2f3e664b7c54054bd7ee70d25011a4352296159ec6cc583412",
+          "file": "mapping.json"
+        }
+      ]
+    },
+    {
+      "gameId": "wuchang-fallen-feathers-steam",
+      "catalogDir": "wuchang-fallen-feathers-steam",
+      "catalogId": "dataminer-wuchang-fallen-feathers-steam-dev",
+      "catalogVersion": "2026-08-25.0",
+      "displayName": "WUCHANG: Fallen Feathers (Steam)",
+      "admission": "admitted",
+      "payloads": [
+        {
+          "kind": "device_profile",
+          "catalogId": "wuchang-fallen-feathers-windows-nvidia-gtx1060-v1",
+          "version": "5",
+          "contentHash": "sha256:c586db74c968c406d98c1b6c39f2d813e86b1426b04eb665065ff69218f8e466",
+          "file": "device-profile.json"
+        },
+        {
+          "kind": "recording_profile",
+          "catalogId": "wuchang-fallen-feathers-steam-recording-v1",
+          "version": "3",
+          "contentHash": "sha256:86036bfb9626f85605fd10bac23110b446683693e5c84757c6193a29284795df",
+          "file": "recording-profile.json"
+        },
+        {
+          "kind": "game_profile",
+          "catalogId": "wuchang-fallen-feathers-steam",
+          "version": "3",
+          "contentHash": "sha256:83d610e46f7d03bd39cc3cd7e01ed04ffacbb37eead2088fd04c5e7e7555b25f",
+          "file": "game-profile.json"
+        },
+        {
+          "kind": "game_mapping",
+          "catalogId": "game.wuchang-fallen-feathers.steam.pc",
+          "version": "2026-08-25.0",
+          "contentHash": "sha256:9d39eefeea277f7d39bd2d6e81f8bfe07dd65ec53c9140e8473f00da3945e76b",
+          "file": "mapping.json"
+        }
+      ]
+    }
+  ]
+}

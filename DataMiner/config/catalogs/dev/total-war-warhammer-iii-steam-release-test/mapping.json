@@ -1,0 +1,47 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.total-war-warhammer-iii.steam.pc",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "total-war-warhammer-iii-steam-release-test",
+    "name": "Total War: WARHAMMER III Steam",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "real_time_strategy",
+    "view": "strategy",
+    "material": "3d"
+  },
+  "recording_profile_id": "total-war-warhammer-iii-steam-release-test-recording-v1",
+  "bindings": [
+    { "device": "mouse", "control": "delta_x", "semantic": "pointer.delta_x" },
+    { "device": "mouse", "control": "delta_y", "semantic": "pointer.delta_y" },
+    { "device": "keyboard", "scan_code": 25, "extended": false, "semantic": "simulation.pause" },
+    { "device": "keyboard", "scan_code": 57, "extended": false, "semantic": "ui.context_overlay" },
+    { "device": "keyboard", "scan_code": 23, "extended": false, "semantic": "ui.unit_information" },
+    { "device": "keyboard", "scan_code": 49, "extended": false, "semantic": "camera.zoom_view" },
+    { "device": "keyboard", "scan_code": 83, "extended": true, "semantic": "camera.unit_view_toggle" },
+    { "device": "keyboard", "scan_code": 82, "extended": true, "semantic": "camera.third_person_view" },
+    { "device": "keyboard", "scan_code": 73, "extended": true, "semantic": "camera.speed_increase" },
+    { "device": "keyboard", "scan_code": 81, "extended": true, "semantic": "camera.speed_decrease" },
+    { "device": "keyboard", "scan_code": 19, "extended": false, "semantic": "simulation.speed_toggle" },
+    { "device": "keyboard", "scan_code": 33, "extended": false, "semantic": "combat.melee_mode" },
+    { "device": "keyboard", "scan_code": 34, "extended": false, "semantic": "unit.group_toggle" },
+    { "device": "keyboard", "scan_code": 35, "extended": false, "semantic": "unit.guard_mode" },
+    { "device": "keyboard", "scan_code": 22, "extended": false, "semantic": "unit.withdraw" },
+    { "device": "keyboard", "scan_code": 36, "extended": false, "semantic": "unit.about_face" },
+    { "device": "keyboard", "scan_code": 15, "extended": false, "semantic": "campaign.overview" },
+    { "device": "keyboard", "scan_code": 28, "extended": false, "semantic": "campaign.end_turn" },
+    { "device": "keyboard", "scan_code": 71, "extended": true, "semantic": "camera.focus_capital" },
+    { "device": "keyboard", "scan_code": 79, "extended": true, "semantic": "camera.default_rotation" },
+    { "device": "keyboard", "scan_code": 64, "extended": false, "semantic": "campaign.ai_movement_toggle" },
+    { "device": "keyboard", "scan_code": 37, "extended": false, "semantic": "ui.toggle" },
+    { "device": "keyboard", "scan_code": 51, "extended": false, "semantic": "unit.previous" },
+    { "device": "keyboard", "scan_code": 52, "extended": false, "semantic": "unit.next" },
+    { "device": "keyboard", "scan_code": 14, "extended": false, "semantic": "command.cancel" },
+    { "device": "keyboard", "scan_code": 63, "extended": false, "semantic": "signal.standard" },
+    { "device": "mouse", "button": 1, "semantic": "ui.select_or_command" },
+    { "device": "mouse", "button": 2, "semantic": "camera.rotate_or_context_command" },
+    { "device": "mouse", "control": "wheel", "semantic": "camera.zoom" }
+  ]
+}

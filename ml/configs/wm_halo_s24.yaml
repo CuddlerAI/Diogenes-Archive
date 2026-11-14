@@ -1,0 +1,324 @@
+# WM S-24 量级臂 · Halo Infinite（docs/50 §4.2 ②）
+#
+# ⚠⚠ 先读这一段, 否则会把这份文件当成"配好了就能跑"。
+#
+# ## 这份文件今天不是训练器的输入, 是一份**运行清单**
+#
+# WM 线没有"给一个 yaml 就开跑"的入口: Phase 2 的真配置由
+# `ml/scripts/wm01/phase2.sh` 在 VM 上从 LongLive 的 `configs/train_i2v_ar.yaml`
+# 现场生成并落成 `~/runs/phase2-<arm>/train_phase2.yaml`, 参数由 `PHASE2_*` 环境
+# 变量注入。`ml/configs/*.yaml` 只被 phase0/VL 的 `--config` 读, WM 一条都不读。
+# 所以本文件的纪律是:
+#
+#   * `dataset:` / `readiness:` / `eval:` 三节的键名 = 对应模块 argparse 的**长
+#     选项名去掉 `--`**, 每节给出可直接复制的命令行;
+#   * `train:` 一节的键名 = `phase2.sh` 写进 `train_phase2.yaml` 的**同名键**
+#     (`training.*` / `action_module.* `/ `data.*`), 以及它的 `PHASE2_*` 入口;
+#   * 任何**今天没有消费方**的要求一律放进 `blocked_on:`, 不伪装成训练器的键。
+#
+# ## 这条臂能得出什么结论, 不能得出什么
+#
+# 诚实可用量是 **8.96 h**, 不是 23.87 h(见 `data_budget:`)。doc 41/42 的功效
+# 倒推是 **15–20 h 才分得清"真值动作 vs 伪标动作"**; 8.96 h 只够回答一个更弱的
+# 问题: **A1(原生真值)臂是否离开了行为地板**(该判定需 ≥5 h)。
+#
+#   → 本臂的定位是 **把量级曲线的第二个点画出来**(第一个点是 COD 2.3573 h),
+#     **不是"跨过 S-24 的 24 h 地板"**。docs/50 D7 已推翻 doc 44 §5 的
+#     "地板已跨过、本周可开跑": 地板**未跨过**, 8.96 h 是 S-24 的 37.3%。
+#   → 结果不显著是**预期内**的。开跑前就要把这句话写进 runbook, 否则事后会被
+#     读成"数据没用", 而真实结论只是"这个点还在曲线的左边"。
+#
+# ## 三条必须同时接受的约束(docs/50 §4.2)
+#
+#   1. `combat.aim` 必须 mask —— Halo 是 toggle zoom, 该通道是坏标签;
+#   2. 鼠标必须用从 `events.jsonl` 重算的 `pointerRawDx/Dy` —— Halo 的
+#      `frames.jsonl` **没有** raw 字段(实测 0/600 行命中), 不重算就只能拿被
+#      clamp 到 ±200 的标签去打鼠标门;
+#   3. 可用量按 QC 闸记 8.96 h。
+#
+# 前两条已由**同一分支上新落的** `ml/diogenes_wm/halo_adapter.py` +
+# `ml/diogenes_wm/halo_qc.py` 在转换期做掉(见 `adapter:` 一节)。
+#
+# ## 集成收尾(2026-08-14)之后 blocked_on 的变动
+#
+#   * **B2 已解**: `readiness.py` 现在从 chunk meta 的 `masked_actions.semantics`
+#     读出语料自己声明剔掉的通道, 判为"已知空"而不是零支持; 只有**一部分** chunk
+#     声明 mask 才阻断(那是真的口径不一致)。指纹那一半给了缓解而不是根治 ——
+#     门另报一个 `effective_fingerprint`, 但独立冻结词表仍未新增(见 B2 残留)。
+#   * **B4/B5 已解**: 来源戳落地并在真 R2 上验过 `require_declared_source=True`;
+#     具结车道不申报来源现在**硬报错**。raw 指针重算在真数据上实测
+#     `max_abs_raw_pointer=257 > clamp 200`(即确实没有回退到 pointerDx)。
+#   * 剩下的 B1(未合入)、B3(mouse_scale 未标定)、B6(view_scale 未标定)、B7(GPU)
+#     **一条都没解**, 本文件在它们清空之前仍然跑不起来。
+
+arm:
+  name: wm-halo-s24
+  lane: A1-native            # 与 phase2.sh 的 PHASE2_ARM=native 同义(真值动作, 非伪标)
+  purpose: 量级曲线的第二个点（第一个点 = COD 2.3573 h @30fps）
+  reads_out:
+    - 判 A1 是否离开行为地板（需 ≥5 h；本臂 8.96 h，够）
+  cannot_read_out:
+    - 真值 vs 伪标的可分性（doc 41/42 功效倒推需 15–20 h）
+    - 跨过 S-24 的 24 h 数据地板（本臂 = 37.3%）
+  provenance: docs/50 §4.2 ② / §2.4 / 分歧记录 D7
+
+# ---------------------------------------------------------------------------
+# 语料来源。坐标写在这里而不是散在脚本里, 是因为 contract.py 的来源级闸
+# (SOURCE_RULES) 就按这两个字段判定 —— 适配器必须把它们盖进每份 meta.json
+# (contract.source_stamp)。
+# ---------------------------------------------------------------------------
+source:
+  bucket: diogenes-model-training
+  prefix: raw/v1/attested-trainable/dataminer-api-production/sessions
+  layout: api-ingest-six-piece   # <session>/runs/<run>/clips/<clip>/{meta,frames,events,video,audio,manifest}-<sha>.*
+  # 🔴 必须按 meta.target.game_id 过滤, **不能按路径或前缀推断**: 这条具结车道
+  # 里除 8,663 个 halo clip 外还混着 cod 6 / w2 67 / wuchang 7 + 1 个无 target
+  # 字段的 fallout4 depth 孤儿(docs/50 §6.1 R1/R2/R3)。按前缀取数 = 把未经裁决
+  # 的第三方内容拖进训练集。
+  game_id_allowlist: [halo-infinite-steam-release-test]
+  drop_missing_target: true      # 无 target 字段的 clip 一律丢(那个孤儿就是这么进来的)
+
+# ---------------------------------------------------------------------------
+# 小时数。四个口径都列出来, 因为它们**每一个都在别处被当成过"可用量"**。
+# ---------------------------------------------------------------------------
+data_budget:
+  governance_h: 23.87        # WAIVER 承载的 Halo(车道总 29.4210 h 里的 Halo 份额)
+  single_run_max_h: 23.5994  # 受 contract.gate_fps 约束的同质块(Halo 全 60fps)
+  qc_passed_h: 8.960         # ← 本臂按这个数排预算。QC 行为地板 45/122 session(37.5%)
+  # ⚠ 口径提醒(2026-08-14, halo_qc 落地后复算): 8.960 h 的出处是 docs/50 §2.4,
+  # 那一行自己标了口径是 **365 clip / 217,604 帧的抽样**。用同一套 floor 定义在
+  # **全量 8,663 clip / 5,155,139 帧**上重跑得到 **57/122 session · 11.4831 h**
+  # (若第十项仍按六通道判则 43/122 · 9.13 h)。方向不变(远低于 S-24 的 24 h),
+  # 但**引用小时数必须说清是哪份样本**。doc 50 正文未改(需 owner 裁定), 这里
+  # 两个数并列, 排预算仍按保守的 8.960。
+  qc_passed_h_full_census: 11.4831   # floor 档 · 全量普查 · 57/122 session
+  # docs/50 写作时点是 0.0(适配器不存在)。本分支落了 diogenes_wm/halo_adapter.py
+  # 之后取数通路打通, 实际可达量 = qc_passed_h 减去转换期拒收(game_id/fps/哈希不符),
+  # **首跑必须以适配器 --stats-json 的实测值为准, 不要抄这里的 8.96**。
+  code_reachable_h: 见 adapter --stats-json（首跑前不填）
+  qc_gate: DataMiner docs/116 §8.3 行为地板（全 10 项只剩 0.173 h / 1 session，不用）
+  sessions_passing_qc: 45
+
+# ---------------------------------------------------------------------------
+# 步骤 1 · 原始六件套 → chunk 契约。**消费方今天不存在**(见 blocked_on B1)。
+# 键名按 cod_adapter.py 的同名 CLI 选项写, 新适配器应当沿用同一套。
+# ---------------------------------------------------------------------------
+# 键名 = `python -m diogenes_wm.halo_adapter` 的长选项名去掉 `--`。
+#   python -m diogenes_wm.halo_qc  # 无 CLI, QC 报告由 tools/halo-intake-qc/qc.py --report 产出
+#   python -m diogenes_wm.halo_adapter \
+#       --src r2://diogenes-model-training/raw/v1/attested-trainable/dataminer-api-production/sessions/ \
+#       --cache /data/halo-cache --out data/halo_attested \
+#       --rights first_party --consent-id <owner 具结 ID> \
+#       --qc-report halo_qc.json --qc-mode floor
+adapter:
+  entry: python -m diogenes_wm.halo_adapter
+  src: r2://diogenes-model-training/raw/v1/attested-trainable/dataminer-api-production/sessions/
+  cache: /data/halo-cache        # R2 模式必填, 支持断点续跑
+  out: data/halo_attested
+  rights: first_party            # 缺 --consent-id 会硬报错: 门是四项与, 单翻一个只是错觉
+  consent-id: <owner 具结 ID>
+  game-id: halo-infinite-steam-release-test   # 适配器默认值, 这里显式写出来是因为它是
+                                              # 治理级过滤(见 source.game_id_allowlist)
+  fps: 60/1                      # 车道里 8,743 clip 是 60/1, 混着 1 个 30/1 → 只收 60/1
+  mask-actions: [combat.aim]     # 适配器默认值; 逐帧留痕在 actions_masked, meta 写
+                                 # masked_actions 块 → mask 可逆、可审计
+  verify: 8                      # meta/frames/events 与新下载的 video 恒全验; 这个数只管
+                                 # 「已在 cache 里的 video 重算多少个 sha256」
+  qc-report: halo_qc.json
+  qc-mode: floor                 # = docs/50 采用的行为地板口径(8.96 h 那个数就是它)
+                                 # strict 是 116 §8.3 全 10 项 → 只剩 0.173 h / 1 session
+  drop-empty-events: false       # 默认不剔: 128 个 clip 的 events 是 9 字节空 zstd 帧
+                                 # (真实操作空窗, frames 仍完整 600 行) → 降权不剔除
+  strict-pointer-digest: false   # 打开会在逐帧摘要与半开区间重算不一致时拒收该 clip;
+                                 # 首跑建议先关着跑一遍看不一致率, 再决定要不要收紧
+  jobs: 16                       # 并发预热到 cache 的线程数。串行实测全量 ≈23 h
+                                 # (其中 2.6 h 纯小对象往返), 16–24 线程约 8.5 h。
+                                 # 预热只对 R2 模式有效, 且与主循环同一套选片:
+                                 # QC 毙掉的 session 一个正文字节都不会拉
+  prefetch-batch: 32             # 每批预热多少个 clip(≈600 MB 视频/批, 按盘和带宽调)
+  rejects-jsonl: halo_rejects.jsonl   # 逐条拒收记录(带 clip 身份) —— 聚合计数回答
+                                      # 不了"是哪 98 个", 也就交不出去复核
+  # max-examined: 20             # 冒烟跑用它: --limit 只限**产出**数, 混车道上为了
+                                 # 凑够它会把整条车道读一遍
+  # 磁盘: cache ≈159.6 GiB(全量视频) + out ≈1.36 GiB。p0.mp4 是指向 cache 的**绝对
+  # 符号链接**, 所以 cache 与 out 必须同卷, 且 cache 在语料还要用的时候不能删。
+
+# ---------------------------------------------------------------------------
+# 步骤 2 · chunk 契约 → LongLive 训练平面。
+#   python -m diogenes_wm.wm01.dataset --src data/halo_attested --out ~/data/plane \
+#       --size 832x480 --clip-frames 93 --crf 20 \
+#       --caption "first-person shooter gameplay footage"
+# ---------------------------------------------------------------------------
+dataset:
+  src: data/halo_attested
+  out: ~/data/plane
+  size: 832x480          # → 潜空间 52x30(SPATIAL_COMPRESSION=16)
+  clip-frames: 93        # LongLive 合法块长 29/61/93/125…(29 + k×32); 93 @24fps = 3.875 s
+  crf: 20
+  caption: first-person shooter gameplay footage
+  # 派生量(不是键, 记在这里免得每次重算):
+  #   TARGET_FPS=24(wm01/dataset.py 常量, 取自模型 config 的 fps 而非 dataset 默认形参 16)
+  #   src_per_clip = ceil(93 × 60 / 24) = 233 源帧/clip —— COD@30fps 是 117
+  #   8.960 h @60fps = 1,935,360 源帧 → ≈8,300 clip [推算, 未扣 run 尾帧与断号]
+  #   源段是 600 帧/10 s, 600 % 4 == 0 → 过 readiness 的 VAE 时间压缩对齐检查
+
+# ---------------------------------------------------------------------------
+# 步骤 3 · 就绪门(不花 GPU, 必须先过)。
+#   python -m diogenes_wm.wm01.readiness --root data/halo_attested \
+#       --holdout-sessions 4 --out halo_readiness.md
+# ---------------------------------------------------------------------------
+readiness:
+  root: data/halo_attested
+  # 语料声明 mask 掉的通道由门自己从 chunk meta 读(masked_actions.semantics),
+  # 不用在这里配 —— 配置与语料两处各写一遍就一定会有一处过时。
+  # 4 而不是 COD 那条臂的 2: 会话尾切法同口径, 但**比例**要同口径而不是**绝对数**
+  # 同口径。COD 是 19 会话取尾 2 = 10.5%; Halo 过 QC 的是 45 会话, 取尾 2 只有
+  # 4.4% —— 两点比较时 holdout 大小不同, holdout 上的指标就不可并排读。
+  holdout-sessions: 4
+  # 门内阈值是模块常量, 不从配置读(改阈值要改代码并留下 diff, 这是有意的):
+  #   MIN_HOLDOUT_FRAMES=30 / MIN_MOVING_FRACTION=0.05 / SHIFT_BAND=(0.5, 2.0)
+  # 预期会看到的两件事(先写下来, 免得当场把它读成 bug):
+  #   - `combat.aim` 会显示为 "⬜ 已 mask"(train/holdout 都是 0 帧)且**不阻断** ——
+  #     那是语料自己声明的裁决, 不是零支持(2026-08-14 已修, 见 resolved.B2);
+  #   - Halo 动作密度实测 90.7%(全车道最高), 指针运动帧不该逼近 5% 下限。
+
+# ---------------------------------------------------------------------------
+# 步骤 4 · Phase 2 训练。键名与 phase2.sh 生成的 train_phase2.yaml 一致。
+#   PHASE2_ARM=native PHASE2_STEPS=2000 PHASE2_SAVE_EVERY=50 \
+#   PHASE2_MOUSE_SCALE=<标定值> bash ml/scripts/wm01/phase2.sh
+# ---------------------------------------------------------------------------
+train:
+  # --- phase2.sh 的环境变量入口 ---
+  PHASE2_ARM: native
+  PHASE2_STEPS: 2000
+  PHASE2_SAVE_EVERY: 50
+  PHASE2_MOUSE_SCALE: null     # 🔴 阻断项 B3: 200.0 是 **COD** 平面的实测标定
+                               # (p99=218), 不是 Halo 的。Halo 的 raw delta 是从
+                               # events 重算的、且是 60fps 逐帧 —— 分布必然不同。
+                               # 先在 ~/data/plane/action 上量 |mouse| 的 p99 再填。
+
+  # --- train_phase2.yaml 内的键(phase2.sh 现场写入, 这里只记本臂取值与理由) ---
+  action_module:
+    enabled: true
+    action_dir: ~/data/plane/action     # native 臂 = 真值动作目录(伪标臂才用 action_pseudo)
+    blocks_fraction: 0.5                # DiT 前一半 block(MG2 实时预算做法), 与 COD 臂同
+    confidence_modulate: false          # 真值动作没有 c_t 可加权
+    freeze_backbone: true               # 冻结 generator 全参(含 Phase 1 LoRA), 只训 conditioner
+  training:
+    lr: 1.0e-4
+    gradient_accumulation_steps: 4      # bs1 × accum4 × 4 卡 DP = 有效 16
+    max_iters: 2000
+    log_iters: 50                       # = 存档间隔。每档另落 ~14GB error buffer 分片,
+                                        # 与 max_checkpoints=3 一起是磁盘写满事故的修法
+    ema_weight: 0.0
+    max_checkpoints: 3
+  data:
+    data_path: ~/data/train             # plane 去掉 holdout 尾会话后的软链树
+    eval_data_path: ~/data/holdout
+    image_or_video_shape: [1, 24, 48, 30, 52]   # 93 帧→24 潜帧, 480x832→30x52
+  infra:
+    sequence_parallel_size: 1           # 动作模块补丁不支持 sp>1(token 折叠假设整段在本 rank)
+  evaluation:
+    interval: 0                         # 训练期不做生成评估(推理路径未接动作, 触发即 raise)
+
+  # --- 为什么是固定 2000 步而不是 epoch 对齐(这条必须随结果一起报) ---
+  # 量级臂唯一要变的自变量是语料小时数, epoch 对齐会把"更多数据"换算成"更多步数",
+  # 于是数据量与优化预算两个因子混在一起。所以两点用**同一优化预算**。
+  # 代价是 epoch 数不等, 且必须并列报出来:
+  #   COD 2.3573 h  → ≈2,176 clip → 训练集 ≈1,950 → 2000×16 步样本 ≈ 16.4 epoch
+  #   Halo 8.960 h  → ≈8,300 clip → 训练集 ≈7,570 → 2000×16 步样本 ≈  4.2 epoch  [推算]
+  # 方向是**保守的**: doc 26 §2.2 实测域内曲线在 2.47 epoch 仍未饱和, 即 epoch 少
+  # 的一侧吃亏。所以 "Halo 仍然更好" 可以下结论(数据量效应真实), 而
+  # "Halo 更差" 不可下结论(与 epoch 少混淆)。想要干净读数的唯一办法是 epoch 对齐
+  # 的第二跑 max_iters ≈ 7,800(≈286 h × 4×A100 墙钟, 按 2.2 min/步实测), 现受 GPU
+  # 预算阻断(docs/50 记 S-24 停点 $350–1,200)。
+
+# ---------------------------------------------------------------------------
+# 步骤 5 · 打分。三条报数纪律由 score_rollout 硬编码进输出, 这里只给必须传的参数。
+#   python -m diogenes_wm.wm01.score_rollout --rollouts <mp4 目录> \
+#       --actions ~/data/plane/action --control <不喂动作的 rollout 目录> \
+#       --label wm-halo-s24 --out halo_s24_score.md
+# ---------------------------------------------------------------------------
+eval:
+  actions: ~/data/plane/action
+  label: wm-halo-s24
+  min-delta: 3.0
+  downscale: 4
+  control: required   # 没有"不喂动作"的对照, E1a 读数不能用(镜头本来就在动)
+  # 判据是**占真值上界的比例**: 同一估计器在真实录像上是 0.566(GROUND_TRUTH_COUPLING),
+  # 生成画面不可能比真实录像更容易被光流读出动作。只看 |Δ| < p90 档, 大位移档只作观察。
+
+# ---------------------------------------------------------------------------
+# 契约闸的取值(适配器写 meta 时必须让这些成立, 否则取数在 gate 处硬失败)
+# ---------------------------------------------------------------------------
+contract:
+  contract_mode: dm1-attested   # Halo chunk 带 dm-1/per-game mapping, 走具结车道:
+                                # 治理门全开、无 method-validation 放宽、词表外份额必报
+  expected_fps: 60              # gate_fps 对混合帧率硬报错。具结车道是 60fps 26.8443 h
+                                # + 30fps 2.5767 h(COD), 一次训练只能取一边
+  mapping_id: game.halo-infinite.steam.pc
+  mapping_version: 2026-07-29.0
+  source_declared: true         # 见本文件 source: 一节 + contract.source_stamp()
+
+# ---------------------------------------------------------------------------
+# 🔴 阻断项。本文件在它们清空之前跑不起来。
+# (2026-08-14 集成收尾把 B2 的主体、B4、B5 解掉了, 见文件头; 已解的挪到
+#  `resolved:` 一节并保留出处 —— 删掉它们会让人再犯一次同样的错。)
+# ---------------------------------------------------------------------------
+blocked_on:
+  B1_adapter_unmerged:
+    what: diogenes_wm/halo_adapter.py + halo_qc.py 已写好但尚未合入 main（本分支内）
+    note: docs/50 §4.1-3 的"零引用"结论到此为止有效; 合入前这份配置里的
+          `adapter:` 一节没有可执行的入口
+  B2r_no_independent_vocab_fingerprint_for_the_masked_arm:
+    what: 六通道降五落地成的是"第 5 位恒 0", 而不是真的五维词表
+    why: ActionSpace.__post_init__ 硬要求词表长度 == BASE_KEYBOARD_DIM(6), 底座
+         ActionModule 的 keyboard_dim_in 也是 6。于是 `vocab_fingerprint` 与 COD
+         臂**逐字节相同** —— 两份 checkpoint 对外声称同一个动作空间, 而其中一个的
+         aim 通道是死的
+    mitigated: readiness 现在另算并打印 `effective_fingerprint`(把被 mask 的通道名
+               打上 `#masked` 再取指纹), 且报告里把该通道单列为"⬜ 已 mask"。
+               这让**读报告的人**分得清, 但 checkpoint 里落的仍是基指纹
+    fix: 新增一份带独立指纹的冻结词表(如 wm01-keyboard/v1-halo-aimmasked, 第 5 位
+         改名), 并让 phase2 落 checkpoint 时记它。改的是冻结表, 需要单独一次裁决
+    evidence: docs/50 分歧记录 D5（aim 占比五个来源五个值, 只保留定性结论：
+              aim ≪ attack、toggle-zoom 坏标签、进训练前 mask 该通道）
+  B3_mouse_scale_uncalibrated:
+    what: PHASE2_MOUSE_SCALE 没有 Halo 侧的标定值
+    why: 200.0 来自 2026-08-02 对 **COD** 24fps 平面 action 的实测(p99=218 /
+         p99.9=568 / max=1340); Halo 是 60fps 且 raw delta 从 events 重算, 分布不同
+    fix: 转出 plane/action 后先量一遍 |mouse| 的 p99, 取 ≈p99 填回
+    note: 真 R2 小样(2 clip / 757 帧)实测 max|raw| = 257、指针幅度 p99 = 320 counts,
+          与 COD 的 218 已经不是一个数 —— 别抄 200.0
+  B6_view_scale_never_calibrated:
+    what: H-1 view_scale 标定套件 2026-08-02 备妥, 至今未跑
+    impact: 不阻断本臂（本臂用 counts 域的 raw delta）, 但 look_*_delta_rad 恒为
+            None → camera 头的读数跨机器不可比, 量级曲线的横轴一旦换机器就断
+  B7_gpu:
+    what: S-24 停点 $350–1,200，未批
+
+# ---------------------------------------------------------------------------
+# ✅ 已解(2026-08-14 集成收尾)。留着是因为"为什么这样做"比"做了什么"更值钱。
+# ---------------------------------------------------------------------------
+resolved:
+  B2_readiness_blocked_on_the_masked_aim_channel:
+    was: 语料侧正确 mask 掉 combat.aim 之后, readiness.py 判"通道在 train 上零支持"
+         并 exit 2 —— 正确数据触发的错误告警
+    now: readiness 从 chunk meta 的 `masked_actions.semantics`
+         (`ChunkMeta.masked_action_semantics`)读出被 mask 的语义, 判为"已知空"、
+         单列不阻断; **只有一部分 chunk 声明 mask 时反而阻断**(同一通道在半份语料
+         里是标签、在另半份里被拿掉, 拼起来的分布是假的)
+    verified: tests/test_wm01_action_space.py 三条用例 + 真 R2 chunk 上跑通
+              (报告里 combat.aim 显示为 "⬜ 已 mask", 不再进 blockers)
+  B4_raw_pointer_recompute:
+    was: 需要首跑核对 pointerRawDx/Dy 真的写进了 p0.jsonl(否则静默回退到被 clamp 的值)
+    now: 真 R2 两个 clip 实测每行都有 pointerRaw 且 max|raw| = 257 > clamp 200;
+         另有 `pointer_digest_mismatch_frames`(与 frames.jsonl 自带摘要对账)与
+         `pointer_moves_outside_frames`(帧窗口有缝隙则重算有损)两个统计恒跑
+    keep_doing: 首跑仍要看这两个统计的实测值, 非零就停下来查
+  B5_source_not_declared_in_meta:
+    was: provenance.source 是自由文本, 来源闸没有判据
+    now: 每个 chunk 用 contract.source_stamp() 盖该 clip 自己的 bucket/prefix;
+         **具结车道不申报来源直接硬报错**(本地镜像模式必须给 --source-uri);
+         另记 `provenance.source_coordinate` 区分"列桶列出来的"与"操作者断言的"
+    verified: 真 R2 小样过 gate_chunks(require_declared_source=True) 与 gate_sources

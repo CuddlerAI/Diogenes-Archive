@@ -1,0 +1,44 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.assassins-creed-iii-remastered.steam.pc.on-foot",
+  "version": "2026-09-03.1",
+  "game": {
+    "id": "assassins-creed-iii-remastered-steam",
+    "name": "Assassin's Creed III Remastered (Steam, single-player on-foot core)",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "action_adventure",
+    "view": "third_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "assassins-creed-iii-remastered-steam-recording-v1",
+  "bindings": [
+    { "device": "mouse", "control": "delta_x", "semantic": "camera.yaw" },
+    { "device": "mouse", "control": "delta_y", "semantic": "camera.pitch" },
+    { "device": "keyboard", "scan_code": 17, "extended": false, "semantic": "move.forward" },
+    { "device": "keyboard", "scan_code": 31, "extended": false, "semantic": "move.backward" },
+    { "device": "keyboard", "scan_code": 30, "extended": false, "semantic": "move.left" },
+    { "device": "keyboard", "scan_code": 32, "extended": false, "semantic": "move.right" },
+    { "device": "keyboard", "scan_code": 57, "extended": false, "semantic": "move.jump" },
+    { "device": "mouse", "button": 1, "semantic": "combat.attack" },
+    { "device": "keyboard", "scan_code": 19, "extended": false, "semantic": "inventory.use_tool" },
+    { "device": "keyboard", "scan_code": 18, "extended": false, "semantic": "interact.use" },
+    { "device": "keyboard", "scan_code": 81, "extended": false, "semantic": "inventory.quick_slot_3" },
+    { "device": "keyboard", "scan_code": 75, "extended": false, "semantic": "inventory.quick_slot_4" },
+    { "device": "keyboard", "scan_code": 79, "extended": false, "semantic": "inventory.quick_slot_1" },
+    { "device": "keyboard", "scan_code": 80, "extended": false, "semantic": "inventory.quick_slot_2" },
+    { "device": "keyboard", "scan_code": 15, "extended": false, "semantic": "ui.map_menu" },
+    { "device": "keyboard", "scan_code": 1, "extended": false, "semantic": "ui.pause_menu" },
+    { "device": "mouse", "button": 2, "semantic": "combat.precision_mode" },
+    { "device": "keyboard", "scan_code": 16, "extended": false, "semantic": "party.recruit_menu" },
+    { "device": "keyboard", "scan_code": 42, "extended": false, "semantic": "move.parkour_modifier" },
+    { "device": "keyboard", "scan_code": 33, "extended": false, "semantic": "inventory.weapon_wheel" },
+    { "device": "keyboard", "scan_code": 47, "extended": false, "semantic": "ability.eagle_vision" },
+    { "device": "keyboard", "scan_code": 46, "extended": false, "semantic": "camera.center" },
+    { "device": "keyboard", "scan_code": 72, "extended": true, "semantic": "camera.look_up" },
+    { "device": "keyboard", "scan_code": 80, "extended": true, "semantic": "camera.look_down" },
+    { "device": "keyboard", "scan_code": 75, "extended": true, "semantic": "camera.look_left" },
+    { "device": "keyboard", "scan_code": 77, "extended": true, "semantic": "camera.look_right" }
+  ]
+}

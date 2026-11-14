@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "build": {
+    "beforeDevCommand": null,
+    "devUrl": null
+  },
+  "bundle": {
+    "shortDescription": "DataMiner local capture collector",
+    "longDescription": "DataMiner Windows local collector. Window-scoped game capture for annotator-contributed datasets.",
+    "windows": {
+      "timestampUrl": "http://timestamp.digicert.com",
+      "tsp": true,
+      "digestAlgorithm": "sha256"
+    }
+  }
+}

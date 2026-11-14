@@ -1,0 +1,50 @@
+{
+  "schema_version": "dm-cp2077-build-preflight-1",
+  "status": "preflight_only",
+  "captured_at": "2026-08-12",
+  "size_on_disk_revised_at": "2026-09-10",
+  "issue_url": "https://github.com/DiogenesModel/Diogenes/issues/735",
+  "source": {
+    "platform": "steam",
+    "app_id": "1091500",
+    "build_id": "20383525",
+    "state_flags": 4,
+    "size_on_disk_bytes": 97953011382
+  },
+  "size_on_disk_breakdown": {
+    "TODO": "这是一个会随安装内容漂移的总数闸，不是构建身份闸。再装/卸任何 DLC、语言包或预载内容都会让它失败，而失败信息只会给你两个大数字、不会告诉你多的是什么。撞上时先照下面的 depot 明细做减法定位，确认 executable.sha256 与 source.build_id 没变（那才是真正的构建身份），再决定是否更新这里的总数。不要在没查清差额来源前直接改这个数字让闸变绿。",
+    "note": "2026-08-12 首次封存时记录的 71240509887 只含基础 depot，当时未安装 Phantom Liberty。2026-09-10 接手 PR #931 时实测 97953011382，逐 depot 核算后差额精确闭合，确认为加装 DLC 而非游戏版本变化：EXE SHA-256、file/product version、Authenticode 签名、build_id 20383525 与 StateFlags 4 全部未变。至少 2026-09-09 起当前体积即已存在。",
+    "depots": {
+      "1091501": { "bytes": 66366228927, "kind": "base" },
+      "1091509": { "bytes": 4874280960, "kind": "base" },
+      "2138330": { "bytes": 24864943351, "kind": "dlc", "dlc_app_id": "2138330" },
+      "2224070": { "bytes": 1847558144, "kind": "dlc", "dlc_app_id": "2138330" }
+    },
+    "base_depot_bytes": 71240509887,
+    "dlc_depot_bytes": 26712501495,
+    "dlc_app_name": "Cyberpunk 2077: Phantom Liberty",
+    "previous_size_on_disk_bytes": 71240509887,
+    "history": "在此次修订前，本仓库清单的期望值一直停留在装 DLC 之前的 71240509887，而每一轮真机短测都是靠向 Test-Cp2077Preflight.ps1 显式传 -ExpectedManifestPath 指向 git 之外的私有清单绕过去的。只按 Git 接手的人必然撞这道闸。修订本字段即为消除该隐性依赖。"
+  },
+  "executable": {
+    "relative_path": "bin/x64/Cyberpunk2077.exe",
+    "file_version": "3.0.5294808",
+    "product_version": "2.31",
+    "sha256": "a7de82945c03e041fc7339fcf9066224d98db2f5d80fea50f7947bb350a60991",
+    "authenticode_status": "valid",
+    "authenticode_signer": "CD PROJEKT S.A."
+  },
+  "static_observations": {
+    "common_mod_loader_artifacts_observed": false,
+    "user_settings_observed": false,
+    "runtime_graphics_api_confirmed": true,
+    "runtime_protection_gate_completed": true
+  },
+  "restrictions": [
+    "Exact build only; any executable hash drift invalidates this manifest.",
+    "This manifest is not publisher or counsel approval.",
+    "No game-process instrumentation before the repository rights and runtime protection gates pass.",
+    "No captured content, account data, save data or device-unique identifiers may be committed.",
+    "size_on_disk_bytes tracks installed content, not build identity. Diagnose any mismatch against size_on_disk_breakdown.depots before revising it; executable.sha256 and source.build_id are the identity gates."
+  ]
+}

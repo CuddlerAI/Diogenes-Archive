@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-nioh2-steam-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "nioh2-steam-windows-nvidia-local-v1",
+      "version": "2",
+      "content_hash": "sha256:f0aa358412e033a47bfe3f79f2b9d754c55dde7576db0514f590ad31ee3b971d"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "nioh2-steam-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:e58877535c4ed2a04cccd24fd64232ad38b26db9058c9290b607879b0b1fd325"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "nioh2-steam",
+      "version": "2",
+      "content_hash": "sha256:1c78258302aedb7cb65c7169344e70957330ae16de474e6034886afc1b1d7134"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.nioh2.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:06705c23fe3beaa46248df4725e197cc77bf1c56a6cca1e9e4cd997f83c53446"
+    }
+  ]
+}

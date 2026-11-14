@@ -1,0 +1,51 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "halo-infinite-steam-release-test",
+  "version": "5",
+  "display_name": "Halo Infinite Steam",
+  "device_profile_id": "halo-infinite-steam-release-test-windows-nvidia-v1",
+  "recording_profile_id": "halo-infinite-steam-release-test-recording-v1",
+  "mapping_id": "game.halo-infinite.steam.pc",
+  "executable_names": [
+    "HaloInfinite.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      13,
+      16,
+      17,
+      32,
+      49,
+      50,
+      51,
+      52,
+      65,
+      68,
+      69,
+      70,
+      71,
+      78,
+      81,
+      82,
+      83,
+      86,
+      87,
+      88,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

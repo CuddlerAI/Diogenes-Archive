@@ -1,0 +1,63 @@
+# IDM Phase 0 + Phase 2 in one run (research doc §6).
+#
+# Phase 0 asks "does a frozen trunk + small non-causal head recover actions
+# from frames"; Phase 2 asks "does that transfer to games it never saw".
+# Holding games out answers both from a single training run, and the
+# zero-shot number is also the doc's stop-loss trigger: near-chance means
+# single-game IDM does not transfer and the line pivots to latent actions.
+#
+# COMPLIANCE: gaming-500-hours has no declared licence — method validation
+# only, never product training (allow_method_validation_only asserts this).
+run_name: idm-p0
+seed: 0
+
+data:
+  roots: [data/idm]
+  # Held out entirely from training; their score IS the Phase 2 answer.
+  # Two kinds of transfer on purpose: The Finals is an FPS and the training
+  # set has other FPS titles, so it tests game-level transfer within a known
+  # genre; Mini Metro is a puzzle game with no relative in training, so it
+  # tests genre-level transfer. Both must exist in the converted data with
+  # enough surviving chunks — an earlier list named titles the fetch never
+  # returned, which would have silently produced an empty zero-shot split.
+  holdout_games: [The Finals, Mini Metro]
+  val_fraction: 0.15
+  window: 5              # t-2..t+2, the non-causal window
+  stride: 2
+  input_res: [224, 224]  # multiple of 14 for DINOv2
+  delta_scale: 50.0
+  min_key_frac: 0.10     # drop gamepad / mouse-only titles (probe: ~0% keys)
+  contract_mode: method-validation
+  allow_method_validation_only: true
+
+model:
+  trunk: dinov2_vits14   # frozen; only the head trains
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 48
+  max_steps: 4000
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 100
+  num_workers: 6
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+# Key accuracy keeps the doc's 0.85 bar (VPT reached 90.6%).
+#
+# Mouse R^2 is REPORTED BUT NOT GATED here. The doc's 0.9 bar is calibrated
+# against VPT, which trained on natively recorded raw deltas; gaming-500
+# stores absolute cursor positions and our deltas are reconstructed by
+# differencing. A 14-session probe found no pointer-lock sessions, so the
+# signal is not obviously broken — but the bar was set for a different
+# measurement and gating on it would judge the dataset, not the method.
+# Raw-delta data arrives with the cohort recorder (ActionLabel already
+# carries pointer deltas); the 0.9 gate belongs there.
+gates:
+  key_exact_min: 0.85
+  macro_f1_warn: 0.6
+
+output:
+  dir: runs

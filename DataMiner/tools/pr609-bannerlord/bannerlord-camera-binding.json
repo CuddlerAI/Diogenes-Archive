@@ -1,0 +1,39 @@
+{
+  "schema": "camera-binding/v1",
+  "binding_id": "bannerlord-steam-1.4.7.117484-campaign-map-v1",
+  "binding_version": "1",
+  "profile_id": "mount-and-blade-2-bannerlord-steam-1.4.7.117484",
+  "profile_version": "dm-depth-profile-1",
+  "executable_sha256": "sha256:5fc59a9da65474a707fd3e868a24c6f0a782e9364edd4d17a8f8813171237de0",
+  "render_width": 1920,
+  "render_height": 1200,
+  "view_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 0,
+      "draw_ordinal": 0,
+      "buffer_bytes": 1760,
+      "offset": 112,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "view",
+      "translation": "row3"
+    }
+  ],
+  "projection_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 0,
+      "draw_ordinal": 0,
+      "buffer_bytes": 1760,
+      "offset": 176,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "projection"
+    }
+  ]
+}

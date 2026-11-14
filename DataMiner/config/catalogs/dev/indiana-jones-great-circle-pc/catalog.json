@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-indiana-jones-great-circle-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "indiana-jones-great-circle-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:9ef1fb6dc5f333301353668c940298d00075ee275333b193801d4c8228669cd2"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "indiana-jones-great-circle-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:5f70baa86d1cfa2fd623caac553655f90bfb01d0a07b8f5388681d2aa1156f4a"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "indiana-jones-great-circle-pc",
+      "version": "2",
+      "content_hash": "sha256:852118afd02911413eca7fea38ec8ceda3ce7f7c495b67d99fe0ec78d122115b"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.indiana-jones-great-circle.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:9ce59144430b262d40c4d91b99a70e9ba34bf9e5a00ec197f0ff03f06cf26ca0"
+    }
+  ]
+}

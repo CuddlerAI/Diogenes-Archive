@@ -1,0 +1,41 @@
+{
+  "schema": "camera-binding/v1",
+  "binding_id": "a-plague-tale-innocence-steam-1.0.7-chapter-17-v1",
+  "binding_version": "1",
+  "profile_id": "a-plague-tale-innocence-steam-1.0.7",
+  "profile_version": "dm-depth-profile-1",
+  "executable_sha256": "sha256:fb5f31c3bd07f89142281fa8469fc4db7811e94992c7a46fdc14e0f5af07b329",
+  "render_width": 2560,
+  "render_height": 1440,
+  "view_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 1,
+      "draw_ordinal": 44,
+      "buffer_bytes": 1440,
+      "offset": 496,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "view",
+      "translation": "col3",
+      "view_transform": "view_rotation_world_position_left_handed",
+      "world_position_offset": 560
+    }
+  ],
+  "projection_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 1,
+      "draw_ordinal": 44,
+      "buffer_bytes": 1440,
+      "offset": 976,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": true,
+      "role": "projection"
+    }
+  ]
+}

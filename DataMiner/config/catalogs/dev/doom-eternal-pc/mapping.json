@@ -1,0 +1,220 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.doom-eternal.pc",
+  "version": "2026-08-19.0",
+  "game": {
+    "id": "doom-eternal-pc",
+    "name": "DOOM Eternal",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "first_person_shooter",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "doom-eternal-pc-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "inventory.cycle_weapon"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.primary_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.secondary_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 4,
+      "semantic": "combat.lethal_equipment"
+    },
+    {
+      "device": "mouse",
+      "button": 5,
+      "semantic": "combat.melee"
+    },
+    {
+      "device": "mouse",
+      "button": 6,
+      "semantic": "inventory.weapon_wheel"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.dash"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "combat.melee"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "combat.chainsaw"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "combat.lethal_equipment"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "combat.flame_belch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "combat.special"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "inventory.weapon_wheel"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "combat.weapon_mode"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "combat.switch_grenade"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 45,
+      "extended": false,
+      "semantic": "inventory.next_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "inventory.previous_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 5,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 6,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_5"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 7,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_6"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 8,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_7"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 9,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_8"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 15,
+      "extended": false,
+      "semantic": "communication.text_chat"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "ui.objectives"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 48,
+      "extended": false,
+      "semantic": "communication.push_to_talk"
+    }
+  ]
+}

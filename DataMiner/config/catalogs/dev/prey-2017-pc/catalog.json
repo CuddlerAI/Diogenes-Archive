@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-prey-2017-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "prey-2017-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:5a9527b054ead298fb0581a1e0bb5c39f39fa7ae82cd4c5880a934872e22a014"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "prey-2017-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:82c20a849e7f1d299a297d3d5035a1e9c32ed48b8681bee860cef456891dba59"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "prey-2017-pc",
+      "version": "2",
+      "content_hash": "sha256:0eec0d9f2ca22dab274eba9396a06320c41f1f303f5f711b41533bfc096cc6a8"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.prey-2017.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:d8789099d0b15b6040ccaf8008035c4ffb513cfb20a7ddaee06fe6aad783cef8"
+    }
+  ]
+}

@@ -1,0 +1,144 @@
+[package]
+name = "depth-lab"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+# 本 crate 刻意保持与平台无关：probe（Windows-only 的 D3D hook 与注入）另立 crate。
+# 见 src/lib.rs 顶部的切分说明与 docs/77 §4。
+
+[features]
+default = []
+# EXR 交付层。**probe 不启用它**——注入进游戏进程的 DLL 只需要
+# decode / watermark / readback / capture_timing，不该背一个 EXR 编码器。
+# 只有本 crate 的 CLI（materialize 子命令）需要。
+exr-out = ["dep:exr", "dep:smallvec", "dep:half", "dep:rayon", "dep:libdeflater"]
+# 客户端收口层：probe 不启用，避免把仅归档校验需要的 SHA-256 实现带进 DLL。
+segment-finalize = ["exr-out", "dep:sha2"]
+# 客户端 U2 helper：从已收口 segment 物化 #524 archive。仅客户端实验 feature
+# 启用；probe DLL 不携带 ZIP/zstd 或上传编排代码。
+client-orchestration = ["segment-finalize", "dep:zip", "dep:zstd"]
+# Runtime-safe DSV selection verification. This replays exact source bytes and decodes the bound
+# visual PNG, but exposes no artifact-authoring entry point.
+selection-validation = ["dep:png", "dep:sha2"]
+# Offline DSV authoring adds create-new publication and pending-file identities on top of the
+# validation core. The injected probe can enable selection-validation without this capability.
+evidence-authoring = ["selection-validation", "dep:uuid"]
+# ETS2 交付桥。**probe 不启用**——注入进游戏进程的 DLL 不需要遥测转换器，
+# 也不该背上 ETS2 的契约 crate。只有 CLI 的 ets2-* 子命令需要。
+ets2 = ["exr-out", "dep:ets2-player-telemetry"]
+# 推送层：S3 SigV4 直传 R2。**probe 不启用**——注入进游戏进程的 DLL 不该背
+# 一个 HTTP 栈。只有 CLI 的 push 子命令需要（85 号 M4）。
+# 依赖 exr-out：cmd_push 上传前要用 deliver::{read_capture_index, capture_blockers}
+# 判断这次采集能不能推，而 deliver 挂在 exr-out 上。不写这条依赖的话
+# `--features push` 单独开就是 E0433——CI 从不构建这个组合，所以一直没人撞上。
+push = ["exr-out", "dep:reqwest", "dep:sha2", "dep:hmac"]
+
+[dependencies]
+anyhow.workspace = true
+present-identity = { path = "../../crates/present-identity" }
+serde.workspace = true
+serde_json = { workspace = true, features = ["raw_value"] }
+ets2-player-telemetry = { path = "../../crates/ets2-player-telemetry", optional = true }
+# ZIP16 is block-parallel inside `exr`. The injected writer now uses this same
+# path at 15 Hz; hardware measurements showed the single-threaded encoder
+# falling behind Fallout 4. Outer frame ordering remains single-threaded.
+exr = { version = "1.73", optional = true, default-features = false, features = ["rayon"] }
+# 编码并行度必须自己管：exr 默认落在 rayon **全局**池（逻辑核数个普通优先级
+# 线程），在注入进程里每次 encode 都是一场全核突发，与游戏抢核/带宽/功耗
+# （#504 遥测：encode 重叠帧慢帧风险 3.32×）。exr_out 用专用小池 + 调用方
+# 注入的线程降级回调（BELOW_NORMAL + EcoQoS）替代全局池。
+rayon = { version = "1", optional = true }
+# exr 的 AnyChannels::sort 要求 SmallVec；跟随 exr 的版本以免两份类型不兼容。
+smallvec = { version = "1", optional = true }
+# exr 用 half::f16 表示 HALF 通道；跟随它的版本避免两份 f16 类型不兼容。
+half = { version = "2", optional = true }
+# Static native zlib encoder for raw HALF ZIP16 blocks. EXR metadata/offsets and
+# decoding remain with exr; all compression is lossless and stays in the small pool.
+libdeflater = { version = "=1.25.2", optional = true }
+# push：rustls 而不是系统 TLS——采集机上的 OpenSSL 版本不可控。
+reqwest = { version = "0.12", optional = true, default-features = false, features = ["blocking", "rustls-tls"] }
+sha2 = { version = "0.10", optional = true }
+png = { version = "0.18", optional = true }
+uuid = { version = "1", features = ["v4"], optional = true }
+hmac = { version = "0.12", optional = true }
+zip = { version = "4.6.1", optional = true, default-features = false }
+# `pair` / `clip-plan` can consume the recorder's production `frames.jsonl.zst`
+# when the client-orchestration feature is enabled. Keeping zstd optional stops
+# its native zstd-sys dependency from entering the injected probe DLL — which is
+# also what makes `cargo check -p dm-depth-probe --target x86_64-pc-windows-msvc`
+# work from macOS again (zstd-sys is a C library; it fails with
+# `stdlib.h not found` there).
+zstd = { version = "0.13.3", optional = true }
+mp4 = "0.14.0"
+time = { version = "0.3.41", features = ["formatting", "parsing"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+  "Wdk_Storage_FileSystem",
+  "Win32_Foundation",
+  "Win32_Storage_FileSystem",
+  "Win32_System_IO",
+] }
+
+[[bin]]
+name = "cp2077-depth-demo-profile"
+path = "src/bin/cp2077-depth-demo-profile.rs"
+required-features = ["segment-finalize"]
+
+[[bin]]
+name = "cp2077-local-discovery-seal"
+path = "src/bin/cp2077-local-discovery-seal.rs"
+required-features = ["segment-finalize"]
+
+[[bin]]
+name = "cp2077-raw-depth-qc"
+path = "src/bin/cp2077-raw-depth-qc.rs"
+required-features = ["segment-finalize"]
+
+[[bin]]
+name = "cp2077-metric-evidence"
+path = "src/bin/cp2077-metric-evidence.rs"
+required-features = ["segment-finalize"]
+
+[[bin]]
+name = "cp2077-camera-authoring-review"
+path = "src/bin/cp2077-camera-authoring-review.rs"
+required-features = ["segment-finalize"]
+
+[[bin]]
+name = "cp2077-metric-promotion"
+path = "src/bin/cp2077-metric-promotion.rs"
+required-features = ["segment-finalize"]
+
+[[bin]]
+name = "cp2077-pr405-local-package"
+path = "src/bin/cp2077-pr405-local-package.rs"
+required-features = ["segment-finalize"]
+
+# 这个 bench example 用 `exr_out`，而该模块在 `exr-out` 特性门后。没有
+# required-features 时，默认特性下的 `cargo test` / `cargo build` 会连
+# example 一起编，于是在不启用该特性的环境里直接编译失败（E0433）。
+[[example]]
+name = "depth_storage_bench"
+required-features = ["exr-out"]
+
+[[example]]
+name = "migrate_v1_to_v2"
+required-features = ["exr-out"]
+
+[[example]]
+name = "infer_z"
+required-features = ["exr-out"]
+
+[[example]]
+name = "exr_to_f32"
+required-features = ["exr-out"]
+
+[[example]]
+name = "blank_report"
+required-features = ["exr-out"]
+
+[dev-dependencies]
+tempfile = "3.23.0"

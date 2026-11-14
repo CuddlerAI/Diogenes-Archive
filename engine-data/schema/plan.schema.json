@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "trajgen plan（我方内部格式，trajgen 拥有并可演进）",
+  "type": "object",
+  "required": [
+    "version",
+    "seed",
+    "mode",
+    "scene",
+    "duration_s",
+    "fps",
+    "cameras"
+  ],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "mode": {
+      "enum": [
+        "sfm",
+        "mc"
+      ]
+    },
+    "scene": {
+      "type": "string"
+    },
+    "duration_s": {
+      "type": "number"
+    },
+    "fps": {
+      "type": "number"
+    },
+    "cameras": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "focal_mm",
+          "aspect",
+          "segments"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "focal_mm": {
+            "enum": [
+              18,
+              24,
+              35,
+              50
+            ]
+          },
+          "aspect": {
+            "enum": [
+              "16:9",
+              "3:4",
+              "4:3",
+              "9:16"
+            ]
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "t0",
+                "t1",
+                "cls"
+              ],
+              "properties": {
+                "t0": {
+                  "type": "number"
+                },
+                "t1": {
+                  "type": "number"
+                },
+                "cls": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "anchors": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "covis_windows": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "cam4": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "timewarp",
+            "topdown"
+          ],
+          "description": "第四路形态（docs/69 §8.3）：timewarp=同路线时间错位变速（缺省），topdown=同区域高空垂直俯视伴飞"
+        },
+        "guide_cam": {
+          "type": "integer"
+        },
+        "rho1": {
+          "type": "number"
+        },
+        "rho2": {
+          "type": "number"
+        },
+        "t_sw": {
+          "type": "number"
+        },
+        "delta": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

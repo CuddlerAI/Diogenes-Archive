@@ -1,0 +1,71 @@
+{
+  "schema": "cp2077-local-client-configuration-evidence/v1",
+  "non_trainable": true,
+  "production_binding_authorized": false,
+  "live_client_verified": false,
+  "evidence_set_sha256": "sha256:5e11bc2cec1570896c5babf421bdca1ea5baf60fc6fbc195dfb541ecc708f9c7",
+  "review_sha256": "sha256:c2d250e4fd58884546d482ed1e3b2db532a4a75f06a964952840ae2b136d1c51",
+  "reviewed_binding_sha256": "sha256:5d26536e1664f9eaf22c49f8108ffe831b1dccce247ca06310f8f5a587e259ff",
+  "binding_metadata_changes": {
+    "binding_id": {
+      "from": "cp2077-holstered-offline-replay",
+      "to": "cp2077-steam-holstered-local-v3"
+    },
+    "binding_version": {
+      "from": "offline-axis-reviewed-20260916-not-production",
+      "to": "2026-09-17.0"
+    },
+    "profile_id": {
+      "from": "cp2077-holstered-client-candidate",
+      "to": "cyberpunk-2077-steam"
+    },
+    "profile_version": {
+      "from": "dm-depth-profile-2",
+      "to": "dm-depth-profile-3"
+    }
+  },
+  "camera_semantics_changed": true,
+  "source_decode_correction": {
+    "policy_from": "cp2077-bound-holstered-camera/v1",
+    "policy_to": "cp2077-bound-holstered-row-vp/v2",
+    "rule": "V = VP * inverse(P), fixed row-vector order using the paired same-CBV projection",
+    "source_slots_axes_and_metric_unchanged": true,
+    "historical_replay_used_already_recovered_matrices": true,
+    "original_cbv_bytes_available_for_replay": false,
+    "validation": "Synthetic authored-byte regression through the actual catalog and production decoder; new runtime confirmation pending."
+  },
+  "discovery_report_sha256": "sha256:f0a8b8131af308b1161d798a4d89a5cbc29fd41f1f80989d11ece93bfa2a0d88",
+  "observed_depth": {
+    "width": 1920,
+    "height": 1080,
+    "sample_count": 1,
+    "sample_quality": 0,
+    "resource_format": 19,
+    "dsv_format": 20,
+    "clear_calls": 2299,
+    "same_list_capture_eligible_clear_calls": 2299,
+    "execute_calls": 2299
+  },
+  "observed_transition": {
+    "state_before": 16,
+    "state_after": 64,
+    "subresource": 4294967295,
+    "split": false,
+    "calls": 2299
+  },
+  "selector_limitations": [
+    "Discovery records dimensions, formats and transitions; resource dimension/array/mips/layout/flags and DSV dimension/flags below are explicit candidate constraints, not separately recorded full descriptors.",
+    "The normal selector must match the complete live descriptor and prove uniqueness. ALL_SUBRESOURCES is normalized to depth plane zero by the existing backend.",
+    "Normal transition capture timing is not proven equivalent to the historical pre-clear raw capture. Normal-client live admission and geometry remain unverified."
+  ],
+  "metric": {
+    "original_evidence_sha256": "sha256:3334df91438ff42f7c0d48cca11858b1df0f1b8bdb38e9a5d86c4bacbdf07f5f",
+    "adopted_metres_per_world_unit": 1.0,
+    "source": "REDengine converted world-position convention cross-checked against five HUD distance screenshots",
+    "hud_measured_metres_per_world_unit": 0.9883258119540319,
+    "tolerance": 0.05,
+    "operator_reuse_confirmed": true
+  },
+  "scope": "Exact game image; 1920x1080, 30 FPS video, FOV75, holstered on foot. Explicit engineering build and performance-validation-only mode; no production promotion.",
+  "observed_transition_candidate_count_with_matching_geometry_and_formats": 1
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "dm-cp2077-pr405-local-package-input/v1",
+  "clip_id": "cp2077-local-30s-001",
+  "non_trainable": true,
+  "local_only": true,
+  "upload_allowed": false,
+  "duration_seconds": 30,
+  "qpc_frequency_hz": 10000000,
+  "video_file": "video.mp4",
+  "raw_depth_index_file": "raw-depth-index.jsonl",
+  "raw_depth_profile_file": "raw-depth-demo-profile.json",
+  "frame_evidence_file": "cp2077-pr405-frame-evidence.jsonl",
+  "pose_file": "cp2077-final-pose.jsonl",
+  "systeminfo_file": "systeminfo.json",
+  "egeo_report_file": "camera-egeo-validation.json",
+  "metric_calibration": {
+    "value": 1.0,
+    "source": {
+      "path": "engine_convention",
+      "engine": "REDengine4 WorldPosition plus pinned CET distance meter"
+    },
+    "cross_check": {
+      "convention": 1.0,
+      "measured": 1.0,
+      "ratio": 1.0,
+      "tolerance": 0.05
+    },
+    "evidence_path": "metric-scale-evidence.json"
+  }
+}

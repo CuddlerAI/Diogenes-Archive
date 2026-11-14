@@ -1,0 +1,11 @@
+Matrix-Game 3 action conditioning modules
+Source: SkyworkAI/Matrix-Game, Matrix-Game-3/wan/modules/
+Verified upstream revision: 51913b2bfa78a6d54de912b8348b1d318f4d36e2
+License: Apache License, Version 2.0, as explicitly stated in the Matrix-Game-3 subproject README
+and its LICENSE.txt. The upstream license text is included unchanged in this directory.
+
+Original files: action_module.py and posemb_layers.py.
+Diogenes modifications: annotate redirected attention imports, guard an unused flex_attention
+import for compatibility, and construct three position/frequency tensors on CPU instead of
+requiring CUDA at import/construction time. The attention.py shim is Diogenes-authored.
+Preserve upstream source comments and attribution. See README.md for exact modification notes.

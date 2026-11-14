@@ -1,0 +1,234 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.mount-and-blade-2-bannerlord.steam.pc.combat",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "mount-and-blade-2-bannerlord-steam",
+    "name": "Mount & Blade II: Bannerlord (Steam combat)",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "action_strategy",
+    "view": "third_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "mount-and-blade-2-bannerlord-steam-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 15,
+      "extended": false,
+      "semantic": "ui.leave"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "ui.show_indicators"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.defend"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "inventory.cycle_weapon_or_shield"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "interact.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "move.crouch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "combat.kick_or_bash"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 45,
+      "extended": false,
+      "semantic": "combat.switch_weapon_usage"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 79,
+      "extended": false,
+      "semantic": "inventory.equip_item_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 80,
+      "extended": false,
+      "semantic": "inventory.equip_item_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 81,
+      "extended": false,
+      "semantic": "inventory.equip_item_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 75,
+      "extended": false,
+      "semantic": "inventory.equip_item_4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "inventory.drop_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 43,
+      "extended": false,
+      "semantic": "inventory.sheathe_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "camera.zoom"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 41,
+      "extended": false,
+      "semantic": "ui.view_character"
+    },
+    {
+      "device": "mouse",
+      "button": 4,
+      "semantic": "camera.lock_target"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "camera.toggle"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 58,
+      "extended": false,
+      "semantic": "move.toggle_walk_run"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "communication.push_to_talk"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 22,
+      "extended": false,
+      "semantic": "inventory.equipment_switch_menu"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 14,
+      "extended": false,
+      "semantic": "command.view_orders"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 59,
+      "extended": false,
+      "semantic": "command.select_order_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 60,
+      "extended": false,
+      "semantic": "command.select_order_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 61,
+      "extended": false,
+      "semantic": "command.select_order_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 62,
+      "extended": false,
+      "semantic": "command.select_order_4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 63,
+      "extended": false,
+      "semantic": "command.select_order_5"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 64,
+      "extended": false,
+      "semantic": "command.select_order_6"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 65,
+      "extended": false,
+      "semantic": "command.select_order_7"
+    }
+  ]
+}

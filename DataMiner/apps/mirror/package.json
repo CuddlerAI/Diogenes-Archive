@@ -1,0 +1,32 @@
+{
+  "name": "@dataminer/mirror",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "exports": {
+    "./credentials": {
+      "types": "./src/credentials.ts",
+      "development": "./src/credentials.ts",
+      "default": "./dist/credentials.js"
+    }
+  },
+  "scripts": {
+    "dev": "npx --yes wrangler dev",
+    "build": "tsc -p tsconfig.build.json",
+    "migrate:local": "npx --yes wrangler d1 migrations apply dataminer-mirror --local",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-sqlite ./node_modules/vitest/vitest.mjs run",
+    "test:watch": "node --experimental-sqlite ./node_modules/vitest/vitest.mjs"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-fallout4-steam-release-test",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    { "id": "fallout4-steam-release-test-windows-nvidia-v2", "version": "6", "content_hash": "sha256:2bd89b319878b4c0a49a6565727b2ed5f5a35720e931ed917ef2b36e6573d602" }
+  ],
+  "recording_profiles": [
+    { "id": "fallout4-steam-release-test-recording-v1", "version": "5", "content_hash": "sha256:dc5fa2743f2fe1b3f28161cf5cecf8a41f942f8a544c34210f2007b1adfa3d60" }
+  ],
+  "game_profiles": [
+    { "id": "fallout4-steam-release-test", "version": "6", "content_hash": "sha256:db91d49af2b2b5fef79ae5d5f13e5bd71f8d4336ac764f359484a0d268f335be" }
+  ],
+  "mappings": [
+    { "id": "game.fallout4.steam.pc", "version": "2026-08-25.0", "content_hash": "sha256:f9ba0c0edf94c95a5ace1a9b75d1a227ddfe51f2c9590b2634ab04dbdb871a6a" }
+  ],
+  "depth_profiles": [
+    { "id": "fallout4-steam-release-test", "version": "1", "content_hash": "sha256:12e564f0a2c9c7c49fc826df798799960c7eff60bdfffcfe066762cb9c1eaa83" }
+  ],
+  "camera_bindings": [
+    { "id": "fallout4-steam-1.11.221-main-camera-v3-render-hybrid", "version": "3", "content_hash": "sha256:3026c8a8140b5f25bd899013daba52ea520bfaabe02913df78b6326cedeab247" }
+  ]
+}

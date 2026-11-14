@@ -1,0 +1,61 @@
+{
+  "name": "@dataminer/api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./catalog-publisher": {
+      "types": "./src/catalog-publisher.ts",
+      "development": "./src/catalog-publisher.ts",
+      "default": "./dist/catalog-publisher.js"
+    },
+    "./catalog-delivery": {
+      "types": "./src/catalog-delivery.ts",
+      "development": "./src/catalog-delivery.ts",
+      "default": "./dist/catalog-delivery.js"
+    },
+    "./signed-catalog": {
+      "types": "./src/signed-catalog.ts",
+      "development": "./src/signed-catalog.ts",
+      "default": "./dist/signed-catalog.js"
+    }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "worker": "node dist/worker.js",
+    "migrate": "tsx src/migrate.ts",
+    "migrate:dist": "node dist/migrate.js",
+    "apply:production-grants": "node dist/apply-production-grants.js",
+    "register:dev-catalog": "node dist/register-dev-catalog.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:r2": "tsx scripts/check-r2.ts",
+    "register:catalog": "tsx scripts/register-catalog.ts",
+    "approve:executable": "tsx scripts/approve-executable.ts",
+    "publish:catalog": "tsx src/publish-catalog.ts",
+    "sign:depth-certifications": "tsx src/sign-depth-certifications.ts",
+    "cutover:catalog": "tsx scripts/cutover-catalog.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1092.0",
+    "@aws-sdk/s3-request-presigner": "3.1092.0",
+    "fastify": "^5.10.0",
+    "google-auth-library": "^10.9.1",
+    "pg": "^8.22.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.4",
+    "@types/node": "^22.19.0",
+    "@types/pg": "^8.20.0",
+    "tsx": "^4.23.1",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

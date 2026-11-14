@@ -1,0 +1,51 @@
+# Phase 0 real-data method validation: gaming-500-hours + frozen DINOv2 ViT-S.
+#
+# COMPLIANCE: gaming-500-hours has no declared license (third-party games,
+# unknown subject consent) — method validation ONLY, never product training.
+# That is what allow_method_validation_only=true asserts; converted chunks are
+# is_trainable=false and the loader refuses them without this flag.
+#
+# Prepare data first:
+#   python -m diogenes_phase0.data.gaming500 fetch   --out data/gaming500_raw \
+#       --games valorant minecraft gta --max-sessions 6
+#   python -m diogenes_phase0.data.gaming500 convert --raw data/gaming500_raw \
+#       --out data/gaming500 --max-minutes 10
+run_name: phase0-gaming500
+seed: 0
+
+data:
+  roots: [data/gaming500]
+  # zero-shot generalization early-signal: hold out entire games (adjust to
+  # whatever you fetched; names must match the converted `game` field)
+  holdout_games: [Minecraft]
+  val_fraction: 0.2
+  window: 5
+  stride: 2
+  input_res: [224, 224]   # multiple of 14 for DINOv2
+  contract_mode: method-validation
+  allow_method_validation_only: true
+
+model:
+  trunk: dinov2_vits14
+  d_model: 256
+  n_layers: 3
+  n_heads: 8
+
+train:
+  batch_size: 64
+  max_steps: 20000
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 50
+  num_workers: 4
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+# Phase 0 acceptance gates (research doc §6): 按键精度 >=85%（对标 VPT 90.6%）,
+# 鼠标 R^2 >=0.9; per-key F1 and zero-shot are reported as early signals.
+gates:
+  key_exact_min: 0.85
+  mouse_r2_min: 0.9
+  macro_f1_warn: 0.6
+
+output:
+  dir: runs

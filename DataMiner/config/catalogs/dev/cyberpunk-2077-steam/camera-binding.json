@@ -1,0 +1,106 @@
+{
+  "schema": "camera-binding/cp2077-holstered-v3",
+  "binding_id": "cp2077-steam-holstered-local-v3",
+  "binding_version": "2026-09-17.0",
+  "profile_id": "cyberpunk-2077-steam",
+  "profile_version": "dm-depth-profile-3",
+  "executable_sha256": "sha256:a7de82945c03e041fc7339fcf9066224d98db2f5d80fea50f7947bb350a60991",
+  "render_width": 1920,
+  "render_height": 1080,
+  "view_metres_per_unit": "1.0",
+  "axis_mapping": {
+    "delivery_x_from": "positive_x",
+    "delivery_y_from": "positive_z",
+    "delivery_z_from": "positive_y"
+  },
+  "view_sources": [
+    {
+      "cbv_resource_offset": 0,
+      "declared_cbv_bytes": 1024,
+      "descriptor_table": {
+        "base_shader_register": 0,
+        "descriptor_count": 4,
+        "descriptor_offset_in_range": 1,
+        "descriptor_range_index": 0,
+        "register_space": 0,
+        "root_parameter_index": 0,
+        "root_signature_sha256": "sha256:030ea7831db8493ad9b03f05ae54aa8d70e27211b65a93f9c9e155a925110a7c"
+      },
+      "draw_relation": "exact_selected_depth_dsv_draw",
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "matrix_offset": 0,
+      "role": "view",
+      "transpose": true,
+      "translation": "row3"
+    },
+    {
+      "cbv_resource_offset": 0,
+      "declared_cbv_bytes": 1024,
+      "descriptor_table": {
+        "base_shader_register": 0,
+        "descriptor_count": 4,
+        "descriptor_offset_in_range": 1,
+        "descriptor_range_index": 0,
+        "register_space": 0,
+        "root_parameter_index": 18,
+        "root_signature_sha256": "sha256:030ea7831db8493ad9b03f05ae54aa8d70e27211b65a93f9c9e155a925110a7c"
+      },
+      "draw_relation": "exact_selected_depth_dsv_draw",
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "matrix_offset": 0,
+      "role": "view",
+      "transpose": true,
+      "translation": "row3"
+    }
+  ],
+  "projection_sources": [
+    {
+      "cbv_resource_offset": 0,
+      "declared_cbv_bytes": 1024,
+      "descriptor_table": {
+        "base_shader_register": 0,
+        "descriptor_count": 4,
+        "descriptor_offset_in_range": 1,
+        "descriptor_range_index": 0,
+        "register_space": 0,
+        "root_parameter_index": 0,
+        "root_signature_sha256": "sha256:030ea7831db8493ad9b03f05ae54aa8d70e27211b65a93f9c9e155a925110a7c"
+      },
+      "draw_relation": "exact_selected_depth_dsv_draw",
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "matrix_offset": 128,
+      "role": "projection",
+      "transpose": true
+    },
+    {
+      "cbv_resource_offset": 0,
+      "declared_cbv_bytes": 1024,
+      "descriptor_table": {
+        "base_shader_register": 0,
+        "descriptor_count": 4,
+        "descriptor_offset_in_range": 1,
+        "descriptor_range_index": 0,
+        "register_space": 0,
+        "root_parameter_index": 18,
+        "root_signature_sha256": "sha256:030ea7831db8493ad9b03f05ae54aa8d70e27211b65a93f9c9e155a925110a7c"
+      },
+      "draw_relation": "exact_selected_depth_dsv_draw",
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "matrix_offset": 128,
+      "role": "projection",
+      "transpose": true
+    }
+  ],
+  "holstered_camera": {
+    "camera_axis_mapping": {
+      "delivery_x_from": "positive_x",
+      "delivery_y_from": "positive_y",
+      "delivery_z_from": "positive_z"
+    },
+    "schema": "cp2077-bound-holstered-row-vp/v2"
+  }
+}

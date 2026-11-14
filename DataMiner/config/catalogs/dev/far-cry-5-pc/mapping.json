@@ -1,0 +1,234 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.far-cry-5.pc",
+  "version": "2026-08-20.0",
+  "game": {
+    "id": "far-cry-5-pc",
+    "name": "Far Cry 5",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "first_person_shooter",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "far-cry-5-pc-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "inventory.cycle_weapon"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.primary_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.aim"
+    },
+    {
+      "device": "mouse",
+      "button": 4,
+      "semantic": "combat.throw"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.sprint_or_hold_breath"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 46,
+      "extended": false,
+      "semantic": "move.crouch_slide"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "interact.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "combat.melee_or_takedown_or_move_body"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "companion.command_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 35,
+      "extended": false,
+      "semantic": "companion.command_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 20,
+      "extended": false,
+      "semantic": "combat.throw_rock"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 12,
+      "extended": false,
+      "semantic": "inventory.cycle_throwable_up"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 13,
+      "extended": false,
+      "semantic": "inventory.cycle_throwable_down"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "inventory.weapon_wheel"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "inventory.item_wheel"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 45,
+      "extended": false,
+      "semantic": "inventory.last_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 6,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_melee"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 5,
+      "extended": false,
+      "semantic": "inventory.weapon_slot_4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 7,
+      "extended": false,
+      "semantic": "inventory.throwable_slot_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 8,
+      "extended": false,
+      "semantic": "inventory.throwable_slot_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 9,
+      "extended": false,
+      "semantic": "inventory.throwable_slot_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 22,
+      "extended": false,
+      "semantic": "combat.switch_ammo"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "combat.fire_mode"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 49,
+      "extended": false,
+      "semantic": "inventory.holster_weapon"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "gadget.binoculars"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "combat.reload_or_cancel_or_block"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "item.heal"
+    }
+  ]
+}

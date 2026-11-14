@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-resident-evil-village-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "resident-evil-village-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:375875710dc7f26fe8dd9b84575dff791c5a9e90e64b916e9b4edd7a884a6cb2"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "resident-evil-village-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:245d55fe49812b05e8a4054f22d494c0f1c60771126de790de1ae39dc511a17f"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "resident-evil-village-pc",
+      "version": "2",
+      "content_hash": "sha256:c6044440249a8887995914121ba88efc287de4c0e0bc974763c3b37c826b196b"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.resident-evil-village.pc",
+      "version": "2026-08-19.0",
+      "content_hash": "sha256:b598da080508d091c4615da36ed75dbf84d87db1b8fd196317e65ec55aad65c0"
+    }
+  ]
+}

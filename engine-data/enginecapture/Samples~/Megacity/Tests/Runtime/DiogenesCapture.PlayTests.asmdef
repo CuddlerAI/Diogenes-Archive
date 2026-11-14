@@ -1,0 +1,26 @@
+{
+    "name": "DiogenesCapture.PlayTests",
+    "rootNamespace": "Diogenes.Capture.Tests",
+    "references": [
+        "Diogenes.EngineCapture.Runtime",
+        "DiogenesCapture.Megacity",
+        "Unity.Entities",
+        "Unity.Entities.Hybrid",
+        "Unity.Scenes",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.MegacityMetro.Components",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": ["nunit.framework.dll"],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

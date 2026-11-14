@@ -1,0 +1,48 @@
+{
+  "schema_version": "dm-game-profile-2",
+  "game_id": "halo-mcc-steam-release-test",
+  "version": "2",
+  "display_name": "Halo: The Master Chief Collection Steam（release 测试，禁止训练）",
+  "device_profile_id": "halo-mcc-steam-release-test-windows-nvidia-v1",
+  "recording_profile_id": "halo-mcc-steam-release-test-recording-v1",
+  "mapping_id": "game.halo-mcc.steam.pc",
+  "executable_names": [
+    "MCC-Win64-Shipping.exe",
+    "mcclauncher.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      13,
+      16,
+      17,
+      32,
+      65,
+      68,
+      69,
+      70,
+      71,
+      81,
+      82,
+      83,
+      86,
+      87,
+      88,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  },
+  "non_trainable": true
+}

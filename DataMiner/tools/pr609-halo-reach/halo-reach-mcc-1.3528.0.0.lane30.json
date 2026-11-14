@@ -1,0 +1,47 @@
+{
+  "schema_version": "dm-depth-profile-1",
+  "game_id": "halo-reach-mcc-steam-1.3528.0.0",
+  "lane": "lane30",
+  "cadence": "every_present",
+  "executable_sha256": "sha256:be70d6dcd1a884f10ceb342a7a2dcb35ee0fa43181b66a1d19c3d830e9834691",
+  "dsv": {
+    "dsv_id": "halo-reach-main-d32s8-v1",
+    "expected_width": 2560,
+    "expected_height": 1440,
+    "sample_count": 1,
+    "formats": [
+      "r32_g8_x24_typeless",
+      "d32_float_s8_x24_uint"
+    ],
+    "evidence_path": "tools/pr609-halo-reach/evidence/halo-reach-depth-camera-certification-20260811.json"
+  },
+  "readback_path": "copy_to_staging",
+  "readback_slots": 6,
+  "watermark": {
+    "origin_x": 0,
+    "origin_y": 0
+  },
+  "delivery_width": 1280,
+  "delivery_height": 720,
+  "burst": {
+    "interval_seconds": 300,
+    "duration_seconds": 3
+  },
+  "projection_a": 0.0000007629401,
+  "projection_b": 0.007812506,
+  "metric_scale": {
+    "value": 3.048,
+    "source": {
+      "path": "engine_convention",
+      "engine": "halo_reach_blam_10_feet_per_world_unit"
+    },
+    "cross_check": {
+      "convention": 3.048,
+      "measured": 3.048,
+      "ratio": 1.0,
+      "tolerance": 0.1
+    },
+    "evidence_path": "tools/pr609-halo-reach/evidence/halo-reach-depth-camera-certification-20260811.json"
+  },
+  "projection_source": "constant_buffer"
+}

@@ -1,0 +1,413 @@
+{
+ "collected_at": "2026-08-09",
+ "currency": "CNY",
+ "region": "cn",
+ "note": "价格含折扣，随时变动；仅作预算参考",
+ "buy": [
+  {
+   "n": 33,
+   "appid": 2124490,
+   "name": "SILENT HILL 2",
+   "price_cny": 392.0,
+   "initial_cny": 392.0,
+   "discount": 0,
+   "gb": 50.0
+  },
+  {
+   "n": 58,
+   "appid": 1643320,
+   "name": "S.T.A.L.K.E.R. 2: Heart of Chornobyl",
+   "price_cny": 268.0,
+   "initial_cny": 268.0,
+   "discount": 0,
+   "gb": 160.0
+  },
+  {
+   "n": 21,
+   "appid": 582160,
+   "name": "Assassin's Creed® Origins",
+   "price_cny": 248.0,
+   "initial_cny": 248.0,
+   "discount": 0,
+   "gb": 42.0
+  },
+  {
+   "n": 53,
+   "appid": 2527390,
+   "name": "Dead Rising Deluxe Remaster",
+   "price_cny": 248.0,
+   "initial_cny": 248.0,
+   "discount": 0,
+   "gb": null
+  },
+  {
+   "n": 19,
+   "appid": 1771300,
+   "name": "Kingdom Come: Deliverance II",
+   "price_cny": 228.0,
+   "initial_cny": 228.0,
+   "discount": 0,
+   "gb": 100.0
+  },
+  {
+   "n": 47,
+   "appid": 2677660,
+   "name": "Indiana Jones and the Great Circle",
+   "price_cny": 209.4,
+   "initial_cny": 349.0,
+   "discount": 40,
+   "gb": 120.0
+  },
+  {
+   "n": 54,
+   "appid": 883710,
+   "name": "Resident Evil 2",
+   "price_cny": 198.0,
+   "initial_cny": 198.0,
+   "discount": 0,
+   "gb": 26.0
+  },
+  {
+   "n": 55,
+   "appid": 952060,
+   "name": "Resident Evil 3",
+   "price_cny": 198.0,
+   "initial_cny": 198.0,
+   "discount": 0,
+   "gb": 45.0
+  },
+  {
+   "n": 35,
+   "appid": 275850,
+   "name": "No Man's Sky",
+   "price_cny": 175.0,
+   "initial_cny": 175.0,
+   "discount": 0,
+   "gb": 15.0
+  },
+  {
+   "n": 69,
+   "appid": 607080,
+   "name": "Psychonauts 2",
+   "price_cny": 169.0,
+   "initial_cny": 169.0,
+   "discount": 0,
+   "gb": 30.0
+  },
+  {
+   "n": 34,
+   "appid": 1128920,
+   "name": "EVERSPACE™ 2",
+   "price_cny": 149.95,
+   "initial_cny": 149.95,
+   "discount": 0,
+   "gb": 35.0
+  },
+  {
+   "n": 70,
+   "appid": 391220,
+   "name": "Rise of the Tomb Raider™",
+   "price_cny": 147.0,
+   "initial_cny": 147.0,
+   "discount": 0,
+   "gb": 25.0
+  },
+  {
+   "n": 60,
+   "appid": 2138710,
+   "name": "Sifu",
+   "price_cny": 139.0,
+   "initial_cny": 139.0,
+   "discount": 0,
+   "gb": 22.0
+  },
+  {
+   "n": 40,
+   "appid": 870780,
+   "name": "CONTROL Ultimate Edition",
+   "price_cny": 138.0,
+   "initial_cny": 138.0,
+   "discount": 0,
+   "gb": 42.0
+  },
+  {
+   "n": 29,
+   "appid": 526870,
+   "name": "Satisfactory",
+   "price_cny": 136.0,
+   "initial_cny": 136.0,
+   "discount": 0,
+   "gb": 20.0
+  },
+  {
+   "n": 62,
+   "appid": 2967990,
+   "name": "Train Sim World® 5",
+   "price_cny": 136.0,
+   "initial_cny": 136.0,
+   "discount": 0,
+   "gb": 80.0
+  },
+  {
+   "n": 30,
+   "appid": 427410,
+   "name": "Abiotic Factor",
+   "price_cny": 128.0,
+   "initial_cny": 128.0,
+   "discount": 0,
+   "gb": 10.0
+  },
+  {
+   "n": 59,
+   "appid": 1622910,
+   "name": "Still Wakes the Deep",
+   "price_cny": 128.0,
+   "initial_cny": 128.0,
+   "discount": 0,
+   "gb": 9.0
+  },
+  {
+   "n": 38,
+   "appid": 1817230,
+   "name": "Hi-Fi RUSH",
+   "price_cny": 125.0,
+   "initial_cny": 125.0,
+   "discount": 0,
+   "gb": 20.0
+  },
+  {
+   "n": 39,
+   "appid": 1167630,
+   "name": "Teardown",
+   "price_cny": 119.0,
+   "initial_cny": 119.0,
+   "discount": 0,
+   "gb": 12.0
+  },
+  {
+   "n": 42,
+   "appid": 962130,
+   "name": "Grounded",
+   "price_cny": 119.0,
+   "initial_cny": 119.0,
+   "discount": 0,
+   "gb": 8.0
+  },
+  {
+   "n": 67,
+   "appid": 210970,
+   "name": "The Witness",
+   "price_cny": 112.0,
+   "initial_cny": 112.0,
+   "discount": 0,
+   "gb": 5.0
+  },
+  {
+   "n": 52,
+   "appid": 466130,
+   "name": "White Day: A Labyrinth Named School",
+   "price_cny": 109.0,
+   "initial_cny": 109.0,
+   "discount": 0,
+   "gb": 10.0
+  },
+  {
+   "n": 24,
+   "appid": 1326470,
+   "name": "Sons Of The Forest",
+   "price_cny": 108.0,
+   "initial_cny": 108.0,
+   "discount": 0,
+   "gb": 20.0
+  },
+  {
+   "n": 27,
+   "appid": 1659040,
+   "name": "HITMAN World of Assassination",
+   "price_cny": 108.0,
+   "initial_cny": 108.0,
+   "discount": 0,
+   "gb": 60.0
+  },
+  {
+   "n": 48,
+   "appid": 257510,
+   "name": "The Talos Principle",
+   "price_cny": 108.0,
+   "initial_cny": 108.0,
+   "discount": 0,
+   "gb": 8.0
+  },
+  {
+   "n": 32,
+   "appid": 2362300,
+   "name": "Train Sim World® 4",
+   "price_cny": 102.0,
+   "initial_cny": 102.0,
+   "discount": 0,
+   "gb": 80.0
+  },
+  {
+   "n": 31,
+   "appid": 287390,
+   "name": "Metro: Last Light Redux",
+   "price_cny": 98.0,
+   "initial_cny": 98.0,
+   "discount": 0,
+   "gb": 10.0
+  },
+  {
+   "n": 43,
+   "appid": 1458140,
+   "name": "Pacific Drive",
+   "price_cny": 98.0,
+   "initial_cny": 98.0,
+   "discount": 0,
+   "gb": 18.0
+  },
+  {
+   "n": 61,
+   "appid": 286690,
+   "name": "Metro 2033 Redux",
+   "price_cny": 98.0,
+   "initial_cny": 98.0,
+   "discount": 0,
+   "gb": 10.0
+  },
+  {
+   "n": 41,
+   "appid": 753640,
+   "name": "Outer Wilds",
+   "price_cny": 95.0,
+   "initial_cny": 95.0,
+   "discount": 0,
+   "gb": 8.0
+  },
+  {
+   "n": 68,
+   "appid": 757310,
+   "name": "Sable",
+   "price_cny": 92.0,
+   "initial_cny": 92.0,
+   "discount": 0,
+   "gb": 3.0
+  },
+  {
+   "n": 16,
+   "appid": 270880,
+   "name": "American Truck Simulator",
+   "price_cny": 88.0,
+   "initial_cny": 88.0,
+   "discount": 0,
+   "gb": 25.0
+  },
+  {
+   "n": 25,
+   "appid": 305620,
+   "name": "The Long Dark",
+   "price_cny": 70.0,
+   "initial_cny": 70.0,
+   "discount": 0,
+   "gb": 7.0
+  },
+  {
+   "n": 64,
+   "appid": 1574240,
+   "name": "Dread Delusion",
+   "price_cny": 70.0,
+   "initial_cny": 70.0,
+   "discount": 0,
+   "gb": 2.0
+  },
+  {
+   "n": 57,
+   "appid": 1475810,
+   "name": "Ghostwire: Tokyo",
+   "price_cny": 62.25,
+   "initial_cny": 249.0,
+   "discount": 75,
+   "gb": 26.0
+  },
+  {
+   "n": 22,
+   "appid": 812140,
+   "name": "Assassin's Creed® Odyssey",
+   "price_cny": 49.6,
+   "initial_cny": 248.0,
+   "discount": 80,
+   "gb": null
+  },
+  {
+   "n": 37,
+   "appid": 620,
+   "name": "Portal 2",
+   "price_cny": 42.0,
+   "initial_cny": 42.0,
+   "discount": 0,
+   "gb": 8.0
+  },
+  {
+   "n": 17,
+   "appid": 489830,
+   "name": "The Elder Scrolls V: Skyrim Special Edition",
+   "price_cny": 41.25,
+   "initial_cny": 165.0,
+   "discount": 75,
+   "gb": 12.0
+  },
+  {
+   "n": 65,
+   "appid": 519860,
+   "name": "DUSK",
+   "price_cny": 38.0,
+   "initial_cny": 76.0,
+   "discount": 50,
+   "gb": 2.0
+  },
+  {
+   "n": 50,
+   "appid": 22380,
+   "name": "Fallout: New Vegas",
+   "price_cny": 20.5,
+   "initial_cny": 41.0,
+   "discount": 50,
+   "gb": null
+  },
+  {
+   "n": 56,
+   "appid": 307690,
+   "name": "Sleeping Dogs: Definitive Edition",
+   "price_cny": 13.2,
+   "initial_cny": 88.0,
+   "discount": 85,
+   "gb": 20.0
+  }
+ ],
+ "free": [
+  {
+   "n": 66,
+   "appid": 265690,
+   "name": "NaissanceE"
+  }
+ ],
+ "excluded": {
+  "1": {
+   "reason": "F2P 中枢无单价；**另一账号已有且 D7✅**（唯一生产语料）",
+   "kind": "skip"
+  },
+  "13": {
+   "reason": "**另一账号已有且 D7✅**",
+   "kind": "skip"
+  },
+  "23": {
+   "reason": "🚫 **Take-Two 法务未决，#643 明写不采购**",
+   "kind": "block"
+  },
+  "28": {
+   "reason": "🚫 **Steam 已下架**「no longer available」，买不到",
+   "kind": "block"
+  }
+ },
+ "total_cny": 5421.15,
+ "total_gb": 1205.0
+}

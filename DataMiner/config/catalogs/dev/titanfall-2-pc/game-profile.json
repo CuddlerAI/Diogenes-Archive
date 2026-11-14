@@ -1,0 +1,46 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "titanfall-2-pc",
+  "version": "2",
+  "display_name": "泰坦陨落 2（单人 Pilot，PC 本地）",
+  "device_profile_id": "titanfall-2-pc-windows-nvidia-v1",
+  "recording_profile_id": "titanfall-2-pc-recording-v1",
+  "mapping_id": "game.titanfall-2.pc",
+  "executable_names": [
+    "Titanfall2.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      16,
+      17,
+      32,
+      49,
+      50,
+      51,
+      65,
+      67,
+      68,
+      69,
+      70,
+      81,
+      82,
+      83,
+      87,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

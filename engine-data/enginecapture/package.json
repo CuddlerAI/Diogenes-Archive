@@ -1,0 +1,16 @@
+{
+  "name": "com.diogenes.enginecapture",
+  "version": "0.1.0",
+  "displayName": "Diogenes EngineCapture",
+  "description": "Unity in-engine capture SDK for the Diogenes engine-data line (docs/70 overall plan, docs/71 multi-camera detail, docs/68 SFM-depth). Authoritative 30fps frame clock, 4-camera rig, pose/input recorders, AsyncGPUReadback ring, ffmpeg pipe, audio capture, clip packager, depth exporter skeleton. NOT yet compiled in a Unity editor - see README warning.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Diogenes"
+  },
+  "keywords": [
+    "capture",
+    "dataset",
+    "multi-camera",
+    "sfm"
+  ]
+}

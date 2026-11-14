@@ -1,0 +1,104 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.nioh2.steam.pc",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "nioh2-steam",
+    "name": "Nioh 2 (Steam)",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "action_role_playing",
+    "view": "third_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "nioh2-steam-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.dodge_sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "interact.execute"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "camera.lock_on"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 1,
+      "extended": false,
+      "semantic": "ui.status_menu"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "ui.action_menu"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "inventory.quick_item_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "inventory.quick_item_2"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.quick_attack"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.strong_attack"
+    }
+  ]
+}

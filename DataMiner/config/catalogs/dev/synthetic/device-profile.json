@@ -1,0 +1,14 @@
+{
+  "schema_version": "dm-device-profile-3",
+  "profile_id": "synthetic-windows-nvidia-dev-v1",
+  "version": "3",
+  "platform": "windows",
+  "minimum_windows_build": 26200,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [],
+  "minimum_driver_version": null,
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "development_constraints_only"
+}

@@ -1,0 +1,223 @@
+{
+  "$comment": [
+    "客户端 all-games-dev 安装包内置的全部游戏，以及每款在**摄取面**的准入状态。",
+    "",
+    "为什么需要这个文件：内置目录（client build.rs 按本文件的 catalogDir 派生内嵌，安装器与 CI",
+    "共同消费）与服务端 `games` 表是两份互不知情的清单。二者漂移时，",
+    "采集员会在 UI 里看到一款游戏、选中、录完，然后每一次会话注册都被服务端 404",
+    "`game_not_registered` 拒绝——而那类拒绝在数据库里不留任何行（docs/101 §3），",
+    "所以后台看到的是「这个人没干活」。2026-08-05/06 实际发生过 31 次同类拒绝。",
+    "",
+    "admission 的含义：",
+    "  admitted    —— 生产 `games` 表已注册，可以正常采集。",
+    "  onboarding  —— 目录已内置、服务端尚未注册，按 #343 / docs/61 排期 onboard 中。",
+    "                 客户端会把它显示为不可选，而不是让采集员白录一场。",
+    "",
+    "改动规则：",
+    "  1. 增删内置游戏时改本文件；client build.rs 与安装器、CI 都从这里派生游戏集合，",
+    "     不存在别处需要手工同步的名单。tools/check-shipped-games.mjs 继续核对安装器 gameId 集合。",
+    "  2. 一款游戏在生产 `games` 表注册后，把它从 onboarding 改成 admitted。",
+    "     用 `node tools/check-shipped-games.mjs --against-production` 核对真实状态。",
+    "  3. 本文件只描述**摄取面准入**，不表达合规结论——是否可训练由服务端",
+    "     `games.approved_for_trainable` 与 clip_trainability 决定，客户端不参与。"
+  ],
+  "schemaVersion": "dm-shipped-games-1",
+  "verifiedAgainstProduction": "2026-08-27",
+  "games": [
+    {
+      "gameId": "call-of-duty-steam-release-test",
+      "displayName": "Call of Duty® Steam",
+      "catalogDir": "cod-steam-release-test",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "bioshock-infinite-steam-e2e",
+      "displayName": "BioShock Infinite Steam（本机生产 E2E）",
+      "catalogDir": "bioshock-infinite-steam-e2e",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "wolfenstein2-steam",
+      "displayName": "Wolfenstein II: The New Colossus (Steam)",
+      "catalogDir": "wolfenstein2-steam",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "age-of-empires-4-steam",
+      "displayName": "Age of Empires IV: Anniversary Edition (Steam, RTS subset)",
+      "catalogDir": "age-of-empires-4-steam",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "wuchang-fallen-feathers-steam",
+      "displayName": "WUCHANG: Fallen Feathers (Steam)",
+      "catalogDir": "wuchang-fallen-feathers-steam",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "halo-infinite-steam-release-test",
+      "displayName": "Halo Infinite Steam",
+      "catalogDir": "halo-infinite-steam-release-test",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "euro-truck-simulator-2-steam",
+      "displayName": "Euro Truck Simulator 2 (Steam, in-cab driving)",
+      "catalogDir": "euro-truck-simulator-2-steam",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "fallout4-steam-release-test",
+      "displayName": "Fallout 4 Steam",
+      "catalogDir": "fallout4-steam-release-test",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "a-plague-tale-innocence-steam-release-test",
+      "displayName": "A Plague Tale: Innocence Steam",
+      "catalogDir": "a-plague-tale-innocence-steam-release-test",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "assassins-creed-iii-remastered-steam",
+      "displayName": "Assassin's Creed III Remastered (Steam, single-player on-foot core)",
+      "catalogDir": "assassins-creed-iii-remastered-steam",
+      "appId": "911400",
+      "onboardingRef": "docs/155-d6-assassins-creed-iii-remastered-onboarding-evidence.md",
+      "admission": "onboarding"
+    },
+    {
+      "gameId": "hades-ii-steam-release-test",
+      "displayName": "Hades II Steam",
+      "catalogDir": "hades-ii-steam-release-test",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "cyberpunk-2077-steam",
+      "displayName": "Cyberpunk 2077 (Steam)",
+      "catalogDir": "cyberpunk-2077-steam",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "total-war-warhammer-iii-steam-release-test",
+      "displayName": "Total War: WARHAMMER III Steam",
+      "catalogDir": "total-war-warhammer-iii-steam-release-test",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "halo-reach-mcc-s0",
+      "displayName": "Halo: Reach (MCC) Steam S0",
+      "catalogDir": "halo-reach-mcc-s0",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "elden-ring-nightreign-steam-release-test",
+      "displayName": "ELDEN RING NIGHTREIGN Steam",
+      "catalogDir": "elden-ring-nightreign-steam-release-test",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "nioh2-steam",
+      "displayName": "Nioh 2 (Steam)",
+      "catalogDir": "nioh2-steam",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "mount-and-blade-2-bannerlord-steam",
+      "displayName": "Mount & Blade II: Bannerlord (Steam combat)",
+      "catalogDir": "mount-and-blade-2-bannerlord-steam",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "deathloop-pc",
+      "displayName": "DEATHLOOP (PC)",
+      "catalogDir": "deathloop-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "atomic-heart-pc",
+      "displayName": "Atomic Heart (PC, on-foot only)",
+      "catalogDir": "atomic-heart-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "doom-eternal-pc",
+      "displayName": "DOOM Eternal (PC)",
+      "catalogDir": "doom-eternal-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "resident-evil-village-pc",
+      "displayName": "Resident Evil Village (PC, main campaign)",
+      "catalogDir": "resident-evil-village-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "avatar-frontiers-of-pandora-pc",
+      "displayName": "Avatar：潘多拉边境（PC 本地步战）",
+      "catalogDir": "avatar-frontiers-of-pandora-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "dying-light-pc",
+      "displayName": "消逝的光芒（PC 本地步战）",
+      "catalogDir": "dying-light-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "far-cry-5-pc",
+      "displayName": "孤岛惊魂 5（PC 本地步战）",
+      "catalogDir": "far-cry-5-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "forza-horizon-5-pc",
+      "displayName": "极限竞速：地平线 5（Default WASD 驾驶，PC 本地）",
+      "catalogDir": "forza-horizon-5-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "gta5-legacy-pc",
+      "displayName": "侠盗猎车手 V Legacy（单人徒步，PC 本地）",
+      "catalogDir": "gta5-legacy-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "indiana-jones-great-circle-pc",
+      "displayName": "夺宝奇兵：古老之圈（单人徒步，PC 本地）",
+      "catalogDir": "indiana-jones-great-circle-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "titanfall-2-pc",
+      "displayName": "泰坦陨落 2（单人 Pilot，PC 本地）",
+      "catalogDir": "titanfall-2-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "prey-2017-pc",
+      "displayName": "Prey（2017 主战役徒步，PC 本地）",
+      "catalogDir": "prey-2017-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "red-dead-redemption-2-pc",
+      "displayName": "荒野大镖客：救赎 2（单人徒步，截图键位待真机复核，PC 本地）",
+      "catalogDir": "red-dead-redemption-2-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "starfield-pc",
+      "displayName": "星空（单人徒步，PC 本地）",
+      "catalogDir": "starfield-pc",
+      "admission": "admitted"
+    },
+    {
+      "gameId": "kingdom-come-deliverance-2-steam",
+      "displayName": "Kingdom Come: Deliverance II (Steam)",
+      "catalogDir": "kingdom-come-deliverance-2-steam",
+      "appId": "1771300",
+      "admission": "admitted"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "total-war-warhammer-iii-steam-release-test",
+  "version": "4",
+  "display_name": "Total War: WARHAMMER III Steam",
+  "device_profile_id": "total-war-warhammer-iii-steam-release-test-windows-nvidia-v1",
+  "recording_profile_id": "total-war-warhammer-iii-steam-release-test-recording-v1",
+  "mapping_id": "game.total-war-warhammer-iii.steam.pc",
+  "executable_names": ["Warhammer3.exe"],
+  "window_class": null,
+  "executable_sha256": "sha256:b7315fa718fd84e2e018e2c4df06600e9df0076156b474f148d9d558c939aa55",
+  "input_contract": {
+    "keyboard_vks": [8, 9, 13, 32, 33, 34, 35, 36, 45, 46, 70, 71, 72, 73, 74, 75, 78, 80, 82, 85, 116, 117, 119, 121, 188, 190],
+    "control_vks": [119, 121],
+    "mouse_buttons": [1, 2],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

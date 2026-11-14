@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-halo-reach-mcc-s0",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "halo-reach-mcc-s0-windows-nvidia-v1",
+      "version": "4",
+      "content_hash": "sha256:0f5eb3c0d031804f542c010bff2a747d76f23b76e8ead1fa9690ce96f936e592"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "halo-reach-mcc-s0-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:d89c241814a9654fff7778f2f848dc0014fdd2761535cf9e558ded1e2f08ff61"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "halo-reach-mcc-s0",
+      "version": "4",
+      "content_hash": "sha256:a273edce8a169392936bcba9c3f24a509923c7f6e1d2f3ab339da710ac7e0ff2"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.halo-reach.mcc.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:0d33246d53ae0523464157dc6566665567a63be09e1e622e001fe18d1c048dae"
+    }
+  ]
+}

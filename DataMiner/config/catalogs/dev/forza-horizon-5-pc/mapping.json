@@ -1,0 +1,108 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.forza-horizon-5.pc",
+  "version": "2026-08-20.0",
+  "game": {
+    "id": "forza-horizon-5-pc",
+    "name": "Forza Horizon 5",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "racing",
+    "view": "first_or_third_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "forza-horizon-5-pc-recording-v1",
+  "bindings": [
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.accelerate"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.brake_reverse"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.steer_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.steer_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "gadget.handbrake"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "transmission.clutch"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "transmission.gear_up"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "transmission.gear_down"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "simulation.rewind"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 28,
+      "extended": false,
+      "semantic": "interact.activate"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 35,
+      "extended": false,
+      "semantic": "communication.horn"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 72,
+      "extended": true,
+      "semantic": "camera.view_forward_center"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 80,
+      "extended": true,
+      "semantic": "camera.look_back"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 75,
+      "extended": true,
+      "semantic": "camera.look_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 77,
+      "extended": true,
+      "semantic": "camera.look_right"
+    }
+  ]
+}

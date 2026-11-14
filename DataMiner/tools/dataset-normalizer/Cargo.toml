@@ -1,0 +1,23 @@
+[package]
+name = "dataset-normalizer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "dataminer-dataset-normalizer"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+capture-core = { path = "../../crates/capture-core" }
+data-demo-converter = { path = "../data-demo-converter" }
+mp4 = "0.14.0"
+serde.workspace = true
+serde_json.workspace = true
+sha2 = "0.10.9"
+zstd = "0.13.3"
+
+[dev-dependencies]
+tempfile = "3.23.0"

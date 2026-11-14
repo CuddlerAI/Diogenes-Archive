@@ -1,0 +1,51 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "dying-light-pc",
+  "version": "2",
+  "display_name": "消逝的光芒（PC 本地步战）",
+  "device_profile_id": "dying-light-pc-windows-nvidia-v1",
+  "recording_profile_id": "dying-light-pc-recording-v1",
+  "mapping_id": "game.dying-light.pc",
+  "executable_names": [
+    "DyingLightGame.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      18,
+      32,
+      49,
+      50,
+      51,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      72,
+      81,
+      82,
+      83,
+      84,
+      86,
+      87,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

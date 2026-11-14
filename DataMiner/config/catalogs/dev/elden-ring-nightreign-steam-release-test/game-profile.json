@@ -1,0 +1,46 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "elden-ring-nightreign-steam-release-test",
+  "version": "4",
+  "display_name": "ELDEN RING NIGHTREIGN Steam",
+  "device_profile_id": "elden-ring-nightreign-steam-release-test-windows-nvidia-v1",
+  "recording_profile_id": "elden-ring-nightreign-steam-release-test-recording-v1",
+  "mapping_id": "game.elden-ring-nightreign.steam.pc",
+  "executable_names": [
+    "nightreign.exe"
+  ],
+  "window_class": "ELDEN RING NIGHTREIGN",
+  "executable_sha256": "sha256:9545e8732919bb6a63904cb73223641b3c4f9a67869be5722612acca413e8b3a",
+  "input_contract": {
+    "keyboard_vks": [
+      16,
+      17,
+      18,
+      32,
+      49,
+      51,
+      65,
+      68,
+      69,
+      70,
+      71,
+      81,
+      82,
+      83,
+      87,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

@@ -1,0 +1,29 @@
+{
+    "name": "DiogenesCapture.Megacity",
+    "rootNamespace": "Diogenes.Capture.Megacity",
+    "references": [
+        "Diogenes.EngineCapture.Runtime",
+        "Unity.Entities",
+        "Unity.Entities.Hybrid",
+        "Unity.Scenes",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Burst",
+        "Unity.Jobs",
+        "Unity.Physics",
+        "Unity.MegacityMetro.Components",
+        "Unity.MegacityMetro.Gameplay.Client",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

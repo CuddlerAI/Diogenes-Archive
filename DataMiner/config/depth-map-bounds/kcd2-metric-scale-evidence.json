@@ -1,0 +1,54 @@
+{
+  "schema": "kcd2-metric-scale-evidence/v1",
+  "game_id": "kcd2-steam-local-research",
+  "steam_appid": 1771300,
+  "steam_build_id": 23914554,
+  "executable_sha256": "sha256:d85b5355842d16290dc0d97e1d02856c6f2811a2021c8957aa24d7782a771b77",
+  "engine": "cryengine-3.8-derived",
+  "metric_scale": 1.0,
+  "position_unit": "meter",
+  "metric_scale_status": "validated_game_level_metadata",
+  "engine_documentation": [
+    {
+      "url": "https://www.cryengine.com/docs/static/engines/cryengine-3/categories/1114113/pages/1310751",
+      "claim": "1 meter = 1 Unit in CRYENGINE"
+    },
+    {
+      "url": "https://www.cryengine.com/docs/static/engines/cryengine-3/categories/1114113/pages/1048859",
+      "claim": "Heightmap Unit Size is Meters Per Unit and terrain size is heightmap resolution multiplied by that value"
+    }
+  ],
+  "levels": [
+    {
+      "name": "trosecko",
+      "archive_relative_path": "Data/Levels/trosecko/level.pak",
+      "archive_sha256": "sha256:39936765768694ec55c457af5d355d62be60812f60f6047d71797094aec3afb9",
+      "leveldata_entry": "leveldata.xml",
+      "heightmap_size_serialized": "1000",
+      "heightmap_unit_size": 1.0,
+      "heightmap_max_height_serialized": "300",
+      "terrain_sector_size_metres": 64.0
+    },
+    {
+      "name": "kutnohorsko",
+      "archive_relative_path": "Data/Levels/kutnohorsko/level.pak",
+      "archive_sha256": "sha256:1d03d7cfbd2de31461d0b1be4b2024c46a321d328ac2337b67089a4f9fd4067c",
+      "leveldata_entry": "leveldata.xml",
+      "heightmap_size_serialized": "1000",
+      "heightmap_unit_size": 1.0,
+      "heightmap_max_height_serialized": "250",
+      "terrain_sector_size_metres": 64.0
+    },
+    {
+      "name": "klaster",
+      "archive_relative_path": "Data/Levels/klaster/level.pak",
+      "archive_sha256": "sha256:bc85f0df7b7342ba870d79c9362d133e5704f6b140321e402d20053f400f6c33",
+      "leveldata_entry": "leveldata.xml",
+      "heightmap_size_serialized": "800",
+      "heightmap_unit_size": 1.0,
+      "heightmap_max_height_serialized": "250",
+      "terrain_sector_size_metres": 64.0
+    }
+  ],
+  "derivation": "All shipped KCD2 levels use HeightmapUnitSize=1 and 64-metre terrain sectors. Official CryEngine 3 documentation defines one engine unit as one metre and the heightmap unit field as metres per unit. Therefore one KCD2 engine unit equals one metre for this pinned build."
+}

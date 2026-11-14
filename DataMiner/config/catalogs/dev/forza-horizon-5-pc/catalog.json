@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-forza-horizon-5-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "forza-horizon-5-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:2f3a7e31aaee697e521b0fe905f52e23defe98ec8f726b976c623dc7838e191d"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "forza-horizon-5-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:3e1b61f9debe288397b402e51820248f0ff4e822d2b92614d216b7897443116d"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "forza-horizon-5-pc",
+      "version": "2",
+      "content_hash": "sha256:3e1a5111d06f7194dc459381a2a2c3185f4969eeecf54dbf6f40ee17a1a11541"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.forza-horizon-5.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:ca745efac34eb578c1d7da442c4194fa9d59681ca835c37ca3b9a18aadcc2ce2"
+    }
+  ]
+}

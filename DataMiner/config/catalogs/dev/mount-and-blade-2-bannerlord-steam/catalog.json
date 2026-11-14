@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-mount-and-blade-2-bannerlord-steam-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "mount-and-blade-2-bannerlord-steam-windows-nvidia-local-v1",
+      "version": "2",
+      "content_hash": "sha256:f6955e48cee37ba12d56521a62b5fb1df236d82367c32e1afa6ceb66f0c5e1e9"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "mount-and-blade-2-bannerlord-steam-recording-v1",
+      "version": "3",
+      "content_hash": "sha256:a29b303c2a82c100df9a570862251c94b457fddb9c577af5a8ab8ee2069ca227"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "mount-and-blade-2-bannerlord-steam",
+      "version": "3",
+      "content_hash": "sha256:17578c33d337ff8e0ab932db65962e9694e9f379973107c577b7d99a90f84269"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.mount-and-blade-2-bannerlord.steam.pc.combat",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:6c056760727d672644266961af3b693e87f830afb0f355180b1e348de7f443d1"
+    }
+  ]
+}

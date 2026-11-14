@@ -1,0 +1,226 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.deathloop.pc",
+  "version": "2026-08-19.0",
+  "game": {
+    "id": "deathloop-pc",
+    "name": "DEATHLOOP",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "first_person_shooter",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "deathloop-pc-recording-v1",
+  "bindings": [
+    {
+      "device": "mouse",
+      "control": "delta_x",
+      "semantic": "camera.yaw"
+    },
+    {
+      "device": "mouse",
+      "control": "delta_y",
+      "semantic": "camera.pitch"
+    },
+    {
+      "device": "mouse",
+      "control": "wheel",
+      "semantic": "inventory.cycle"
+    },
+    {
+      "device": "mouse",
+      "button": 1,
+      "semantic": "combat.fire_right"
+    },
+    {
+      "device": "mouse",
+      "button": 2,
+      "semantic": "combat.fire_left"
+    },
+    {
+      "device": "mouse",
+      "button": 4,
+      "semantic": "power.cast"
+    },
+    {
+      "device": "mouse",
+      "button": 5,
+      "semantic": "combat.kick_or_bash"
+    },
+    {
+      "device": "mouse",
+      "button": 6,
+      "semantic": "inventory.weapon_wheel"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 17,
+      "extended": false,
+      "semantic": "move.forward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 31,
+      "extended": false,
+      "semantic": "move.backward"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 30,
+      "extended": false,
+      "semantic": "move.left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 32,
+      "extended": false,
+      "semantic": "move.right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 57,
+      "extended": false,
+      "semantic": "move.jump"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 29,
+      "extended": false,
+      "semantic": "move.crouch_slide"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 42,
+      "extended": false,
+      "semantic": "move.dodge_sprint"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 16,
+      "extended": false,
+      "semantic": "stealth.lean_left"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 18,
+      "extended": false,
+      "semantic": "stealth.lean_right"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 56,
+      "extended": false,
+      "semantic": "stealth.lean_modifier"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 33,
+      "extended": false,
+      "semantic": "interact.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 47,
+      "extended": false,
+      "semantic": "combat.kick_or_bash"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 19,
+      "extended": false,
+      "semantic": "combat.reload"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 2,
+      "extended": false,
+      "semantic": "inventory.hotkey_1"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 3,
+      "extended": false,
+      "semantic": "inventory.hotkey_2"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 4,
+      "extended": false,
+      "semantic": "inventory.hotkey_3"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 5,
+      "extended": false,
+      "semantic": "inventory.hotkey_4"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 6,
+      "extended": false,
+      "semantic": "combat.toggle_dual_wield"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 7,
+      "extended": false,
+      "semantic": "inventory.hotkey_6"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 8,
+      "extended": false,
+      "semantic": "inventory.hotkey_7"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 44,
+      "extended": false,
+      "semantic": "inventory.hotkey_6"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 45,
+      "extended": false,
+      "semantic": "inventory.hotkey_7"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 15,
+      "extended": false,
+      "semantic": "power.select_radial"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 34,
+      "extended": false,
+      "semantic": "gadget.use"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 35,
+      "extended": false,
+      "semantic": "ui.radio"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 36,
+      "extended": false,
+      "semantic": "ui.journal"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 20,
+      "extended": false,
+      "semantic": "target.mark"
+    },
+    {
+      "device": "keyboard",
+      "scan_code": 1,
+      "extended": false,
+      "semantic": "ui.pause"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schema": "camera-binding/v1",
+  "binding_id": "synthetic-camera-binding-v1",
+  "binding_version": "1",
+  "profile_id": "synthetic-game",
+  "profile_version": "dm-depth-profile-1",
+  "executable_sha256": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "render_width": 1920,
+  "render_height": 1080,
+  "view_metres_per_unit": "1",
+  "view_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 2,
+      "draw_ordinal": 7,
+      "buffer_bytes": 64,
+      "offset": 0,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "view",
+      "translation": "row3"
+    }
+  ],
+  "projection_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 1,
+      "pass_ordinal": 2,
+      "draw_ordinal": 7,
+      "buffer_bytes": 64,
+      "offset": 0,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "projection"
+    }
+  ]
+}

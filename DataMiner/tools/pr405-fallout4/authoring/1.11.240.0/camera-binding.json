@@ -1,0 +1,47 @@
+{
+  "schema": "camera-binding/v1",
+  "binding_id": "fallout4-steam-1.11.240-scene-pass3-local-trial-render-hybrid-authoring-egeo-v2",
+  "binding_version": "authoring-trial-1",
+  "profile_id": "fallout4-steam-release-test",
+  "profile_version": "dm-depth-profile-1",
+  "executable_sha256": "sha256:fdcef37ac1230af6d0b0050eb2142b139ef3a867b37b9211fb6edfcc646072f8",
+  "render_width": 1920,
+  "render_height": 1080,
+  "game_camera": {
+    "provider": "fallout4-player-camera-root-exact-build/v1",
+    "camera_singleton_relocation": 51277400,
+    "camera_root_offset": 32,
+    "world_transform_offset": 112,
+    "metres_per_game_unit": "0.0142875",
+    "axis_mapping": "x_z_y"
+  },
+  "view_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 12,
+      "pass_ordinal": 3,
+      "draw_ordinal": 0,
+      "buffer_bytes": 752,
+      "offset": 0,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "view",
+      "translation": "row3"
+    }
+  ],
+  "projection_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 12,
+      "pass_ordinal": 3,
+      "draw_ordinal": 0,
+      "buffer_bytes": 752,
+      "offset": 64,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": true,
+      "role": "projection"
+    }
+  ]
+}

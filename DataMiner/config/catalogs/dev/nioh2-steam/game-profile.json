@@ -1,0 +1,41 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "nioh2-steam",
+  "version": "2",
+  "display_name": "Nioh 2 (Steam)",
+  "device_profile_id": "nioh2-steam-windows-nvidia-local-v1",
+  "recording_profile_id": "nioh2-steam-recording-v1",
+  "mapping_id": "game.nioh2.steam.pc",
+  "executable_names": [
+    "nioh2.exe"
+  ],
+  "window_class": "NIOH",
+  "executable_sha256": "sha256:d8aedf1a5ba4d5bd5dc5cb84904c60988ad1574c06ed214d254fd0c673aa39a7",
+  "input_contract": {
+    "keyboard_vks": [
+      27,
+      32,
+      49,
+      50,
+      65,
+      68,
+      69,
+      70,
+      71,
+      83,
+      87,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": false
+  }
+}

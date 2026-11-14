@@ -1,0 +1,41 @@
+# CPU smoke: synthetic data + tiny frozen trunk. Runs in minutes; CI gate.
+# Thresholds here are smoke-level sanity floors (way above chance), NOT the
+# Phase 0 acceptance thresholds — those live in phase0_gaming500.yaml.
+run_name: smoke
+seed: 0
+
+data:
+  roots: [data/synth_smoke]
+  holdout_games: [synth_canyon]
+  val_fraction: 0.2
+  window: 5
+  stride: 2
+  input_res: [96, 96]
+  contract_mode: legacy
+  allow_method_validation_only: false
+
+model:
+  trunk: tiny
+  d_model: 128
+  n_layers: 2
+  n_heads: 4
+
+train:
+  batch_size: 32
+  max_steps: 600
+  lr: 3.0e-4
+  weight_decay: 0.01
+  log_every: 25
+  num_workers: 0
+  loss_weights: {keys: 1.0, bins: 0.5, delta: 2.0}
+
+# Smoke gates = learning-signal floors on held-out sessions (chance: macro F1
+# ~0, bin acc 0.048). The tiny RANDOM frozen trunk memorizes rather than
+# generalizes, so VPT-grade accuracy gates (0.85 / 0.9) only apply to real
+# runs with a semantic trunk — see phase0_gaming500.yaml.
+gates:
+  key_macro_f1_min: 0.22
+  bin_acc_min: 0.25
+
+output:
+  dir: runs

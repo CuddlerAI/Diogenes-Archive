@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-synthetic-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "synthetic-windows-nvidia-dev-v1",
+      "version": "3",
+      "content_hash": "sha256:3298c59afa60e84352649fc4902a0b02bc316860781c6d05252099692eb3f560"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "synthetic-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:f4b58580f6adac7c6babba32d1d2821b9fd279d805c62049a265e430ece57097"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "synthetic-win32-dev",
+      "version": "3",
+      "content_hash": "sha256:1040834a4d416d4d1834d1078b66f572382520160504bdc65fbd929cca2791d6"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.synthetic-win32-dev.pc",
+      "version": "2026-07-29.0",
+      "content_hash": "sha256:4a4f70230e22e7c27faa2cf385746b4203f46293a467dda47c854dc1b404b0e4"
+    }
+  ]
+}

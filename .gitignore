@@ -1,0 +1,31 @@
+.DS_Store
+# local tooling + git worktree checkouts live here (skills are tracked)
+.claude/*
+!.claude/skills/
+!.claude/settings.json
+# CI installs wrangler into website/ — never commit it (and see website/.assetsignore,
+# which stops it being published as a static asset)
+node_modules/
+website/package.json
+website/package-lock.json
+
+# python (ml/) — virtualenvs, build metadata, test and run caches.
+# ml/data and ml/runs are fetched or generated: datasets and run outputs never
+# belong in git, and the training plane is reproduced from the dm-1 source.
+.venv/
+ml/.venv/
+ml/.venv
+ml/data/
+ml/runs/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+
+# Signing key material must never be committed. The release channel's minisign
+# private key is the highest-value secret in the system (docs/15 §4.1: leak =
+# fleet-wide admin RCE), and until now nothing guarded it — a key generated into
+# the repo directory would have been swept up by `git add -A`.
+# `*.pub` is deliberately NOT ignored: the updater public key belongs in
+# tauri.conf.json and is meant to be public.
+*.key
+*.pem

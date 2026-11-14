@@ -1,0 +1,22 @@
+[package]
+name = "ets2-telemetry-plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+# cdylib：游戏加载的那个 DLL。rlib：让单元测试能在任意平台上跑本 crate 的逻辑，
+# 这正是本 crate 能在没有游戏、没有 Windows 的机器上被验证的原因。
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+ets2-player-telemetry = { path = "../ets2-player-telemetry" }
+serde.workspace = true
+serde_json.workspace = true
+
+# 只为 `host_clock` 的 QueryPerformanceCounter/Frequency 两个调用。
+# 判断逻辑（`state`）仍然一行平台 API 都没有，所以本 crate 的测试
+# 依旧可以在 macOS/Linux 上原生跑完。
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = ["Win32_System_Performance"] }

@@ -1,0 +1,25 @@
+{
+  "commit": "51913b2bfa78a6d54de912b8348b1d318f4d36e2",
+  "files": [
+    {
+      "path": "Matrix-Game-3/LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/SkyworkAI/Matrix-Game/51913b2bfa78a6d54de912b8348b1d318f4d36e2/Matrix-Game-3/LICENSE.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "Matrix-Game-3/wan/modules/action_module.py",
+      "url": "https://raw.githubusercontent.com/SkyworkAI/Matrix-Game/51913b2bfa78a6d54de912b8348b1d318f4d36e2/Matrix-Game-3/wan/modules/action_module.py",
+      "sha256": "848903aa06eb29d9ecc495c8c7b2285284bf9a17959fdf698e394639322440ce"
+    },
+    {
+      "path": "Matrix-Game-3/wan/modules/posemb_layers.py",
+      "url": "https://raw.githubusercontent.com/SkyworkAI/Matrix-Game/51913b2bfa78a6d54de912b8348b1d318f4d36e2/Matrix-Game-3/wan/modules/posemb_layers.py",
+      "sha256": "d535374f47d55c21dac5b1b0015197c4aa2cc24ab14f3ff486ad3083b88623bf"
+    },
+    {
+      "path": "Matrix-Game-3/README.md",
+      "url": "https://raw.githubusercontent.com/SkyworkAI/Matrix-Game/51913b2bfa78a6d54de912b8348b1d318f4d36e2/Matrix-Game-3/README.md",
+      "sha256": "44d26cdc90d355ba2b5eb33c47f89ebf17fd71bfd200d670dc00faabff387132"
+    }
+  ]
+}

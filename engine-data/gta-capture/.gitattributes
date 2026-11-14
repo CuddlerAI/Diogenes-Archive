@@ -1,0 +1,9 @@
+patches/*.patch text eol=lf whitespace=-space-before-tab,-blank-at-eol
+tests/fixtures/*.bin binary
+# The golden JSON's bytes are hashed into the .bin header; eol rewriting would
+# break the cross-language contract test.
+tests/fixtures/*.json text eol=lf
+# The controller writes a stage's calibration back and requires it byte-identical to the group's copy: a checkout
+# with core.autocrlf=true gave the file CRs and AB refused to record ("calibration did not round-trip
+# byte-identically", win-pc 2026-10-16).
+examples/stage-calibration*.txt text eol=lf

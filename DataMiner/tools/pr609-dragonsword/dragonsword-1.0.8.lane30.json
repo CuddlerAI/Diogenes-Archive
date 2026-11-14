@@ -1,0 +1,47 @@
+{
+  "schema_version": "dm-depth-profile-1",
+  "game_id": "dragonsword-awakening-steam-1.0.8",
+  "lane": "lane30",
+  "cadence": "every_present",
+  "executable_sha256": "sha256:0c9d54a35d7160e671a3db10c5e645140fdad15a7293314681e9eda7e360c1fe",
+  "dsv": {
+    "dsv_id": "dragonsword-main-d32s8-dx11-v1",
+    "expected_width": 1664,
+    "expected_height": 936,
+    "sample_count": 1,
+    "formats": [
+      "r32_g8_x24_typeless",
+      "d32_float_s8_x24_uint"
+    ],
+    "evidence_path": "tools/pr609-dragonsword/evidence/dragonsword-depth-camera-certification-20260811.json"
+  },
+  "readback_path": "copy_to_staging",
+  "readback_slots": 6,
+  "watermark": {
+    "origin_x": 0,
+    "origin_y": 0
+  },
+  "delivery_width": 1280,
+  "delivery_height": 720,
+  "burst": {
+    "interval_seconds": 300,
+    "duration_seconds": 3
+  },
+  "projection_a": 0.0,
+  "projection_b": 10.0,
+  "metric_scale": {
+    "value": 0.01,
+    "source": {
+      "path": "engine_convention",
+      "engine": "unreal_centimeters"
+    },
+    "cross_check": {
+      "convention": 0.01,
+      "measured": 0.01,
+      "ratio": 1.0,
+      "tolerance": 0.1
+    },
+    "evidence_path": "tools/pr609-dragonsword/evidence/dragonsword-depth-camera-certification-20260811.json"
+  },
+  "projection_source": "constant_buffer"
+}

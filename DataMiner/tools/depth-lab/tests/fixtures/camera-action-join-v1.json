@@ -1,0 +1,202 @@
+{
+  "depth_identity": {
+    "session_id": "session-ca1",
+    "run_id": "r0001",
+    "generation": 1
+  },
+  "camera_identity": {
+    "session_id": "session-ca1",
+    "run_id": "r0001",
+    "generation": 1
+  },
+  "action_identity": {
+    "session_id": "session-ca1",
+    "run_id": "r0001",
+    "generation": 1
+  },
+  "pair_identity": {
+    "session_id": "session-ca1",
+    "run_id": "r0001",
+    "generation": 1
+  },
+  "depth": [
+    {
+      "present_seq": 100,
+      "dsv_id": "dsv-main",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "present_seq": 102,
+      "dsv_id": "dsv-main",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "camera": [
+    {
+      "schema": "camera-pose-index/v1",
+      "identity": {"session_id": "session-ca1", "run_id": "r0001", "generation": 1},
+      "present_seq": 100,
+      "present_qpc": 1005,
+      "source": "game_telemetry",
+      "provenance": {
+        "kind": "game_telemetry",
+        "provider": "synthetic-fixture",
+        "profile_id": "synthetic-game",
+        "profile_version": "dm-depth-profile-1",
+        "executable_sha256": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      },
+      "camera_position": [10.0, 2.0, -5.0],
+      "camera_rotation_quaternion": [0.0, 0.0, 0.0, 1.0],
+      "camera_intrinsics": {"fx": 960.0, "fy": 960.0, "cx": 960.0, "cy": 540.0},
+      "camera_speed": null
+    },
+    {
+      "schema": "camera-pose-index/v1",
+      "identity": {"session_id": "session-ca1", "run_id": "r0001", "generation": 1},
+      "present_seq": 101,
+      "present_qpc": 2005,
+      "source": "game_telemetry",
+      "provenance": {
+        "kind": "game_telemetry",
+        "provider": "synthetic-fixture",
+        "profile_id": "synthetic-game",
+        "profile_version": "dm-depth-profile-1",
+        "executable_sha256": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      },
+      "camera_position": [10.1, 2.0, -5.0],
+      "camera_rotation_quaternion": [0.0, 0.0, 0.0, 1.0],
+      "camera_intrinsics": {"fx": 960.0, "fy": 960.0, "cx": 960.0, "cy": 540.0},
+      "camera_speed": null
+    },
+    {
+      "schema": "camera-pose-index/v1",
+      "identity": {"session_id": "session-ca1", "run_id": "r0001", "generation": 1},
+      "present_seq": 102,
+      "present_qpc": 3005,
+      "source": "game_telemetry",
+      "provenance": {
+        "kind": "game_telemetry",
+        "provider": "synthetic-fixture",
+        "profile_id": "synthetic-game",
+        "profile_version": "dm-depth-profile-1",
+        "executable_sha256": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      },
+      "camera_position": [10.2, 2.0, -5.0],
+      "camera_rotation_quaternion": [0.0, 0.0, 0.0, 1.0],
+      "camera_intrinsics": {"fx": 960.0, "fy": 960.0, "cx": 960.0, "cy": 540.0},
+      "camera_speed": [3.0, 0.0, 0.0]
+    }
+  ],
+  "actions": [
+    {
+      "frame": 0,
+      "session_frame": 200,
+      "run_id": "r0001",
+      "video_t_us": 0,
+      "output_qpc_start": 1000,
+      "output_qpc_end": 2000,
+      "source_qpc": 1010,
+      "source_seq": 1,
+      "duplicate": false,
+      "source_superseded": 0,
+      "queue_drop": 0,
+      "keys": [87],
+      "buttons": [1],
+      "actions": ["move.forward", "combat.primary_attack"],
+      "pointerDx": 200,
+      "pointerDy": -200,
+      "pointerBins": [10, -10],
+      "events": [
+        {"type": "mouse_move", "dx": 180, "dy": -140},
+        {"type": "key_down", "vk": 87, "scan_code": 17, "flags": 0},
+        {"type": "mouse_move", "dx": 180, "dy": -90}
+      ],
+      "src": "rec"
+    },
+    {
+      "frame": 1,
+      "session_frame": 201,
+      "run_id": "r0001",
+      "video_t_us": 33333,
+      "output_qpc_start": 2000,
+      "output_qpc_end": 3000,
+      "source_qpc": 2010,
+      "source_seq": 2,
+      "duplicate": false,
+      "source_superseded": 0,
+      "queue_drop": 0,
+      "keys": [87],
+      "buttons": [],
+      "actions": ["move.forward"],
+      "pointerDx": 0,
+      "pointerDy": 0,
+      "pointerBins": [0, 0],
+      "events": [],
+      "src": "rec"
+    },
+    {
+      "frame": 2,
+      "session_frame": 202,
+      "run_id": "r0001",
+      "video_t_us": 66667,
+      "output_qpc_start": 3000,
+      "output_qpc_end": 4000,
+      "source_qpc": 3010,
+      "source_seq": 3,
+      "duplicate": false,
+      "source_superseded": 0,
+      "queue_drop": 0,
+      "keys": [],
+      "buttons": [],
+      "actions": [],
+      "pointerDx": -12,
+      "pointerDy": 7,
+      "pointerBins": [-2, 1],
+      "events": [
+        {"type": "mouse_move", "dx": -12, "dy": 7}
+      ],
+      "src": "rec"
+    }
+  ],
+  "frame_pairs": [
+    {
+      "session_frame": 200,
+      "segment_index": 0,
+      "segment_frame": 0,
+      "source_qpc": 1010,
+      "duplicate": false,
+      "camera_mode": "player",
+      "depth": {
+        "present_seq": 100,
+        "depth_name": "depth_200",
+        "dsv_id": "dsv-main",
+        "inherited": false
+      }
+    },
+    {
+      "session_frame": 201,
+      "segment_index": 0,
+      "segment_frame": 1,
+      "source_qpc": 2010,
+      "duplicate": false,
+      "camera_mode": "player",
+      "depth_absent_reason": "odd_frame_by_spec"
+    },
+    {
+      "session_frame": 202,
+      "segment_index": 0,
+      "segment_frame": 2,
+      "source_qpc": 3010,
+      "duplicate": false,
+      "camera_mode": "player",
+      "depth": {
+        "present_seq": 102,
+        "depth_name": "depth_202",
+        "dsv_id": "dsv-main",
+        "inherited": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+*.json text eol=lf
+*.jsonl text eol=lf
+*.toml text eol=lf
+*.rs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+tools/game-adaptation/Test-Mafia3D6LocalProfileEvidence.ps1 text eol=lf
+docs/157-a-plague-tale-local-license-blocker-20260902.md text eol=lf
+docs/158-gta5-legacy-pr405-multicamera-feasibility-and-implementation-plan.md text eol=lf
+tools/pr609-halo-reach/README.md text eol=lf
+apps/console-api/terms/*.txt text eol=lf

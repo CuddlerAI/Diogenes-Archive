@@ -1,0 +1,40 @@
+{
+  "schema": "camera-binding/v1",
+  "binding_id": "halo-reach-mcc-steam-1.3528.0.0-v1",
+  "binding_version": "1",
+  "profile_id": "halo-reach-mcc-steam-1.3528.0.0",
+  "profile_version": "dm-depth-profile-1",
+  "executable_sha256": "sha256:be70d6dcd1a884f10ceb342a7a2dcb35ee0fa43181b66a1d19c3d830e9834691",
+  "render_width": 2560,
+  "render_height": 1440,
+  "projection_transform": "transpose_combined_times_transposed_homogeneous_view",
+  "view_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 0,
+      "draw_ordinal": 2,
+      "buffer_bytes": 144,
+      "offset": 64,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "view",
+      "translation": "row3"
+    }
+  ],
+  "projection_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 0,
+      "draw_ordinal": 2,
+      "buffer_bytes": 144,
+      "offset": 0,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "projection"
+    }
+  ]
+}

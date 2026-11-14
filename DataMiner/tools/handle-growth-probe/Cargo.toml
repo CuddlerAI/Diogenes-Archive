@@ -1,0 +1,31 @@
+[package]
+name = "handle-growth-probe"
+default-run = "handle-growth-probe"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Standalone like tools/issue750-wgc-probe: a diagnostic that is never part of
+# the client build, the release surface, or the workspace check.
+[workspace]
+
+[dependencies]
+anyhow = "1.0.100"
+capture-core = { path = "../../crates/capture-core" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+windows-capture-wgc = { path = "../../crates/windows-capture-wgc" }
+windows = { version = "=0.62.2", features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Direct3D",
+  "Win32_Graphics_Direct3D11",
+  "Win32_Graphics_Dxgi",
+  "Win32_Graphics_Dxgi_Common",
+  "Win32_Graphics_Gdi",
+  "Win32_Media_MediaFoundation",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Com",
+  "Win32_System_Threading",
+  "Win32_UI_HiDpi",
+  "Win32_UI_WindowsAndMessaging",
+] }

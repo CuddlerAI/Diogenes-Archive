@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+allowBuilds:
+  esbuild: true
+  # protobufjs 的 postinstall 服务的是 pbjs/pbts 这套 CLI；@google-cloud/kms
+  # 经 google-gax 在运行时加载 .proto，不依赖它。与仓库既有的供应链姿态一致：
+  # 不跑不必要的安装脚本。若 KMS 客户端因此在运行时失败，改回 true 并记录原因。
+  protobufjs: false

@@ -1,0 +1,53 @@
+{
+  "schema": "dm-gta-scenario/1",
+  "scenario_id": "gta-legacy-poc-downtown-walk-15s",
+  "mode": "story_mode",
+  "seed": 2026082801,
+  "location": [0.0, 0.0, 0.0],
+  "clock": "15:30",
+  "weather": "CLEAR",
+  "radio": "off",
+  "source_epoch": "2026-08-28 00:00:00.000",
+  "player": {
+    "model": "current_story_player",
+    "control": "native_task_go_straight",
+    "route_kind": "forward_from_anchor",
+    "distance_m": 15.0,
+    "speed_mps": 1.0,
+    "heading_deg": 90.0
+  },
+  "dynamics": [
+    {
+      "id": "player-1",
+      "type": "humanoid",
+      "control": "native_task_go_straight",
+      "route": "player"
+    }
+  ],
+  "replay": {
+    "duration_s": 15.0,
+    "warmup_s": 25.0,
+    "fps": 30
+  },
+  "population": {
+    "population_mode": "ambient_observation_only",
+    "ped_density": 1.0,
+    "scenario_ped_density": 1.0,
+    "vehicle_density": 1.0,
+    "random_vehicle_density": 1.0,
+    "parked_vehicle_density": 0.75
+  },
+  "effect_exclusions": [
+    "radio",
+    "online",
+    "loading_transition",
+    "cloth",
+    "flags",
+    "ropes",
+    "rain",
+    "snow",
+    "explosions",
+    "dense_particles",
+    "police_dispatch"
+  ]
+}

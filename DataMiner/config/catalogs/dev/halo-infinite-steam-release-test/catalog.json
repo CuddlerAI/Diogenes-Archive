@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-halo-infinite-steam-release-test",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "halo-infinite-steam-release-test-windows-nvidia-v1",
+      "version": "4",
+      "content_hash": "sha256:665367425fa8ee29eb3d5c8b203601dfd4e19ade8069d83dd8febbf3935e0cd8"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "halo-infinite-steam-release-test-recording-v1",
+      "version": "4",
+      "content_hash": "sha256:136308a0093cda45af071508fc158608ec2dff49ac08627b796f2a04939bd72c"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "halo-infinite-steam-release-test",
+      "version": "5",
+      "content_hash": "sha256:cae8def622779cdcdd732b5d2029655621294b642c1604879fe19751f62a4173"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.halo-infinite.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:a50554a53dc181d9a932fca8f06945a10a1d00f12daca0c7661da79b2db17db5"
+    }
+  ]
+}

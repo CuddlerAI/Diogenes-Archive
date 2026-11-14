@@ -1,0 +1,14 @@
+{
+  "schema_version": "dm-device-profile-3",
+  "profile_id": "kingdom-come-deliverance-2-steam-windows-nvidia-v1",
+  "version": "1",
+  "platform": "windows",
+  "minimum_windows_build": 19045,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [],
+  "minimum_driver_version": null,
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "steam_app_1771300_build_23914554_kingdomcome_1_5_6_executable_sha256_d3d12_1920x1080_verified_2026_08_18"
+}

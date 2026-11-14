@@ -1,0 +1,14 @@
+{
+  "schema_version": "dm-device-profile-3",
+  "profile_id": "fallout4-steam-release-test-windows-nvidia-v2",
+  "version": "6",
+  "platform": "windows",
+  "minimum_windows_build": 19045,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [],
+  "minimum_driver_version": null,
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "steam_app_377160_build_22848228_fallout4_1_11_221_executable_sha256_native_1920x1080_borderless_fullscreen_and_fallout4_window_class_verified_2026_08_12"
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "synthetic-win32-dev",
+  "version": "3",
+  "display_name": "DataMiner Synthetic Game",
+  "device_profile_id": "synthetic-windows-nvidia-dev-v1",
+  "recording_profile_id": "synthetic-recording-v1",
+  "mapping_id": "game.synthetic-win32-dev.pc",
+  "executable_names": [
+    "capture-lab.exe"
+  ],
+  "window_class": "DataMinerCaptureLabSyntheticWindow",
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      16,
+      17,
+      18,
+      27,
+      32,
+      37,
+      38,
+      39,
+      40,
+      65,
+      68,
+      69,
+      82,
+      83,
+      87,
+      119,
+      121
+    ],
+    "control_vks": [
+      17,
+      18,
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4,
+      5,
+      6
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

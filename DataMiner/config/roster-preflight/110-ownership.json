@@ -1,0 +1,663 @@
+{
+  "$comment": "docs/110 70 款在主 Steam 账号上的拥有情况。issue #643 前置 A（docs/112 §8.1）的判定输入。",
+  "collected_at": "2026-08-09",
+  "provenance": "steam-web-api-IPlayerService.GetOwnedGames，由 owner 本人执行，仅回传与 roster 的交集",
+  "privacy_note": "不含 steamid、不含账号完整库（实测库内共 333 款，本文件只记 roster 70 款的命中与否）。",
+  "decision_doc": "DataMiner/docs/112-cloud-gpu-windows-prep-machine-decision.md",
+  "summary": {
+    "roster_total": 70,
+    "owned": 23,
+    "not_owned": 47,
+    "owned_already_builtin": 13,
+    "owned_and_new_work": 10,
+    "new_work_install_gb": 456.0,
+    "not_owned_install_gb": 1548.0,
+    "builtin_but_not_owned_on_this_account": [
+      {
+        "roster_index": 1,
+        "steam_name": "Call of Duty®",
+        "admission": "admitted",
+        "capture_depth": "D7✅"
+      },
+      {
+        "roster_index": 13,
+        "steam_name": "ELDEN RING NIGHTREIGN",
+        "admission": "onboarding",
+        "capture_depth": "D7✅"
+      }
+    ]
+  },
+  "finding_two_accounts": "🔴 #1 Call of Duty 与 #13 ELDEN RING NIGHTREIGN 在本账号上均未拥有，但二者在 shipped-games 口径下分别为 admitted / onboarding 且都已 D7✅，CoD 更是唯一有生产语料的游戏（已 promote 到 certified/cod-steam）。→ **采集机使用的是另一个 Steam 账号。** docs/112 §5-⑤ 的「单账号抢占」风险须按双账号重估。",
+  "games": [
+    {
+      "roster_index": 1,
+      "appid": 1938090,
+      "steam_name": "Call of Duty®",
+      "owned_on_primary_account": false,
+      "admission": "admitted",
+      "capture_depth": "D7✅",
+      "install_gb": 161.0
+    },
+    {
+      "roster_index": 2,
+      "appid": 8870,
+      "steam_name": "BioShock Infinite",
+      "owned_on_primary_account": true,
+      "admission": "admitted",
+      "capture_depth": "D7✅",
+      "install_gb": null
+    },
+    {
+      "roster_index": 3,
+      "appid": 612880,
+      "steam_name": "Wolfenstein II: The New Colossus",
+      "owned_on_primary_account": true,
+      "admission": "admitted",
+      "capture_depth": "D7⚠️",
+      "install_gb": 55.0
+    },
+    {
+      "roster_index": 4,
+      "appid": 1466860,
+      "steam_name": "Age of Empires IV: Anniversary Edition",
+      "owned_on_primary_account": true,
+      "admission": "admitted",
+      "capture_depth": "D7⚠️",
+      "install_gb": 50.0
+    },
+    {
+      "roster_index": 5,
+      "appid": 2277560,
+      "steam_name": "WUCHANG: Fallen Feathers",
+      "owned_on_primary_account": true,
+      "admission": "admitted",
+      "capture_depth": "D7⚠️",
+      "install_gb": 60.0
+    },
+    {
+      "roster_index": 6,
+      "appid": 1240440,
+      "steam_name": "Halo Infinite",
+      "owned_on_primary_account": true,
+      "admission": "admitted",
+      "capture_depth": "D7✅",
+      "install_gb": 50.0
+    },
+    {
+      "roster_index": 7,
+      "appid": 227300,
+      "steam_name": "Euro Truck Simulator 2",
+      "owned_on_primary_account": true,
+      "admission": "admitted",
+      "capture_depth": "D6✅",
+      "install_gb": 25.0
+    },
+    {
+      "roster_index": 8,
+      "appid": 377160,
+      "steam_name": "Fallout 4",
+      "owned_on_primary_account": true,
+      "admission": "admitted",
+      "capture_depth": "D7✅",
+      "install_gb": 30.0
+    },
+    {
+      "roster_index": 9,
+      "appid": 752590,
+      "steam_name": "A Plague Tale: Innocence",
+      "owned_on_primary_account": true,
+      "admission": "onboarding",
+      "capture_depth": "D7✅",
+      "install_gb": 50.0
+    },
+    {
+      "roster_index": 10,
+      "appid": 1145350,
+      "steam_name": "Hades II",
+      "owned_on_primary_account": true,
+      "admission": "onboarding",
+      "capture_depth": "D7✅",
+      "install_gb": 11.0
+    },
+    {
+      "roster_index": 11,
+      "appid": 1142710,
+      "steam_name": "Total War: WARHAMMER III",
+      "owned_on_primary_account": true,
+      "admission": "onboarding",
+      "capture_depth": "—",
+      "install_gb": 120.0
+    },
+    {
+      "roster_index": 12,
+      "appid": 976730,
+      "steam_name": "Halo: The Master Chief Collection",
+      "owned_on_primary_account": true,
+      "admission": "onboarding",
+      "capture_depth": "D7✅",
+      "install_gb": 43.0
+    },
+    {
+      "roster_index": 13,
+      "appid": 2622380,
+      "steam_name": "ELDEN RING NIGHTREIGN",
+      "owned_on_primary_account": false,
+      "admission": "onboarding",
+      "capture_depth": "D7✅",
+      "install_gb": 30.0
+    },
+    {
+      "roster_index": 14,
+      "appid": 1325200,
+      "steam_name": "Nioh 2 – The Complete Edition",
+      "owned_on_primary_account": true,
+      "admission": "onboarding",
+      "capture_depth": "D7✅",
+      "install_gb": 85.0
+    },
+    {
+      "roster_index": 15,
+      "appid": 261550,
+      "steam_name": "Mount & Blade II: Bannerlord",
+      "owned_on_primary_account": true,
+      "admission": "onboarding",
+      "capture_depth": "D7✅",
+      "install_gb": 60.0
+    },
+    {
+      "roster_index": 16,
+      "appid": 270880,
+      "steam_name": "American Truck Simulator",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 25.0
+    },
+    {
+      "roster_index": 17,
+      "appid": 489830,
+      "steam_name": "The Elder Scrolls V: Skyrim Special Edition",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 12.0
+    },
+    {
+      "roster_index": 18,
+      "appid": 201810,
+      "steam_name": "Wolfenstein: The New Order",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 50.0
+    },
+    {
+      "roster_index": 19,
+      "appid": 1771300,
+      "steam_name": "Kingdom Come: Deliverance II",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 100.0
+    },
+    {
+      "roster_index": 20,
+      "appid": 814380,
+      "steam_name": "Sekiro™: Shadows Die Twice - GOTY Edition",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 25.0
+    },
+    {
+      "roster_index": 21,
+      "appid": 582160,
+      "steam_name": "Assassin's Creed® Origins",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 42.0
+    },
+    {
+      "roster_index": 22,
+      "appid": 812140,
+      "steam_name": "Assassin's Creed® Odyssey",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": null
+    },
+    {
+      "roster_index": 23,
+      "appid": 1174180,
+      "steam_name": "Red Dead Redemption 2",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 150.0
+    },
+    {
+      "roster_index": 24,
+      "appid": 1326470,
+      "steam_name": "Sons Of The Forest",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 20.0
+    },
+    {
+      "roster_index": 25,
+      "appid": 305620,
+      "steam_name": "The Long Dark",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 7.0
+    },
+    {
+      "roster_index": 26,
+      "appid": 1091500,
+      "steam_name": "Cyberpunk 2077",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 70.0
+    },
+    {
+      "roster_index": 27,
+      "appid": 1659040,
+      "steam_name": "HITMAN World of Assassination",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 60.0
+    },
+    {
+      "roster_index": 28,
+      "appid": 638970,
+      "steam_name": "Yakuza 0",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": null
+    },
+    {
+      "roster_index": 29,
+      "appid": 526870,
+      "steam_name": "Satisfactory",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 20.0
+    },
+    {
+      "roster_index": 30,
+      "appid": 427410,
+      "steam_name": "Abiotic Factor",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 10.0
+    },
+    {
+      "roster_index": 31,
+      "appid": 287390,
+      "steam_name": "Metro: Last Light Redux",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 10.0
+    },
+    {
+      "roster_index": 32,
+      "appid": 2362300,
+      "steam_name": "Train Sim World® 4",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 80.0
+    },
+    {
+      "roster_index": 33,
+      "appid": 2124490,
+      "steam_name": "SILENT HILL 2",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 50.0
+    },
+    {
+      "roster_index": 34,
+      "appid": 1128920,
+      "steam_name": "EVERSPACE™ 2",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 35.0
+    },
+    {
+      "roster_index": 35,
+      "appid": 275850,
+      "steam_name": "No Man's Sky",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 15.0
+    },
+    {
+      "roster_index": 36,
+      "appid": 264710,
+      "steam_name": "Subnautica",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 20.0
+    },
+    {
+      "roster_index": 37,
+      "appid": 620,
+      "steam_name": "Portal 2",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 8.0
+    },
+    {
+      "roster_index": 38,
+      "appid": 1817230,
+      "steam_name": "Hi-Fi RUSH",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 20.0
+    },
+    {
+      "roster_index": 39,
+      "appid": 1167630,
+      "steam_name": "Teardown",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 12.0
+    },
+    {
+      "roster_index": 40,
+      "appid": 870780,
+      "steam_name": "CONTROL Ultimate Edition",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 42.0
+    },
+    {
+      "roster_index": 41,
+      "appid": 753640,
+      "steam_name": "Outer Wilds",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 8.0
+    },
+    {
+      "roster_index": 42,
+      "appid": 962130,
+      "steam_name": "Grounded",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 8.0
+    },
+    {
+      "roster_index": 43,
+      "appid": 1458140,
+      "steam_name": "Pacific Drive",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 18.0
+    },
+    {
+      "roster_index": 44,
+      "appid": 323190,
+      "steam_name": "Frostpunk",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 8.0
+    },
+    {
+      "roster_index": 45,
+      "appid": 255710,
+      "steam_name": "Cities: Skylines",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 4.0
+    },
+    {
+      "roster_index": 46,
+      "appid": 1363080,
+      "steam_name": "Manor Lords",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 15.0
+    },
+    {
+      "roster_index": 47,
+      "appid": 2677660,
+      "steam_name": "Indiana Jones and the Great Circle",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 120.0
+    },
+    {
+      "roster_index": 48,
+      "appid": 257510,
+      "steam_name": "The Talos Principle",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 8.0
+    },
+    {
+      "roster_index": 49,
+      "appid": 1086940,
+      "steam_name": "Baldur's Gate 3",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 150.0
+    },
+    {
+      "roster_index": 50,
+      "appid": 22380,
+      "steam_name": "Fallout: New Vegas",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": null
+    },
+    {
+      "roster_index": 51,
+      "appid": 1144200,
+      "steam_name": "Ready or Not",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 60.0
+    },
+    {
+      "roster_index": 52,
+      "appid": 466130,
+      "steam_name": "White Day: A Labyrinth Named School",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 10.0
+    },
+    {
+      "roster_index": 53,
+      "appid": 2527390,
+      "steam_name": "Dead Rising Deluxe Remaster",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": null
+    },
+    {
+      "roster_index": 54,
+      "appid": 883710,
+      "steam_name": "Resident Evil 2",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 26.0
+    },
+    {
+      "roster_index": 55,
+      "appid": 952060,
+      "steam_name": "Resident Evil 3",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 45.0
+    },
+    {
+      "roster_index": 56,
+      "appid": 307690,
+      "steam_name": "Sleeping Dogs: Definitive Edition",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 20.0
+    },
+    {
+      "roster_index": 57,
+      "appid": 1475810,
+      "steam_name": "Ghostwire: Tokyo",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 26.0
+    },
+    {
+      "roster_index": 58,
+      "appid": 1643320,
+      "steam_name": "S.T.A.L.K.E.R. 2: Heart of Chornobyl",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 160.0
+    },
+    {
+      "roster_index": 59,
+      "appid": 1622910,
+      "steam_name": "Still Wakes the Deep",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 9.0
+    },
+    {
+      "roster_index": 60,
+      "appid": 2138710,
+      "steam_name": "Sifu",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 22.0
+    },
+    {
+      "roster_index": 61,
+      "appid": 286690,
+      "steam_name": "Metro 2033 Redux",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 10.0
+    },
+    {
+      "roster_index": 62,
+      "appid": 2967990,
+      "steam_name": "Train Sim World® 5",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 80.0
+    },
+    {
+      "roster_index": 63,
+      "appid": 225540,
+      "steam_name": "Just Cause™ 3",
+      "owned_on_primary_account": true,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 54.0
+    },
+    {
+      "roster_index": 64,
+      "appid": 1574240,
+      "steam_name": "Dread Delusion",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 2.0
+    },
+    {
+      "roster_index": 65,
+      "appid": 519860,
+      "steam_name": "DUSK",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 2.0
+    },
+    {
+      "roster_index": 66,
+      "appid": 265690,
+      "steam_name": "NaissanceE",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 2.0
+    },
+    {
+      "roster_index": 67,
+      "appid": 210970,
+      "steam_name": "The Witness",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 5.0
+    },
+    {
+      "roster_index": 68,
+      "appid": 757310,
+      "steam_name": "Sable",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 3.0
+    },
+    {
+      "roster_index": 69,
+      "appid": 607080,
+      "steam_name": "Psychonauts 2",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 30.0
+    },
+    {
+      "roster_index": 70,
+      "appid": 391220,
+      "steam_name": "Rise of the Tomb Raider™",
+      "owned_on_primary_account": false,
+      "admission": "未内置",
+      "capture_depth": "—",
+      "install_gb": 25.0
+    }
+  ]
+}

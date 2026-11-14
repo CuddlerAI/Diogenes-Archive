@@ -1,0 +1,54 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "red-dead-redemption-2-pc",
+  "version": "2",
+  "display_name": "荒野大镖客：救赎 2（单人徒步，截图键位待真机复核，PC 本地）",
+  "device_profile_id": "red-dead-redemption-2-pc-windows-nvidia-v1",
+  "recording_profile_id": "red-dead-redemption-2-pc-recording-v1",
+  "mapping_id": "game.red-dead-redemption-2.pc",
+  "executable_names": [
+    "RDR2.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      17,
+      20,
+      32,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      65,
+      66,
+      67,
+      68,
+      70,
+      81,
+      82,
+      83,
+      86,
+      87,
+      88,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": false
+  }
+}

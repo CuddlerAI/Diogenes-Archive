@@ -1,0 +1,56 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "avatar-frontiers-of-pandora-pc",
+  "version": "2",
+  "display_name": "Avatar：潘多拉边境（PC 本地步战）",
+  "device_profile_id": "avatar-frontiers-of-pandora-pc-windows-nvidia-v1",
+  "recording_profile_id": "avatar-frontiers-of-pandora-pc-recording-v1",
+  "mapping_id": "game.avatar-frontiers-of-pandora.pc",
+  "executable_names": [
+    "afop.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      16,
+      17,
+      18,
+      32,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      65,
+      66,
+      67,
+      68,
+      69,
+      71,
+      81,
+      82,
+      83,
+      84,
+      87,
+      88,
+      90,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-assassins-creed-iii-remastered-steam-dev",
+  "catalog_version": "2026-09-03.1",
+  "device_profiles": [
+    {
+      "id": "assassins-creed-iii-remastered-steam-windows-nvidia-local-v1",
+      "version": "1",
+      "content_hash": "sha256:8675fb4415a0adf61512d1e5481acd041a47474cd1cf5729f568f9614538ed80"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "assassins-creed-iii-remastered-steam-recording-v1",
+      "version": "1",
+      "content_hash": "sha256:9132136fba738ff706677b4878e1810dcdbf0f8da34054f6c9dc64d92edc44df"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "assassins-creed-iii-remastered-steam",
+      "version": "1",
+      "content_hash": "sha256:0373d3967ef41acaea9c6abc5b8e9322b9e067702c2137d6b6169686de2ddfb9"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.assassins-creed-iii-remastered.steam.pc.on-foot",
+      "version": "2026-09-03.1",
+      "content_hash": "sha256:37950952577817d3cdc758c59458ecb9a343366eed73591dc470091824330ff9"
+    }
+  ]
+}

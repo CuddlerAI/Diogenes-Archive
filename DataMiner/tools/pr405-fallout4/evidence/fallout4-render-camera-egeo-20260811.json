@@ -1,0 +1,19 @@
+{
+  "schema": "fallout4-render-camera-promotion-evidence/v1",
+  "runtime": {
+    "executable_sha256": "sha256:428f9996cc4248e26c0f62f9fdd3eaf0e5eb305834b67ee5996538e593218b61"
+  },
+  "e_geo": {
+    "schema": "camera-egeo-validation/v3",
+    "passed": true,
+    "production_binding_authorized": true
+  },
+  "production_binding": {
+    "binding_id": "fallout4-steam-1.11.221-main-camera-v3-render-hybrid",
+    "binding_version": "3",
+    "sha256": "sha256:3026c8a8140b5f25bd899013daba52ea520bfaabe02913df78b6326cedeab247",
+    "profile_executable_render_and_camera_sources_exactly_equal": true
+  },
+  "_archive_note": "Subset of original game-binding evidence required by the archived validator; session/run identifiers, adapter diagnostics and unrelated artifact hashes removed. Not a new certification.",
+  "_archive_source_sha256": "0f3e83bb060e0c098ccdc3e17c7d6b0eb9400967d64ec230e8acdb7d90f08492"
+}

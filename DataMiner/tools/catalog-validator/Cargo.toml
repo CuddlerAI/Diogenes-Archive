@@ -1,0 +1,30 @@
+[package]
+name = "catalog-validator"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "dataminer-catalog-validator"
+path = "src/main.rs"
+test = false
+bench = false
+
+[features]
+default = ["depth-lab"]
+dev-catalog = []
+local-catalog-only = []
+depth-lab = ["dep:depth-lab"]
+
+[build-dependencies]
+# build.rs 复用客户端的 catalog_gen 生成器（见 build.rs 顶部注释）。
+serde_json.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+ed25519-dalek = "2.2.0"
+serde.workspace = true
+serde_json.workspace = true
+sha2 = "0.10.9"
+depth-lab = { path = "../depth-lab", optional = true }

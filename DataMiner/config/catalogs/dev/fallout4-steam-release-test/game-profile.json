@@ -1,0 +1,66 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "fallout4-steam-release-test",
+  "version": "6",
+  "display_name": "Fallout 4 Steam",
+  "device_profile_id": "fallout4-steam-release-test-windows-nvidia-v2",
+  "recording_profile_id": "fallout4-steam-release-test-recording-v1",
+  "mapping_id": "game.fallout4.steam.pc",
+  "executable_names": [
+    "Fallout4.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      17,
+      18,
+      20,
+      27,
+      32,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      65,
+      67,
+      68,
+      69,
+      70,
+      73,
+      74,
+      75,
+      77,
+      79,
+      81,
+      82,
+      83,
+      87,
+      88,
+      116,
+      119,
+      121,
+      187,
+      189
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

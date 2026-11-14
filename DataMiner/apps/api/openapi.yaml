@@ -1,0 +1,2314 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+info:
+  title: DataMiner Cloud Ingestion API
+  version: 0.1.0-m2a
+  summary: Production ingestion control plane for DataMiner non-trainable RAW artifacts.
+  description: |
+    This contract covers the production non-trainable RAW path. It accepts immutable local
+    `dm-local-dev` artifacts using contract `dm-1`, stores them under the
+    server-owned `raw/v1/non-trainable` namespace, and permanently classifies them as
+    non-trainable.
+
+    Every accepted clip has five required objects:
+
+    * `video` (`video.mp4`)
+    * `frames` (`frames.jsonl.zst`)
+    * `events` (`events.jsonl.zst`)
+    * `meta` (`meta.json`)
+    * `manifest` (`sha256.json`)
+
+    A contract generation may additionally declare `audio` (`audio.pcm.zst`)
+    and `depth` (`depth.zip`). Optional objects use the same server-owned
+    multipart, immutable SHA-256, and verification path as the required five.
+
+    R2 object keys and provider multipart upload identifiers are generated and
+    retained by the server. Clients cannot submit a bucket, object key, R2
+    upload identifier, or storage prefix. The API only returns short-lived
+    signed part URLs and never proxies artifact bytes.
+
+    Certified catalog trust, trainable eligibility, and automatic promotion are
+    intentionally unavailable in this contract. Authentication uses per-device
+    bearer credentials, while credential/grant issuance endpoints are out of
+    scope. Any trainable claim fails closed with `policy_blocked`; production
+    rows and R2 objects remain in the non-trainable class.
+
+    Mutating clip/session registration operations require `Idempotency-Key`. Reusing a key with the
+    same HTTP method, normalized path, authenticated principal, and canonical
+    request body returns the original status and response. Reusing the key with
+    a different request fingerprint returns `409 idempotency_key_reused`.
+    `parts:sign` is the security exception to response persistence: its request
+    identity is deduplicated, but bearer URLs are never stored and are freshly
+    derived for the same part set on replay.
+    Session-artifact declare/sign/complete calls are the exception: their
+    `(session, kind, bytes, SHA-256)` identity and terminal verification state
+    make retries naturally idempotent, while signed URLs are never persisted.
+
+    In this scaffold, `verificationState=verified` is deliberately limited to
+    transport size/SHA-256 plus the supported manifest/meta subset. Full
+    MP4/JSONL package quality is not asserted and remains pending.
+servers:
+  - url: /
+    description: The deployment supplies the production origin.
+tags:
+  - name: Health
+  - name: Sessions
+  - name: Runs
+  - name: Clips
+  - name: Uploads
+  - name: Games
+  - name: Grants
+security:
+  - bearerAuth: []
+x-dataminer-ingestion-policy:
+  acceptedSourceFamily: dm-local-dev
+  acceptedContractVersion: dm-1
+  acceptedArtifactSchemaVersion: dm-local-dev-recording-1
+  acceptedEnvironment: production
+  acceptedStorageNamespace: raw
+  requiredFlags:
+    nonTrainable: true
+    isTrainable: false
+    productionCertified: false
+  # 第二条摄取家族（issue #855 §B）。默认**不准入**：只有部署设置了
+  # R2_PREFIX_INGEST_V2 才会出现，生产今天没有设，所以下面每条路径的请求体仍然
+  # 逐字是上面这条 legacy 契约。完整的双契约 schema（oneOf）随控制面与文档一并
+  # 落地，是 issue #855 PR 5 的动作；在那之前这里先把事实写清楚，而不是让本文档
+  # 声称"只有一种契约"。
+  optionalNeutralIngestLane:
+    admittedBy: R2_PREFIX_INGEST_V2
+    sourceFamily: dm-session-ingest
+    contractVersion: dm-1
+    artifactSchemaVersion: dm-raw-recording-1
+    sessionSchemaVersion: dm-session-ingest-2
+    objectClass: dataminer-raw
+    objectPrefix: raw/v2/<deployment>/sessions/<session-id>/...
+    preflightResult: preflight_pass
+    # 中性契约不携带训练声明，也不在 Catalog 身份里写车道词；带了即 422
+    # policy_blocked。
+    absentFields: [nonTrainable, isTrainable, productionCertified, catalog.mode]
+    sourceClassification: non_trainable | training_candidate
+  requiredObjectSet:
+    - video
+    - frames
+    - events
+    - meta
+    - manifest
+  optionalObjectSet:
+    - audio
+    - depth
+  blockedCapabilities:
+    - trainable-eligibility
+    - consent-grant-issuance
+    - catalog-certification
+    - automatic-trainability-promotion
+paths:
+  /healthz:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Process liveness probe.
+      security: []
+      responses:
+        "200":
+          description: The API process is alive.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /readyz:
+    get:
+      tags: [Health]
+      operationId: getReadiness
+      summary: Staging dependency readiness probe.
+      description: |
+        Reports whether the API can reach its production database and the
+        server-side R2 control plane. This endpoint never returns credentials,
+        bucket secrets, signed URLs, or provider multipart identifiers.
+      security: []
+      responses:
+        "200":
+          description: All required production dependencies are ready.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessResponse"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/game-admissions:
+    get:
+      tags: [Games]
+      operationId: listGameAdmissions
+      summary: Return the authenticated device's live game capture roster.
+      description: |
+        The signed catalog describes games the client can recognize. This
+        endpoint reports the current server capture gate, so approving or
+        pausing a game takes effect without publishing a new catalog or desktop
+        build. A catalog game omitted from this response is not registered and
+        clients must fail closed.
+      responses:
+        "200":
+          description: Current game admission facts.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameAdmissionResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/sessions:
+    post:
+      tags: [Sessions]
+      operationId: createSession
+      summary: Register a production non-trainable session.
+      description: |
+        Creates the server identity for one local session. This endpoint does
+        not issue or imply a consent or capture grant. The returned eligibility
+        is always blocked in M2a.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionCreateRequest"
+      responses:
+        "201":
+          description: Session registered, or the original response replayed.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+            Idempotency-Replayed:
+              $ref: "#/components/headers/IdempotencyReplayed"
+            Location:
+              description: Canonical API path of the registered session.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/PolicyBlocked"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/sessions/{sessionId}/runs/{localRunId}:
+    put:
+      tags: [Runs]
+      operationId: putRun
+      summary: Idempotently register one terminal local capture run.
+      description: |
+        The local run identifier is scoped to the server session. Immutable
+        identity fields cannot change after the first successful registration.
+        M2a accepts only local `completed` or `faulted` runs; active recording
+        runs remain local until they reach a terminal journal state.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/LocalRunId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunPutRequest"
+      responses:
+        "200":
+          description: Run registered or closed, or the original response replayed.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+            Idempotency-Replayed:
+              $ref: "#/components/headers/IdempotencyReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/PolicyBlocked"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/sessions/{sessionId}/runs/{localRunId}/clips/{segmentIndex}:
+    put:
+      tags: [Clips]
+      operationId: putClip
+      summary: Register one immutable ready clip and its five artifacts.
+      description: |
+        Registers a local journal `ready` segment whose artifact metadata is
+        `non_trainable_ready`. The exact byte size and whole-file SHA-256 of all
+        five objects are frozen here. This call does not create R2 keys or
+        authorize upload; that occurs only when an upload intent is created.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/LocalRunId"
+        - $ref: "#/components/parameters/SegmentIndex"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClipPutRequest"
+      responses:
+        "200":
+          description: Clip registered, or the original response replayed.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+            Idempotency-Replayed:
+              $ref: "#/components/headers/IdempotencyReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClipResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/PolicyBlocked"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/clips/{clipId}/upload-intents:
+    post:
+      tags: [Uploads]
+      operationId: createUploadIntent
+      summary: Create one server-owned multipart intent for all five clip objects.
+      description: |
+        The server derives every R2 object key from trusted database state and
+        creates five provider multipart uploads. Object keys and provider
+        upload IDs remain server-side. The client receives one clip-level
+        intent containing five opaque upload plans.
+      parameters:
+        - $ref: "#/components/parameters/ClipId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadIntentCreateRequest"
+      responses:
+        "201":
+          description: Multipart upload intent created, or the original response replayed.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+            Idempotency-Replayed:
+              $ref: "#/components/headers/IdempotencyReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadIntentResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/PolicyBlocked"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/upload-intents/{uploadIntentId}/parts:sign:
+    post:
+      tags: [Uploads]
+      operationId: signUploadParts
+      summary: Sign a bounded batch of multipart part uploads.
+      description: |
+        Each requested `(artifactType, partNumber)` is resolved against
+        server-owned multipart state. The declared byte size must equal the
+        server plan (including the exact final-part remainder), and Content-MD5
+        is included in the signature. The request deliberately has no bucket,
+        object key, storage prefix, or provider upload ID. Returned URLs are
+        bearer capabilities with a maximum lifetime of 15 minutes and must not
+        be persisted or logged. A same-key, same-fingerprint retry is resolved
+        to the same part identities but receives freshly derived URLs and
+        expiry values. Signing fails closed when the clip retention deadline
+        or upload expiry cannot cover the full configured URL lifetime.
+      parameters:
+        - $ref: "#/components/parameters/UploadIntentId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartSignRequest"
+      responses:
+        "200":
+          description: Requested part URLs freshly signed for the deduplicated part set.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+            Idempotency-Replayed:
+              $ref: "#/components/headers/IdempotencyReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignedPartBatch"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/PolicyBlocked"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/upload-intents/{uploadIntentId}/complete:
+    post:
+      tags: [Uploads]
+      operationId: completeUploadIntent
+      summary: Reconcile and complete all five server-owned multipart uploads.
+      description: |
+        The client submits the observed part numbers and ETags for all five
+        artifacts. The server lists provider parts, validates count and size,
+        and performs each provider CompleteMultipartUpload operation itself.
+        The clip reaches `stored` only after all five final objects are visible.
+        A background transport verifier subsequently streams each object,
+        recomputes its whole-file SHA-256, and validates `sha256.json` plus a
+        constrained `meta.json` subset before moving verification from `queued`
+        to `verified` or `rejected`. Here `verified` means transport integrity;
+        package quality remains pending until the full MP4/JSONL verifier exists.
+        Multipart ETags are never treated as whole-file SHA-256 values.
+      parameters:
+        - $ref: "#/components/parameters/UploadIntentId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadCompleteRequest"
+      responses:
+        "202":
+          description: All objects stored and verification queued, or the original response replayed.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+            Idempotency-Replayed:
+              $ref: "#/components/headers/IdempotencyReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadCompleteAccepted"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/PolicyBlocked"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/clips/{clipId}/status:
+    get:
+      tags: [Clips]
+      operationId: getClipStatus
+      summary: Get independent storage, verification, and eligibility states.
+      description: |
+        Status dimensions remain independent so a transport-verified production
+        object is never mistaken for a fully package-verified or trainable
+        artifact. `eligibilityState` is always `blocked` in M2a, including after
+        successful transport verification; package quality remains pending.
+      parameters:
+        - $ref: "#/components/parameters/ClipId"
+      responses:
+        "200":
+          description: Current clip status.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClipStatusResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/sessions/{sessionId}/artifacts:
+    put:
+      tags: [Uploads]
+      operationId: declareSessionArtifacts
+      summary: Declare the immutable 7+1 object set for a sealed non-trainable session.
+      description: |
+        Seven JSON snapshots are required and markers.jsonl is optional. The
+        exact member set, size, and SHA-256 become immutable on first success.
+        The server derives every R2 key from the session's admitted lane.
+        Consented first-party and certified lanes are refused until their
+        session-artifact retention and purge contract exists.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionArtifactDeclarationRequest"
+      responses:
+        "200":
+          description: The stored declaration and current per-object states.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionArtifactsResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+    get:
+      tags: [Uploads]
+      operationId: getSessionArtifacts
+      summary: Read the current session-artifact declaration and verification states.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Current per-object states.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionArtifactsResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/sessions/{sessionId}/artifacts/{sessionArtifactKind}/sign:
+    post:
+      tags: [Uploads]
+      operationId: signSessionArtifact
+      summary: Issue a short-lived single-object PUT for one declared session artifact.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/SessionArtifactKind"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionArtifactSignRequest"
+      responses:
+        "200":
+          description: A fresh PUT capability whose complete header map must be replayed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionArtifactSignResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/sessions/{sessionId}/artifacts/{sessionArtifactKind}/complete:
+    post:
+      tags: [Uploads]
+      operationId: completeSessionArtifact
+      summary: Synchronize R2 metadata, size, and whole-object SHA-256 verification.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/SessionArtifactKind"
+      responses:
+        "200":
+          description: Terminal verified/rejected state, or the existing terminal result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionArtifactResource"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  "/v1/clips/{clipId}:purge":
+    post:
+      tags: [Clips]
+      operationId: requestClipPurge
+      summary: Irreversibly request purge of one owned production clip.
+      description: |
+        The authenticated device principal may only request deletion of a clip
+        belonging to its registered device. The SQL transaction first changes
+        retention state to `purge_requested`, which blocks sign/complete/verify,
+        and then creates the durable clip-scope purge job. A worker separately
+        aborts multipart uploads, deletes all five server-owned keys, confirms
+        absence with HEAD, and records the tombstone. This is not a production
+        operator or consent-revocation endpoint.
+      parameters:
+        - $ref: "#/components/parameters/ClipId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClipPurgeRequest"
+      responses:
+        "202":
+          description: Purge request is durably queued, or its original response was replayed.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+            Idempotency-Replayed:
+              $ref: "#/components/headers/IdempotencyReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClipStatusResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/PolicyBlocked"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  "/v1/sessions/{sessionId}:seal":
+    post:
+      tags: [Sessions]
+      operationId: sealSession
+      summary: Seal a production session against further run or clip registration.
+      description: |
+        Sealing freezes the session inventory. It does not wait for upload or
+        verification and does not alter the permanent non-trainable boundary.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionSealRequest"
+      responses:
+        "200":
+          description: Session sealed, or the original response replayed.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+            Idempotency-Replayed:
+              $ref: "#/components/headers/IdempotencyReplayed"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/PolicyBlocked"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /v1/capture-grants:
+    post:
+      tags: [Grants]
+      operationId: issueCaptureGrant
+      summary: Issue a signed capture grant for this device and game.
+      description: |
+        The last gate before certified recording (docs/26). The server checks
+        four facts of its own — the annotator is active, one consent is active
+        and in date, the device is registered and attached to that annotator,
+        and the game has passed the capture approval gate — then signs a short
+        lived `dm-capture-grant-1` token with a Cloud KMS Ed25519 key that is
+        separate from the certified catalog key.
+
+        The request body may say exactly one thing: which game. Everything a
+        grant binds (annotator, device, consent, validity window, catalog) is
+        read from the database. Issuance is an authorization decision and is
+        never taken from a client assertion.
+
+        The route only exists when the deployment has a grant signing key
+        configured. Without one it is absent, and a caller receives 404 — which
+        the client treats identically to 403: "no grant for this machine and
+        game", a normal governance answer rather than an error.
+
+        The grant does not make anything trainable. `clip_trainability` still
+        requires consent, catalog, QA and retention; a grant issued here carries
+        `allows_trainable = false`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaptureGrantRequest"
+      responses:
+        "200":
+          description: A signed grant token and the signature over its exact bytes.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaptureGrantResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          description: |
+            No grant is available for this device and game. One indistinguishable
+            answer for every governance outcome — which condition failed is
+            recorded server side only, so this endpoint cannot be used to probe
+            governance state. Not an error: the client caches nothing and keeps
+            certified recording closed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: |
+        A per-device credential issued by the console. The API hashes the bearer
+        token and matches it against devices.credential_fingerprint; the device
+        must be pending or active, and its annotator must not be suspended.
+        There is no shared ingest secret.
+        This API still does not expose activation, token issuance, consent, or
+        capture-grant endpoints — credentials are minted on the console side and
+        delivered out of band. Possessing a device credential never grants
+        production or trainable eligibility.
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: |
+        Caller-generated key scoped to the authenticated principal. Use a new
+        key for each logical mutation and persist it until the final response.
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 160
+        pattern: '^[\x21-\x7E]+$'
+      example: 01K0M2A9S6Y6NSDF7P0T2V9XQF
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    LocalRunId:
+      name: localRunId
+      in: path
+      required: true
+      description: Stable local run ID, scoped to the server session.
+      schema:
+        $ref: "#/components/schemas/LocalIdentifier"
+    SegmentIndex:
+      name: segmentIndex
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 2147483647
+    ClipId:
+      name: clipId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UploadIntentId:
+      name: uploadIntentId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SessionArtifactKind:
+      name: sessionArtifactKind
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/SessionArtifactKind"
+
+  headers:
+    XRequestId:
+      description: Server-generated correlation ID. Safe to include in diagnostics.
+      required: true
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 128
+    IdempotencyReplayed:
+      description: |
+        True when the logical operation was deduplicated. Sensitive derived
+        values such as signed URLs may be freshly generated rather than stored.
+      required: true
+      schema:
+        type: boolean
+
+  responses:
+    BadRequest:
+      description: The request could not be parsed or failed structural validation.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: invalid_request
+            message: Request body does not match the M2a contract.
+            requestId: req_01K0M2A9S6Y6NSDF7P0T2V9XQF
+            retryable: false
+    Unauthorized:
+      description: |
+        The device credential is missing, unknown, retired, suspended, or belongs
+        to a suspended annotator. The response deliberately does not distinguish
+        between those cases.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: invalid_device_credential
+            message: A registered, active device credential is required.
+            requestId: req_01K0M2A9S6Y6NSDF7P0T2V9XQF
+            retryable: false
+    NotFound:
+      description: The requested production resource does not exist for this principal.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: resource_not_found
+            message: The requested production resource was not found.
+            requestId: req_01K0M2A9S6Y6NSDF7P0T2V9XQF
+            retryable: false
+    Conflict:
+      description: |
+        Immutable resource state conflicts with the request, or an
+        idempotency key was reused with a different request fingerprint.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            idempotencyKeyReused:
+              value:
+                code: idempotency_key_reused
+                message: Idempotency-Key was already used for a different request.
+                requestId: req_01K0M2A9S6Y6NSDF7P0T2V9XQF
+                retryable: false
+            immutableConflict:
+              value:
+                code: immutable_resource_conflict
+                message: Registered artifact identity cannot be changed.
+                requestId: req_01K0M2A9S6Y6NSDF7P0T2V9XQF
+                retryable: false
+    PolicyBlocked:
+      description: The request crossed the fail-closed production non-trainable boundary.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: policy_blocked
+            message: The production endpoint accepts only dm-local-dev non-trainable data in raw.
+            requestId: req_01K0M2A9S6Y6NSDF7P0T2V9XQF
+            retryable: false
+            details:
+              blockedCapability: production-ingestion
+    TooManyRequests:
+      description: The caller should retry with backoff.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+        Retry-After:
+          description: Suggested retry delay in seconds.
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: rate_limited
+            message: Too many production requests.
+            requestId: req_01K0M2A9S6Y6NSDF7P0T2V9XQF
+            retryable: true
+    ServiceUnavailable:
+      description: A required production dependency is temporarily unavailable.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+        Retry-After:
+          description: Suggested retry delay in seconds.
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            code: dependency_unavailable
+            message: A required production dependency is unavailable.
+            requestId: req_01K0M2A9S6Y6NSDF7P0T2V9XQF
+            retryable: true
+
+  schemas:
+    LocalIdentifier:
+      type: string
+      minLength: 1
+      maxLength: 160
+      pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$"
+
+    Sha256Digest:
+      type: string
+      pattern: "^sha256:[a-f0-9]{64}$"
+      description: DataMiner `sha256:` prefix plus lowercase SHA-256 of the complete file bytes.
+      example: sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [code, message, requestId, retryable]
+      properties:
+        code:
+          type: string
+          pattern: "^[a-z][a-z0-9_]{2,63}$"
+        message:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        requestId:
+          type: string
+          minLength: 8
+          maxLength: 128
+        retryable:
+          type: boolean
+        details:
+          type: object
+          additionalProperties: true
+
+    CaptureGrantRequest:
+      type: object
+      additionalProperties: false
+      required: [gameId]
+      description: |
+        The only thing a caller may state. Annotator, device, consent, validity
+        window and catalog binding are all server facts (docs/26 §5/§9).
+      properties:
+        gameId:
+          $ref: "#/components/schemas/LocalIdentifier"
+
+    CaptureGrantResponse:
+      type: object
+      additionalProperties: false
+      required: [token, signature]
+      description: |
+        The signed grant envelope. `token` is the base64 of the EXACT bytes that
+        were signed; the client verifies against those bytes and never
+        re-serializes the JSON, because a canonicalization disagreement is the
+        classic verification bypass for this shape of protocol (docs/26 §4).
+      properties:
+        token:
+          type: string
+          format: byte
+          description: |
+            base64 of the `dm-capture-grant-1` token bytes. Decoded, it is a
+            JSON object with exactly these keys, in this order: schemaVersion,
+            grantId, annotatorId, deviceId, consentId, gameId, catalogId
+            (optional; never null and never empty), notBeforeUnix, notAfterUnix,
+            signingKeyId. The timestamps are integer Unix seconds and the window
+            is half-open, `[notBefore, notAfter)`. The client rejects the whole
+            token if any unknown field is present.
+        signature:
+          type: string
+          format: byte
+          description: |
+            base64 of the 64-byte Ed25519 signature over
+            `b"dm-capture-grant-1\x00" || token_bytes`. The domain prefix keeps
+            a catalog signature from being replayed as a grant and vice versa.
+            `signingKeyId` inside the token is a revocation index only — the
+            client verifies against its own compiled-in anchor.
+
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          const: ok
+        service:
+          type: string
+          const: dataminer-api-prod
+        version:
+          type: string
+          minLength: 1
+
+    DependencyReadiness:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ready, unavailable]
+        latencyMs:
+          type: integer
+          minimum: 0
+
+    ReadinessResponse:
+      type: object
+      additionalProperties: false
+      required: [status, environment, dependencies]
+      properties:
+        status:
+          type: string
+          const: ready
+        environment:
+          type: string
+          const: production
+        dependencies:
+          type: object
+          additionalProperties: false
+          required: [cloudSql, r2ControlPlane]
+          properties:
+            cloudSql:
+              $ref: "#/components/schemas/DependencyReadiness"
+            r2ControlPlane:
+              $ref: "#/components/schemas/DependencyReadiness"
+
+    StagingClassification:
+      type: object
+      additionalProperties: false
+      required:
+        - sourceFamily
+        - contractVersion
+        - artifactSchemaVersion
+        - environment
+        - storageNamespace
+        - nonTrainable
+        - isTrainable
+        - productionCertified
+      properties:
+        sourceFamily:
+          type: string
+          const: dm-local-dev
+        contractVersion:
+          type: string
+          const: dm-1
+        artifactSchemaVersion:
+          type: string
+          const: dm-local-dev-recording-1
+        environment:
+          type: string
+          const: production
+        storageNamespace:
+          type: string
+          const: raw
+        nonTrainable:
+          type: boolean
+          const: true
+        isTrainable:
+          type: boolean
+          const: false
+        productionCertified:
+          type: boolean
+          const: false
+
+    ProfileIdentity:
+      type: object
+      additionalProperties: false
+      required: [id, version, contentHash]
+      properties:
+        id:
+          $ref: "#/components/schemas/LocalIdentifier"
+        version:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: '.*\S.*'
+        contentHash:
+          $ref: "#/components/schemas/Sha256Digest"
+
+    CatalogIdentity:
+      type: object
+      additionalProperties: false
+      required: [id, version, mode, contentHash]
+      properties:
+        id:
+          $ref: "#/components/schemas/LocalIdentifier"
+        version:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: '.*\S.*'
+        mode:
+          type: string
+          const: dev_non_trainable
+          description: The M2a endpoint never accepts a certified catalog claim.
+        contentHash:
+          $ref: "#/components/schemas/Sha256Digest"
+
+    CaptureProfileIdentity:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - version
+        - contentHash
+        - width
+        - height
+        - fpsNum
+        - fpsDen
+        - captureEngine
+      properties:
+        id:
+          $ref: "#/components/schemas/LocalIdentifier"
+        version:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: '.*\S.*'
+        contentHash:
+          $ref: "#/components/schemas/Sha256Digest"
+        width:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        height:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        fpsNum:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          description: Must be greater than or equal to `fpsDen`.
+        fpsDen:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        captureEngine:
+          type: string
+          const: native_wgc_window_v1
+
+    MappingIdentity:
+      type: object
+      additionalProperties: false
+      required: [id, version, contentHash]
+      properties:
+        id:
+          $ref: "#/components/schemas/LocalIdentifier"
+        version:
+          type: string
+          minLength: 1
+          maxLength: 80
+          pattern: '.*\S.*'
+        contentHash:
+          $ref: "#/components/schemas/Sha256Digest"
+
+    GameIdentity:
+      type: object
+      additionalProperties: false
+      required: [id, version, contentHash, executableSha256]
+      properties:
+        id:
+          $ref: "#/components/schemas/LocalIdentifier"
+        version:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: '.*\S.*'
+        contentHash:
+          $ref: "#/components/schemas/Sha256Digest"
+        executableSha256:
+          $ref: "#/components/schemas/Sha256Digest"
+
+    SessionCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - localSessionId
+        - sessionSchemaVersion
+        - startedAt
+        - localState
+        - classification
+        - clientVersion
+        - catalog
+        - game
+        - deviceProfile
+        - captureProfile
+        - settingsProfile
+        - mapping
+      properties:
+        localSessionId:
+          $ref: "#/components/schemas/LocalIdentifier"
+        sessionSchemaVersion:
+          type: string
+          const: dm-local-dev-session-2
+        startedAt:
+          type: string
+          format: date-time
+        localState:
+          type: string
+          enum: [paused, completed, faulted, corrupt]
+          description: Active recording sessions are not uploaded by the M2a path.
+        classification:
+          $ref: "#/components/schemas/StagingClassification"
+        clientVersion:
+          type: string
+          minLength: 1
+          maxLength: 80
+          pattern: '.*\S.*'
+        catalog:
+          $ref: "#/components/schemas/CatalogIdentity"
+        game:
+          $ref: "#/components/schemas/GameIdentity"
+        deviceProfile:
+          $ref: "#/components/schemas/ProfileIdentity"
+        captureProfile:
+          $ref: "#/components/schemas/CaptureProfileIdentity"
+        settingsProfile:
+          $ref: "#/components/schemas/ProfileIdentity"
+        mapping:
+          $ref: "#/components/schemas/MappingIdentity"
+
+    SessionState:
+      type: string
+      enum: [open, sealed, rejected]
+
+    EligibilityState:
+      type: string
+      const: blocked
+      description: This production ingestion class is permanently non-trainable.
+
+    SessionResource:
+      type: object
+      additionalProperties: false
+      required:
+        - sessionId
+        - localSessionId
+        - state
+        - classification
+        - eligibilityState
+        - eligibilityReason
+        - createdAt
+        - updatedAt
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          readOnly: true
+        localSessionId:
+          $ref: "#/components/schemas/LocalIdentifier"
+        state:
+          $ref: "#/components/schemas/SessionState"
+        classification:
+          $ref: "#/components/schemas/StagingClassification"
+        eligibilityState:
+          $ref: "#/components/schemas/EligibilityState"
+        eligibilityReason:
+          type: string
+          const: non_trainable_source
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CaptureFacts:
+      type: object
+      additionalProperties: false
+      required:
+        - width
+        - height
+        - fpsNum
+        - fpsDen
+        - captureEngine
+        - encoderBackend
+      properties:
+        width:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        height:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        fpsNum:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          description: Must be greater than or equal to `fpsDen`.
+        fpsDen:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        captureEngine:
+          type: string
+          const: native_wgc_window_v1
+        encoderBackend:
+          type: string
+          minLength: 1
+          maxLength: 120
+          pattern: '.*\S.*'
+
+    PreflightReference:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, id, result, evidenceHash]
+      description: >-
+        Stable reference to the journal v5 preflight that atomically admitted this run. The full
+        checks remain local in M2a, so this is declared audit evidence rather than cloud verification.
+      properties:
+        schemaVersion:
+          type: string
+          const: dm-preflight-evidence-1
+        id:
+          $ref: "#/components/schemas/LocalIdentifier"
+        result:
+          type: string
+          const: dev_non_trainable_pass
+        evidenceHash:
+          $ref: "#/components/schemas/Sha256Digest"
+
+    RunPutRequest:
+      type: object
+      additionalProperties: false
+      required: [sequence, localState, startedAt, endedAt, qpcFrequency, sessionFrameStart, preflight, capture]
+      properties:
+        sequence:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        localState:
+          type: string
+          enum: [paused, completed, faulted]
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          description: Must be greater than or equal to `startedAt`.
+        qpcFrequency:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        sessionFrameStart:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        preflight:
+          $ref: "#/components/schemas/PreflightReference"
+        capture:
+          $ref: "#/components/schemas/CaptureFacts"
+
+    RunState:
+      type: string
+      enum: [closed, rejected]
+
+    RunResource:
+      type: object
+      additionalProperties: false
+      required:
+        - runId
+        - sessionId
+        - localRunId
+        - sequence
+        - state
+        - createdAt
+        - updatedAt
+      properties:
+        runId:
+          type: string
+          format: uuid
+          readOnly: true
+        sessionId:
+          type: string
+          format: uuid
+        localRunId:
+          $ref: "#/components/schemas/LocalIdentifier"
+        sequence:
+          type: integer
+          minimum: 0
+        state:
+          $ref: "#/components/schemas/RunState"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ArtifactDeclaration:
+      type: object
+      additionalProperties: false
+      required: [byteSize, sha256]
+      properties:
+        byteSize:
+          type: integer
+          minimum: 1
+          maximum: 5497558138880
+        sha256:
+          $ref: "#/components/schemas/Sha256Digest"
+
+    JsonArtifactDeclaration:
+      type: object
+      additionalProperties: false
+      required: [byteSize, sha256]
+      properties:
+        byteSize:
+          type: integer
+          minimum: 1
+          maximum: 2097152
+          description: Semantic verifier limit for meta.json and sha256.json.
+        sha256:
+          $ref: "#/components/schemas/Sha256Digest"
+
+    ArtifactSetDeclaration:
+      type: object
+      additionalProperties: false
+      required: [video, frames, events, meta, manifest]
+      properties:
+        video:
+          $ref: "#/components/schemas/ArtifactDeclaration"
+        frames:
+          $ref: "#/components/schemas/ArtifactDeclaration"
+        events:
+          $ref: "#/components/schemas/ArtifactDeclaration"
+        meta:
+          $ref: "#/components/schemas/JsonArtifactDeclaration"
+        manifest:
+          $ref: "#/components/schemas/JsonArtifactDeclaration"
+        audio:
+          $ref: "#/components/schemas/ArtifactDeclaration"
+        depth:
+          $ref: "#/components/schemas/ArtifactDeclaration"
+
+    AudioSpan:
+      type: object
+      additionalProperties: false
+      required: [start_frame, frames]
+      properties:
+        start_frame:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        frames:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+
+    SegmentAudioMetadata:
+      type: object
+      additionalProperties: false
+      required: [state, source, format, qpc_frequency, health]
+      description: |
+        Audio artifact fields are present exactly for ready/degraded audio.
+        Absent audio and degraded audio require a failure_code; ready audio
+        requires pristine health. The runtime contract applies the additional
+        span bounds and bounded-silence checks.
+      properties:
+        state:
+          type: string
+          enum: [ready, degraded, absent]
+        source:
+          type: string
+          const: process_loopback
+        path:
+          type: string
+          const: audio.pcm.zst
+        sha256:
+          $ref: "#/components/schemas/Sha256Digest"
+        bytes:
+          type: integer
+          minimum: 1
+          maximum: 5497558138880
+        format:
+          type: object
+          additionalProperties: false
+          required: [sample_rate, channels, bits, sample_format, channel_mask, requested_format, system_src]
+          properties:
+            sample_rate:
+              type: integer
+              const: 48000
+            channels:
+              type: integer
+              const: 2
+            bits:
+              type: integer
+              const: 16
+            sample_format:
+              type: string
+              const: pcm_s16le
+            channel_mask:
+              type: integer
+              const: 3
+            requested_format:
+              type: string
+              const: pcm_s16le/48000/2
+            system_src:
+              type: boolean
+              const: true
+        qpc_frequency:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        first_sample_qpc:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
+        frames:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        failure_code:
+          type: string
+          pattern: "^AUDIO_[A-Z0-9_]{1,96}$"
+        health:
+          type: object
+          additionalProperties: false
+          required: [discontinuities, silence_filled_spans, queue_overflows, timestamp_errors, max_qpc_drift_us]
+          properties:
+            discontinuities:
+              type: array
+              maxItems: 10000
+              items:
+                $ref: "#/components/schemas/AudioSpan"
+            silence_filled_spans:
+              type: array
+              maxItems: 10000
+              items:
+                $ref: "#/components/schemas/AudioSpan"
+            queue_overflows:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            timestamp_errors:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            max_qpc_drift_us:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+
+    SegmentDepthMetadata:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [state, source, path, sha256, bytes, format]
+          properties:
+            state:
+              type: string
+              const: ready
+            source:
+              type: string
+              const: depth_probe
+            path:
+              type: string
+              const: depth.zip
+            sha256:
+              $ref: "#/components/schemas/Sha256Digest"
+            bytes:
+              type: integer
+              minimum: 1
+              maximum: 5497558138880
+            format:
+              type: string
+              enum: [dm-depth-variant-r-zip-1, dm-depth-raw-zip-2]
+              description: >-
+                v2 contains raw depth and reconstruction provenance. Format admission
+                and object size/SHA-256 verification do not assert metric depth.
+        - type: object
+          additionalProperties: false
+          required: [state]
+          properties:
+            state:
+              type: string
+              const: absent
+
+    ClipHealth:
+      type: object
+      additionalProperties: false
+      required: [duplicateFrames, sourceSuperseded, queueDrops, inputOverflow]
+      properties:
+        duplicateFrames:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        sourceSuperseded:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        queueDrops:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        inputOverflow:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+
+    ClipPutRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - classification
+        - localArtifactState
+        - sessionFrameStart
+        - nFrames
+        - qpcStart
+        - qpcEnd
+        - eventCount
+        - health
+        - artifacts
+      properties:
+        classification:
+          $ref: "#/components/schemas/StagingClassification"
+        localArtifactState:
+          type: string
+          const: ready
+        sessionFrameStart:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        nFrames:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        qpcStart:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
+        qpcEnd:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
+          description: Must be greater than or equal to `qpcStart`.
+        eventCount:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+        health:
+          $ref: "#/components/schemas/ClipHealth"
+        audio:
+          $ref: "#/components/schemas/SegmentAudioMetadata"
+        depth:
+          $ref: "#/components/schemas/SegmentDepthMetadata"
+        artifacts:
+          $ref: "#/components/schemas/ArtifactSetDeclaration"
+
+    ClipStorageState:
+      type: string
+      enum: [pending, uploading, stored, retry_wait, failed]
+
+    ClipVerificationState:
+      type: string
+      enum: [unverified, queued, verifying, verified, rejected]
+      description: |
+        In the current M2a scaffold, `verified` means transport size/SHA-256 and
+        the supported manifest/meta subset passed. It does not assert full
+        MP4/JSONL package quality, which remains pending outside this API state.
+
+    ClipRetentionState:
+      type: string
+      enum: [retained, purge_requested, purging, purged, purge_failed]
+      description: Independent governance/deletion state. It never makes this RAW data trainable.
+
+    ClipResource:
+      type: object
+      additionalProperties: false
+      required:
+        - clipId
+        - sessionId
+        - runId
+        - segmentIndex
+        - revision
+        - storageState
+        - verificationState
+        - eligibilityState
+        - classification
+        - createdAt
+        - updatedAt
+      properties:
+        clipId:
+          type: string
+          format: uuid
+          readOnly: true
+        sessionId:
+          type: string
+          format: uuid
+        runId:
+          type: string
+          format: uuid
+        segmentIndex:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        revision:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          description: Immutable registration revision used to reject stale upload intents.
+        storageState:
+          $ref: "#/components/schemas/ClipStorageState"
+        verificationState:
+          $ref: "#/components/schemas/ClipVerificationState"
+        eligibilityState:
+          $ref: "#/components/schemas/EligibilityState"
+        classification:
+          $ref: "#/components/schemas/StagingClassification"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UploadIntentCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [clipRevision, transferMode]
+      properties:
+        clipRevision:
+          type: integer
+          minimum: 1
+        transferMode:
+          type: string
+          const: server_owned_r2_multipart
+
+    ArtifactType:
+      type: string
+      enum: [video, frames, events, meta, manifest, audio, depth]
+
+    UploadIntentState:
+      type: string
+      enum: [pending, uploading, completing, completed, aborted, expired, failed]
+
+    ArtifactUploadPlan:
+      type: object
+      additionalProperties: false
+      required: [partSizeBytes, partCount, providerAttemptNumber]
+      properties:
+        partSizeBytes:
+          type: integer
+          minimum: 5242880
+          description: Target size for every non-final part; chosen by the server.
+        partCount:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        providerAttemptNumber:
+          type: integer
+          minimum: 1
+          readOnly: true
+          description: Opaque generation for this artifact's provider upload; clients must re-upload saved parts when it changes.
+
+    ArtifactUploadPlanSet:
+      type: object
+      additionalProperties: false
+      required: [video, frames, events, meta, manifest]
+      properties:
+        video:
+          $ref: "#/components/schemas/ArtifactUploadPlan"
+        frames:
+          $ref: "#/components/schemas/ArtifactUploadPlan"
+        events:
+          $ref: "#/components/schemas/ArtifactUploadPlan"
+        meta:
+          $ref: "#/components/schemas/ArtifactUploadPlan"
+        manifest:
+          $ref: "#/components/schemas/ArtifactUploadPlan"
+        audio:
+          $ref: "#/components/schemas/ArtifactUploadPlan"
+        depth:
+          $ref: "#/components/schemas/ArtifactUploadPlan"
+
+    UploadIntentResource:
+      type: object
+      additionalProperties: false
+      required:
+        - uploadIntentId
+        - transferMode
+        - artifacts
+      properties:
+        uploadIntentId:
+          type: string
+          format: uuid
+          readOnly: true
+        transferMode:
+          type: string
+          const: server_owned_r2_multipart
+        artifacts:
+          $ref: "#/components/schemas/ArtifactUploadPlanSet"
+
+    ContentMd5:
+      type: string
+      pattern: "^(?:[A-Za-z0-9+/]{4}){5}[A-Za-z0-9+/]{2}==$"
+      description: Base64-encoded 16-byte MD5 digest used for the Content-MD5 header.
+      example: XUFAKrxLKna5cZ2REBfFkg==
+
+    PartSignItem:
+      type: object
+      additionalProperties: false
+      required: [artifactType, partNumber, byteSize, contentMd5]
+      properties:
+        artifactType:
+          $ref: "#/components/schemas/ArtifactType"
+        partNumber:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        byteSize:
+          type: integer
+          minimum: 1
+          maximum: 5368709120
+          description: |
+            Exact part size. Every non-final part must match the intent's
+            `partSizeBytes`; the final part must match the server-calculated
+            remainder.
+        contentMd5:
+          $ref: "#/components/schemas/ContentMd5"
+
+    PartSignRequest:
+      type: object
+      additionalProperties: false
+      required: [parts]
+      properties:
+        parts:
+          type: array
+          minItems: 1
+          maxItems: 100
+          uniqueItems: true
+          description: Duplicate `(artifactType, partNumber)` identities are rejected.
+          items:
+            $ref: "#/components/schemas/PartSignItem"
+
+    SignedPart:
+      type: object
+      additionalProperties: false
+      required: [artifactType, partNumber, url, headers, expiresInSeconds]
+      properties:
+        artifactType:
+          $ref: "#/components/schemas/ArtifactType"
+        partNumber:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        url:
+          type: string
+          format: uri
+          x-sensitive: true
+          description: Short-lived bearer capability. Do not persist or log.
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Headers that must be sent byte-for-byte with the signed request.
+        expiresInSeconds:
+          type: integer
+          minimum: 1
+          maximum: 900
+
+    SignedPartBatch:
+      type: object
+      additionalProperties: false
+      required: [uploadIntentId, parts]
+      properties:
+        uploadIntentId:
+          type: string
+          format: uuid
+        parts:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/SignedPart"
+
+    CompletedPart:
+      type: object
+      additionalProperties: false
+      required: [partNumber, etag]
+      properties:
+        partNumber:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        etag:
+          type: string
+          minLength: 1
+          maxLength: 256
+          description: Opaque ETag returned by UploadPart; never a whole-object SHA-256.
+
+    ArtifactCompletion:
+      type: object
+      additionalProperties: false
+      required: [parts]
+      properties:
+        parts:
+          type: array
+          minItems: 1
+          maxItems: 10000
+          description: Must be sorted and contiguous by `partNumber`, starting at 1.
+          items:
+            $ref: "#/components/schemas/CompletedPart"
+
+    UploadCompletionSet:
+      type: object
+      additionalProperties: false
+      required: [video, frames, events, meta, manifest]
+      properties:
+        video:
+          $ref: "#/components/schemas/ArtifactCompletion"
+        frames:
+          $ref: "#/components/schemas/ArtifactCompletion"
+        events:
+          $ref: "#/components/schemas/ArtifactCompletion"
+        meta:
+          $ref: "#/components/schemas/ArtifactCompletion"
+        manifest:
+          $ref: "#/components/schemas/ArtifactCompletion"
+        audio:
+          $ref: "#/components/schemas/ArtifactCompletion"
+        depth:
+          $ref: "#/components/schemas/ArtifactCompletion"
+
+    UploadCompleteRequest:
+      type: object
+      additionalProperties: false
+      required: [artifacts]
+      properties:
+        artifacts:
+          $ref: "#/components/schemas/UploadCompletionSet"
+
+    UploadCompleteAccepted:
+      type: object
+      additionalProperties: false
+      required: [uploadIntentId, state]
+      properties:
+        uploadIntentId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          const: stored
+          description: All declared objects are stored; use clip status to follow verification.
+
+    ArtifactCloudState:
+      type: object
+      additionalProperties: false
+      required: [artifactType, state, byteSize, expectedSha256]
+      properties:
+        artifactType:
+          $ref: "#/components/schemas/ArtifactType"
+        state:
+          type: string
+          enum: [pending, uploading, stored, verified, rejected, purging, purged]
+          description: Artifact-level transport state; `verified` does not assert full package quality.
+        byteSize:
+          type: integer
+          minimum: 1
+        expectedSha256:
+          $ref: "#/components/schemas/Sha256Digest"
+        verifiedAt:
+          type: string
+          format: date-time
+          description: Time at which the current transport-integrity checks completed.
+        rejectionCode:
+          type: string
+          pattern: "^[a-z][a-z0-9_]{2,63}$"
+
+    ClipStatusResource:
+      type: object
+      additionalProperties: false
+      required:
+        - clipId
+        - storageState
+        - verificationState
+        - retentionState
+        - retentionDeadline
+        - eligibilityState
+        - eligibilityReason
+        - artifacts
+        - updatedAt
+      properties:
+        clipId:
+          type: string
+          format: uuid
+        storageState:
+          $ref: "#/components/schemas/ClipStorageState"
+        verificationState:
+          $ref: "#/components/schemas/ClipVerificationState"
+        retentionState:
+          $ref: "#/components/schemas/ClipRetentionState"
+        retentionDeadline:
+          type: string
+          format: date-time
+        eligibilityState:
+          $ref: "#/components/schemas/EligibilityState"
+        eligibilityReason:
+          type: string
+          const: non_trainable_source
+        artifacts:
+          type: array
+          minItems: 5
+          maxItems: 7
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/ArtifactCloudState"
+        verifiedAt:
+          type: string
+          format: date-time
+        rejectionCode:
+          type: string
+          pattern: "^[a-z][a-z0-9_]{2,63}$"
+        updatedAt:
+          type: string
+          format: date-time
+
+    GameAdmission:
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required: [gameId, admission, reason]
+          properties:
+            gameId:
+              type: string
+              minLength: 1
+              maxLength: 128
+            admission:
+              type: string
+              const: admitted
+            reason:
+              type: "null"
+        - type: object
+          additionalProperties: false
+          required: [gameId, admission, reason]
+          properties:
+            gameId:
+              type: string
+              minLength: 1
+              maxLength: 128
+            admission:
+              type: string
+              const: onboarding
+            reason:
+              type: string
+              const: capture_not_allowed
+
+    GameAdmissionResponse:
+      type: object
+      additionalProperties: false
+      required: [schemaVersion, games]
+      properties:
+        schemaVersion:
+          type: string
+          const: dm-game-admission-1
+        games:
+          type: array
+          maxItems: 10000
+          items:
+            $ref: "#/components/schemas/GameAdmission"
+
+    ClipPurgeRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          const: device_principal_delete
+          description: Fixed device-principal reason; arbitrary audit text is not accepted.
+
+    SessionArtifactKind:
+      type: string
+      enum:
+        - session
+        - catalog
+        - device_profile
+        - capture_profile
+        - game_profile
+        - settings_profile
+        - mapping
+        - markers
+
+    SessionArtifactDeclaration:
+      type: object
+      additionalProperties: false
+      required: [byteSize, sha256]
+      properties:
+        byteSize:
+          type: integer
+          minimum: 1
+          maximum: 16777216
+        sha256:
+          $ref: "#/components/schemas/Sha256Digest"
+
+    SessionArtifactDeclarationSet:
+      type: object
+      additionalProperties: false
+      required:
+        - session
+        - catalog
+        - device_profile
+        - capture_profile
+        - game_profile
+        - settings_profile
+        - mapping
+      properties:
+        session:
+          $ref: "#/components/schemas/SessionArtifactDeclaration"
+        catalog:
+          $ref: "#/components/schemas/SessionArtifactDeclaration"
+        device_profile:
+          $ref: "#/components/schemas/SessionArtifactDeclaration"
+        capture_profile:
+          $ref: "#/components/schemas/SessionArtifactDeclaration"
+        game_profile:
+          $ref: "#/components/schemas/SessionArtifactDeclaration"
+        settings_profile:
+          $ref: "#/components/schemas/SessionArtifactDeclaration"
+        mapping:
+          $ref: "#/components/schemas/SessionArtifactDeclaration"
+        markers:
+          $ref: "#/components/schemas/SessionArtifactDeclaration"
+
+    SessionArtifactDeclarationRequest:
+      type: object
+      additionalProperties: false
+      required: [artifacts]
+      properties:
+        artifacts:
+          $ref: "#/components/schemas/SessionArtifactDeclarationSet"
+
+    SessionArtifactResource:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - objectKey
+        - ingestState
+        - verificationState
+        - expectedBytes
+        - expectedSha256
+        - revision
+      properties:
+        kind:
+          $ref: "#/components/schemas/SessionArtifactKind"
+        objectKey:
+          type: string
+          minLength: 1
+        ingestState:
+          type: string
+          enum: [pending, uploading, stored, retry_wait, failed]
+        verificationState:
+          type: string
+          enum: [unverified, queued, verifying, verified, rejected]
+        expectedBytes:
+          type: integer
+          minimum: 1
+        expectedSha256:
+          $ref: "#/components/schemas/Sha256Digest"
+        revision:
+          type: integer
+          minimum: 1
+
+    SessionArtifactsResource:
+      type: object
+      additionalProperties: false
+      required: [sessionId, artifacts]
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        artifacts:
+          type: array
+          minItems: 7
+          maxItems: 8
+          items:
+            $ref: "#/components/schemas/SessionArtifactResource"
+
+    SessionArtifactSignRequest:
+      type: object
+      additionalProperties: false
+      required: [contentMd5]
+      properties:
+        contentMd5:
+          type: string
+          pattern: "^[A-Za-z0-9+/]{22}==$"
+
+    SessionArtifactSignResponse:
+      type: object
+      additionalProperties: false
+      required: [kind, objectKey, url, headers, expiresInSeconds]
+      properties:
+        kind:
+          $ref: "#/components/schemas/SessionArtifactKind"
+        objectKey:
+          type: string
+          minLength: 1
+        url:
+          type: string
+          format: uri
+        headers:
+          type: object
+          minProperties: 4
+          maxProperties: 4
+          additionalProperties:
+            type: string
+        expiresInSeconds:
+          type: integer
+          minimum: 60
+          maximum: 900
+
+    SessionSealRequest:
+      type: object
+      additionalProperties: false
+      required: [endedAt, localFinalState]
+      properties:
+        endedAt:
+          type: string
+          format: date-time
+          description: Must be greater than or equal to the registered session `startedAt`.
+        localFinalState:
+          type: string
+          enum: [completed, faulted, corrupt]
+        stopReason:
+          type: string
+          minLength: 1
+          maxLength: 160

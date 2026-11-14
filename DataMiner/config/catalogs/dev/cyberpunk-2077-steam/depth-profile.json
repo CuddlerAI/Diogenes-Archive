@@ -1,0 +1,74 @@
+{
+  "schema_version": "dm-depth-profile-3",
+  "game_id": "cyberpunk-2077-steam",
+  "renderer_backend": "d3d12",
+  "lane": "lane30",
+  "cadence": "target_hz",
+  "executable_sha256": "sha256:a7de82945c03e041fc7339fcf9066224d98db2f5d80fea50f7947bb350a60991",
+  "dsv": {
+    "dsv_id": "cp2077-holstered-d32s8-local-candidate",
+    "expected_width": 1920,
+    "expected_height": 1080,
+    "sample_count": 1,
+    "formats": [
+      "r32_g8_x24_typeless",
+      "d32_float_s8_x24_uint"
+    ],
+    "evidence_path": "config/cp2077-local-depth/local-depth-evidence.json"
+  },
+  "d3d12_selection": {
+    "resource": {
+      "dimension": 3,
+      "width": 1920,
+      "height": 1080,
+      "depth_or_array_size": 1,
+      "mip_levels": 1,
+      "format": "r32_g8_x24_typeless",
+      "sample_count": 1,
+      "sample_quality": 0,
+      "layout": 0,
+      "flags": 2
+    },
+    "view": {
+      "format": "d32_float_s8_x24_uint",
+      "dimension": 3,
+      "flags": 0
+    },
+    "transition": {
+      "subresource": 0,
+      "state_before": 16,
+      "state_after": 64,
+      "barrier_flags": 0
+    }
+  },
+  "readback_path": "d3d12_copy_texture_region",
+  "readback_slots": 6,
+  "watermark": {
+    "origin_x": 0,
+    "origin_y": 0
+  },
+  "delivery_width": 1280,
+  "delivery_height": 720,
+  "burst": {
+    "interval_seconds": 300,
+    "duration_seconds": 3
+  },
+  "projection_a": -1.1920929e-06,
+  "projection_b": 0.020000024,
+  "metric_scale": {
+    "value": 1.0,
+    "source": {
+      "path": "engine_convention",
+      "engine": "redengine4"
+    },
+    "cross_check": {
+      "convention": 1.0,
+      "measured": 0.9883258119540319,
+      "ratio": 0.9883258119540319,
+      "tolerance": 0.05
+    },
+    "evidence_path": "config/cp2077-local-depth/local-depth-evidence.json",
+    "evidence_sha256": "sha256:6f608c08ff1d431f7bd81c7117d4ece4182820bce91783d50314cc976420264a"
+  },
+  "projection_source": "constant_buffer"
+}

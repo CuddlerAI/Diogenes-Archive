@@ -1,0 +1,17 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-a-plague-tale-innocence-steam-release-test",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    { "id": "a-plague-tale-innocence-steam-release-test-windows-nvidia-v1", "version": "3", "content_hash": "sha256:c677290d45ff7424ddbf65cbccc39da52a3556949ca7364148e0e31a8ad45475" }
+  ],
+  "recording_profiles": [
+    { "id": "a-plague-tale-innocence-steam-release-test-recording-v1", "version": "2", "content_hash": "sha256:d54bbb977e37104f4360732265fe1f0efb1e416cd00805bb840d3852de6b448f" }
+  ],
+  "game_profiles": [
+    { "id": "a-plague-tale-innocence-steam-release-test", "version": "4", "content_hash": "sha256:dc4a45dc878b3cd548016e911b7ff069e2613366f7634e25fb90856ee1a90d5b" }
+  ],
+  "mappings": [
+    { "id": "game.a-plague-tale-innocence.steam.pc", "version": "2026-08-25.0", "content_hash": "sha256:247ce43ba978865a50ee6e2c7785212701f50c9ba1b8103a795565b8cf9caca6" }
+  ]
+}

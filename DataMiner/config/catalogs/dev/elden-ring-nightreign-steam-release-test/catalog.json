@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-elden-ring-nightreign-steam-release-test",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "elden-ring-nightreign-steam-release-test-windows-nvidia-v1",
+      "version": "4",
+      "content_hash": "sha256:d4a92660707035b06dca5049efe7af6e3ef74bf2236dc32bfd8dedf9972ab1be"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "elden-ring-nightreign-steam-release-test-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:b903dcb3f0517c9f3b2874e2f970e79b2a7d8a638ccc690f30954996b502321a"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "elden-ring-nightreign-steam-release-test",
+      "version": "4",
+      "content_hash": "sha256:b5834af6e48b5a0dd26df18c19f2b9a79fb21c47690d7b0ba0e9c015b5830a06"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.elden-ring-nightreign.steam.pc",
+      "version": "2026-08-25.0",
+      "content_hash": "sha256:aedc963f1fbb43bce9a1e35f887540379c03b9fefee5cd3f0092f45455b12e41"
+    }
+  ]
+}

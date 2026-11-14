@@ -1,0 +1,22 @@
+{
+  "schema_version": "dm-device-profile-3",
+  "profile_id": "nioh2-steam-windows-nvidia-local-v1",
+  "version": "2",
+  "platform": "windows",
+  "minimum_windows_build": 26200,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [
+    7171,
+    7174,
+    10248,
+    10370,
+    11524,
+    12056,
+    12120
+  ],
+  "minimum_driver_version": "32.0.15.8266",
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "steam_app_1325200_build_10049618_nioh2_1_28_08_window_class_nioh_signed_executable_verified_2026_08_04"
+}

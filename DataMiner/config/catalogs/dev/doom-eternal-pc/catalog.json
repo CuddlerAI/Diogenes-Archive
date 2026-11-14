@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-doom-eternal-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "doom-eternal-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:6f4e7da40128480ccd048dac668635a43f32b94c11241bdf6f40a45a23cf4342"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "doom-eternal-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:db5d299a2e79262f486bd4c986456347ee333a115a5a40888e1c8e1dc89aef51"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "doom-eternal-pc",
+      "version": "2",
+      "content_hash": "sha256:6acfbbd7159cbf9cb2e647276718267a898bd8c6e7121647963dc7d90bb10a72"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.doom-eternal.pc",
+      "version": "2026-08-19.0",
+      "content_hash": "sha256:a027875ef1f48121b8e68a46b57c895e4f570b18055f40a7694d045251285c4b"
+    }
+  ]
+}

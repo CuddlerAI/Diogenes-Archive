@@ -1,0 +1,53 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "resident-evil-village-pc",
+  "version": "2",
+  "display_name": "Resident Evil Village (PC, main campaign)",
+  "device_profile_id": "resident-evil-village-windows-nvidia-v1",
+  "recording_profile_id": "resident-evil-village-pc-recording-v1",
+  "mapping_id": "game.resident-evil-village.pc",
+  "executable_names": [
+    "re8.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      17,
+      18,
+      32,
+      49,
+      50,
+      51,
+      52,
+      65,
+      67,
+      68,
+      70,
+      73,
+      77,
+      80,
+      81,
+      82,
+      83,
+      86,
+      87,
+      88,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2,
+      4
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": false
+  }
+}

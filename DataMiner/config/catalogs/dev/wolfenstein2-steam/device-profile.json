@@ -1,0 +1,22 @@
+{
+  "schema_version": "dm-device-profile-3",
+  "profile_id": "wolfenstein2-steam-windows-nvidia-v1",
+  "version": "5",
+  "platform": "windows",
+  "minimum_windows_build": 19045,
+  "adapter_vendor_id": 4318,
+  "adapter_device_ids": [
+    7171,
+    7174,
+    10248,
+    10370,
+    11524,
+    12056,
+    12120
+  ],
+  "minimum_driver_version": "32.0.15.8266",
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "input_backend": "raw_input_v1",
+  "pointer_mode": "relative",
+  "evidence_class": "wolfenstein2_steam_build_3329064_local_evidence_plus_config_only_gpu_fleet_2026_08"
+}

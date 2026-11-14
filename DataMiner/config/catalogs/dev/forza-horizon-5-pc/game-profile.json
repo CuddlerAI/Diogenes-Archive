@@ -1,0 +1,42 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "forza-horizon-5-pc",
+  "version": "2",
+  "display_name": "极限竞速：地平线 5（Default WASD 驾驶，PC 本地）",
+  "device_profile_id": "forza-horizon-5-pc-windows-nvidia-v1",
+  "recording_profile_id": "forza-horizon-5-pc-recording-v1",
+  "mapping_id": "game.forza-horizon-5.pc",
+  "executable_names": [
+    "ForzaHorizon5.exe"
+  ],
+  "window_class": null,
+  "executable_sha256": null,
+  "input_contract": {
+    "keyboard_vks": [
+      13,
+      16,
+      32,
+      37,
+      38,
+      39,
+      40,
+      65,
+      68,
+      69,
+      72,
+      81,
+      82,
+      83,
+      87,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [],
+    "capture_mouse_move": false,
+    "capture_wheel": false
+  }
+}

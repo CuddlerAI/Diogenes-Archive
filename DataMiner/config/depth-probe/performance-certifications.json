@@ -1,0 +1,271 @@
+{
+  "schema": "dm-depth-performance-certifications-v1",
+  "approvedRuntimes": [
+    {
+      "runtimeVersion": "depth-2026.09.1",
+      "dllSha256": "sha256:7f3be595824b9170df4ecf35c0787bb6458d9a1bdd0fafddf4f8eac7a859e9aa",
+      "d3d11Generation": 1,
+      "d3d12Generation": 1
+    },
+    {
+      "runtimeVersion": "depth-2026.09.2",
+      "dllSha256": "sha256:899c2eadb07a7cc77cc2a4109cb284a9ffac16cc47b11c7c8ed6ab878bcc9bc9",
+      "d3d11Generation": 1,
+      "d3d12Generation": 2
+    },
+    {
+      "runtimeVersion": "depth-2026.09.3",
+      "dllSha256": "sha256:767bb67523ba4d58d8d44983e90bc5e57fe351b5ef2b08a3e73a6f2b100e8a9a",
+      "d3d11Generation": 1,
+      "d3d12Generation": 3
+    },
+    {
+      "runtimeVersion": "depth-2026.09.9",
+      "dllSha256": "sha256:8a39386be8665c01c510b32838fac82ce9f2aa117ca4b9e74b21d09390f99094",
+      "d3d11Generation": 2,
+      "d3d12Generation": 4
+    },
+    {
+      "runtimeVersion": "depth-2026.09.10",
+      "dllSha256": "sha256:a58f4479d650e696b8c1b72cdb234723a1de25598380353f75261d44f7ff5921",
+      "d3d11Generation": 3,
+      "d3d12Generation": 5
+    },
+    {
+      "runtimeVersion": "depth-2026.09.11",
+      "dllSha256": "sha256:cf3cf2a6ecb7aa531fd0fa0c2b02d1e2af14e52e569f61d85ce4153451056b66",
+      "d3d11Generation": 3,
+      "d3d12Generation": 6
+    },
+    {
+      "runtimeVersion": "depth-2026.09.15",
+      "dllSha256": "sha256:63236d44565ed48794aa98e25dd0bdb33ee636d99e92a8d89f5d41e23d389b23",
+      "d3d11Generation": 3,
+      "d3d12Generation": 6
+    },
+    {
+      "runtimeVersion": "depth-2026.09.15.1",
+      "dllSha256": "sha256:331bc524d2b9170723eab1208a9b27ea1163df97efaad274e6913657b0e5fa70",
+      "d3d11Generation": 3,
+      "d3d12Generation": 7
+    },
+    {
+      "runtimeVersion": "depth-2026.09.15.2",
+      "dllSha256": "sha256:7fff8681bcb639ab3aa414c562bd8a1e7de7d203fa14f4acc68eebc52e3db1bb",
+      "d3d11Generation": 3,
+      "d3d12Generation": 7
+    },
+    {
+      "runtimeVersion": "depth-2026.09.16",
+      "dllSha256": "sha256:4b04f49561ec4952e9c4ef27821a1fcd1cc34414176d924ebe3d60ed92b76378",
+      "d3d11Generation": 3,
+      "d3d12Generation": 7
+    }
+  ],
+  "certifications": [
+    {
+      "certificationId": "977446e7355c4546bb5a2c700bbb4d74",
+      "key": {
+        "gameId": "fallout4-steam-release-test",
+        "rendererBackend": "d3d11",
+        "backendGeneration": 1,
+        "depthProfileSha256": "sha256:12e564f0a2c9c7c49fc826df798799960c7eff60bdfffcfe066762cb9c1eaa83",
+        "cameraBindingSha256": "sha256:3026c8a8140b5f25bd899013daba52ea520bfaabe02913df78b6326cedeab247",
+        "selectedPresentMode": "wgc_selected_present_gpu_ring_v1",
+        "unbindFromEnd": 4,
+        "feedbackSchema": 3,
+        "queueCapacity": 256,
+        "ringCapacity": 96,
+        "maxFeedbackLagPresents": 88,
+        "guardSlots": 8,
+        "width": 1280,
+        "height": 720,
+        "bytesPerPixel": 4,
+        "vramLimitBytes": 536870912,
+        "vramReserveBytes": 268435456
+      },
+      "measuredRuntime": {
+        "runtimeVersion": "depth-2026.09.1",
+        "dllSha256": "sha256:7f3be595824b9170df4ecf35c0787bb6458d9a1bdd0fafddf4f8eac7a859e9aa",
+        "d3d11Generation": 1,
+        "d3d12Generation": 1
+      },
+      "baselineHardware": {
+        "gpuModel": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+        "gpuDriverVersion": "32.0.15.9227",
+        "gpuAdapterLuidHigh": 0,
+        "gpuAdapterLuidLow": 91956
+      },
+      "coveredGpuModels": [
+        "NVIDIA GeForce RTX 4060",
+        "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "NVIDIA GeForce RTX 4070 SUPER",
+        "NVIDIA GeForce RTX 5060 Ti",
+        "NVIDIA GeForce RTX 5070 Ti Laptop GPU"
+      ],
+      "avgFpsDrop": 0,
+      "low1FpsDrop": -0.0525723807540096,
+      "measuredOn": "2026-09-04"
+    },
+    {
+      "certificationId": "31b6767f65294960864dfb4d1ad30115",
+      "key": {
+        "gameId": "kingdom-come-deliverance-2-steam",
+        "rendererBackend": "d3d12",
+        "backendGeneration": 4,
+        "depthProfileSha256": "sha256:4d506e31d4a7a19be3e7b6cde25c0320b2038a06f81a8b45d770865737345dbe",
+        "cameraBindingSha256": "sha256:703e80b788f3dba971937552972bcc9335ab4faff005f2d4f726552372d69303",
+        "selectedPresentMode": "wgc_selected_present_gpu_ring_v1",
+        "unbindFromEnd": 4,
+        "feedbackSchema": 3,
+        "queueCapacity": 256,
+        "ringCapacity": 96,
+        "maxFeedbackLagPresents": 88,
+        "guardSlots": 8,
+        "width": 1280,
+        "height": 720,
+        "bytesPerPixel": 4,
+        "vramLimitBytes": 536870912,
+        "vramReserveBytes": 268435456
+      },
+      "measuredRuntime": {
+        "runtimeVersion": "depth-2026.09.9",
+        "dllSha256": "sha256:8a39386be8665c01c510b32838fac82ce9f2aa117ca4b9e74b21d09390f99094",
+        "d3d11Generation": 2,
+        "d3d12Generation": 4
+      },
+      "baselineHardware": {
+        "gpuModel": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "gpuDriverVersion": "32.0.16.1088",
+        "gpuAdapterLuidHigh": 0,
+        "gpuAdapterLuidLow": 92366
+      },
+      "coveredGpuModels": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ],
+      "avgFpsDrop": 0,
+      "low1FpsDrop": 0.003341402707218077,
+      "measuredOn": "2026-09-10"
+    },
+    {
+      "certificationId": "eb7362fe85fe48d5a04c2d3a09029c5c",
+      "key": {
+        "gameId": "kingdom-come-deliverance-2-steam",
+        "rendererBackend": "d3d12",
+        "backendGeneration": 5,
+        "depthProfileSha256": "sha256:4d506e31d4a7a19be3e7b6cde25c0320b2038a06f81a8b45d770865737345dbe",
+        "cameraBindingSha256": "sha256:703e80b788f3dba971937552972bcc9335ab4faff005f2d4f726552372d69303",
+        "selectedPresentMode": "wgc_selected_present_gpu_ring_v1",
+        "unbindFromEnd": 4,
+        "feedbackSchema": 3,
+        "queueCapacity": 256,
+        "ringCapacity": 96,
+        "maxFeedbackLagPresents": 88,
+        "guardSlots": 8,
+        "width": 1280,
+        "height": 720,
+        "bytesPerPixel": 4,
+        "vramLimitBytes": 536870912,
+        "vramReserveBytes": 268435456
+      },
+      "measuredRuntime": {
+        "runtimeVersion": "depth-2026.09.10",
+        "dllSha256": "sha256:a58f4479d650e696b8c1b72cdb234723a1de25598380353f75261d44f7ff5921",
+        "d3d11Generation": 3,
+        "d3d12Generation": 5
+      },
+      "baselineHardware": {
+        "gpuModel": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "gpuDriverVersion": "32.0.16.1088",
+        "gpuAdapterLuidHigh": 0,
+        "gpuAdapterLuidLow": 92366
+      },
+      "coveredGpuModels": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ],
+      "avgFpsDrop": 0,
+      "low1FpsDrop": -0.0004428094556849283,
+      "measuredOn": "2026-09-11"
+    },
+    {
+      "certificationId": "5beb011fc6e24311bde6c8bdb9d50f80",
+      "key": {
+        "gameId": "kingdom-come-deliverance-2-steam",
+        "rendererBackend": "d3d12",
+        "backendGeneration": 6,
+        "depthProfileSha256": "sha256:4d506e31d4a7a19be3e7b6cde25c0320b2038a06f81a8b45d770865737345dbe",
+        "cameraBindingSha256": "sha256:3f45fef3a5a23a93d05a4b6e1a084c3b571a4751c6b60cef64128ce9f9ca00d4",
+        "selectedPresentMode": "wgc_selected_present_gpu_ring_v1",
+        "unbindFromEnd": 4,
+        "feedbackSchema": 3,
+        "queueCapacity": 256,
+        "ringCapacity": 96,
+        "maxFeedbackLagPresents": 88,
+        "guardSlots": 8,
+        "width": 1280,
+        "height": 720,
+        "bytesPerPixel": 4,
+        "vramLimitBytes": 536870912,
+        "vramReserveBytes": 268435456
+      },
+      "measuredRuntime": {
+        "runtimeVersion": "depth-2026.09.11",
+        "dllSha256": "sha256:cf3cf2a6ecb7aa531fd0fa0c2b02d1e2af14e52e569f61d85ce4153451056b66",
+        "d3d11Generation": 3,
+        "d3d12Generation": 6
+      },
+      "baselineHardware": {
+        "gpuModel": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "gpuDriverVersion": "32.0.16.1088",
+        "gpuAdapterLuidHigh": 0,
+        "gpuAdapterLuidLow": 92366
+      },
+      "coveredGpuModels": [
+        "NVIDIA GeForce RTX 4060 Laptop GPU"
+      ],
+      "avgFpsDrop": 1.6665555629585853E-05,
+      "low1FpsDrop": -0.029012543083537568,
+      "measuredOn": "2026-09-14"
+    },
+    {
+      "certificationId": "d703bc4675ce45c7a7bc52929285b49f",
+      "key": {
+        "gameId": "kingdom-come-deliverance-2-steam",
+        "rendererBackend": "d3d12",
+        "backendGeneration": 7,
+        "depthProfileSha256": "sha256:4d506e31d4a7a19be3e7b6cde25c0320b2038a06f81a8b45d770865737345dbe",
+        "cameraBindingSha256": "sha256:3f45fef3a5a23a93d05a4b6e1a084c3b571a4751c6b60cef64128ce9f9ca00d4",
+        "selectedPresentMode": "wgc_selected_present_gpu_ring_v1",
+        "unbindFromEnd": 4,
+        "feedbackSchema": 3,
+        "queueCapacity": 256,
+        "ringCapacity": 96,
+        "maxFeedbackLagPresents": 88,
+        "guardSlots": 8,
+        "width": 1280,
+        "height": 720,
+        "bytesPerPixel": 4,
+        "vramLimitBytes": 536870912,
+        "vramReserveBytes": 268435456
+      },
+      "measuredRuntime": {
+        "runtimeVersion": "depth-2026.09.16",
+        "dllSha256": "sha256:4b04f49561ec4952e9c4ef27821a1fcd1cc34414176d924ebe3d60ed92b76378",
+        "d3d11Generation": 3,
+        "d3d12Generation": 7
+      },
+      "baselineHardware": {
+        "gpuModel": "NVIDIA GeForce RTX 5060 Ti",
+        "gpuDriverVersion": "32.0.16.1074",
+        "gpuAdapterLuidHigh": 0,
+        "gpuAdapterLuidLow": 89516
+      },
+      "coveredGpuModels": [
+        "NVIDIA GeForce RTX 5060 Ti"
+      ],
+      "avgFpsDrop": 0,
+      "low1FpsDrop": 0.022561450733158617,
+      "measuredOn": "2026-09-17"
+    }
+  ]
+}

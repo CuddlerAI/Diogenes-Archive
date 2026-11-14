@@ -1,0 +1,40 @@
+{
+  "schema_version": "dm-normalization-spec-1",
+  "spec_id": "fps60-to-training30-v1",
+  "source": { "fps_num": 60, "fps_den": 1 },
+  "target": {
+    "geometry_policy": "preserve_source_v1",
+    "fps_num": 30,
+    "fps_den": 1,
+    "chunk_seconds": 4
+  },
+  "phase_policy": "per_run_qpc_anchor_half_open_round_v1",
+  "video_sample_policy": "last_source_cfr_slot_before_window_end_v1",
+  "input_policy": "capture_core_frame_projector_v1",
+  "pointer_policy": "sum_raw_i64_then_clamp_and_bin_once_v1",
+  "trim_policy": "trim_incomplete_tail_window_v1",
+  "duplicate_policy": {
+    "version": "preserve_and_mark_v1",
+    "disposition": "preserve_and_mark",
+    "owner_status": "pending",
+    "trainable": false
+  },
+  "framepair_policy": {
+    "version": "deferred_owner_decision_v1",
+    "emit": false,
+    "owner_status": "pending"
+  },
+  "encoder": {
+    "implementation": "pinned_offline_ffmpeg",
+    "version": "ffmpeg_cli_sha256_pinned_v1",
+    "codec": "h264",
+    "settings_id": "libx264_cfr_closed_gop_no_bframes_v1",
+    "binary_policy": "sha256_exact_v1",
+    "gop_seconds": 4
+  },
+  "trainability": {
+    "version": "pending_owner_decisions_v1",
+    "is_trainable": false,
+    "production_certified": false
+  }
+}

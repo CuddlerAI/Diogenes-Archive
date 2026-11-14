@@ -1,0 +1,15 @@
+{
+  "profile_id": "synthetic-win32-h1-1920x1080-60-v1",
+  "non_trainable": true,
+  "capture_backend": "native_wgc_window_v1",
+  "encoder_backend": "mf_nvidia_hardware_v1",
+  "width": 1920,
+  "height": 1080,
+  "fps_num": 60,
+  "fps_den": 1,
+  "bitrate_bps": 24000000,
+  "max_bitrate_bps": 36000000,
+  "gop_frames": 240,
+  "segment_seconds": 10,
+  "test_segments": 60
+}

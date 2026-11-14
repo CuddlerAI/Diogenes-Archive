@@ -1,0 +1,14 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Control-plane window. Grants core:default, which is wider than what the frontend uses: it only needs core:event (listen) — app commands are not ACL-gated, and getCurrentWebviewWindow().label is a local property read with no IPC. Narrowing this needs one manual run on Windows to confirm nothing in Tauri's own window plumbing regresses, so it is left as-is rather than tightened blind. See issue #21.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-close",
+    "core:window:allow-is-maximized",
+    "core:window:allow-minimize",
+    "core:window:allow-start-dragging",
+    "core:window:allow-toggle-maximize"
+  ]
+}

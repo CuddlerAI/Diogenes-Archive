@@ -1,0 +1,33 @@
+{
+  "schema_version": "dm-catalog-bundle-3",
+  "catalog_id": "dataminer-red-dead-redemption-2-pc-dev",
+  "catalog_version": "2026-08-25.0",
+  "device_profiles": [
+    {
+      "id": "red-dead-redemption-2-pc-windows-nvidia-v1",
+      "version": "2",
+      "content_hash": "sha256:d0d5d6373ea73981a90c35b00c865ae1c72cf60e242e08ce4092ce112f2430a4"
+    }
+  ],
+  "recording_profiles": [
+    {
+      "id": "red-dead-redemption-2-pc-recording-v1",
+      "version": "2",
+      "content_hash": "sha256:773ca5053aba0657691eecc54f64c245a2b166fb46bca82be02caa1ebd2dcd3e"
+    }
+  ],
+  "game_profiles": [
+    {
+      "id": "red-dead-redemption-2-pc",
+      "version": "2",
+      "content_hash": "sha256:694c4990816fd751cbfd47001c34ebe5d858434b32fbff4c439c88cd59f219d9"
+    }
+  ],
+  "mappings": [
+    {
+      "id": "game.red-dead-redemption-2.pc",
+      "version": "2026-08-20.0",
+      "content_hash": "sha256:f5afb159f04dc33c29555b572c9b06af798e3772b2999d9da851686cb3a9920a"
+    }
+  ]
+}

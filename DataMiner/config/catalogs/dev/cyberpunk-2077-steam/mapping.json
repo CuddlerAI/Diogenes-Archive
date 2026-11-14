@@ -1,0 +1,53 @@
+{
+  "schema_version": "dm-mapping-2",
+  "mapping_id": "game.cyberpunk-2077.steam.pc.on-foot",
+  "version": "2026-08-25.0",
+  "game": {
+    "id": "cyberpunk-2077-steam",
+    "name": "Cyberpunk 2077 Steam（本机 RGB 预检）",
+    "platform": "pc"
+  },
+  "taxonomy": {
+    "content": "action_role_playing",
+    "view": "first_person",
+    "material": "3d"
+  },
+  "recording_profile_id": "cyberpunk-2077-steam-recording-v1",
+  "bindings": [
+    { "device": "mouse", "control": "delta_x", "semantic": "camera.yaw" },
+    { "device": "mouse", "control": "delta_y", "semantic": "camera.pitch" },
+    { "device": "mouse", "control": "wheel", "semantic": "inventory.cycle" },
+    { "device": "keyboard", "scan_code": 17, "extended": false, "semantic": "move.forward" },
+    { "device": "keyboard", "scan_code": 31, "extended": false, "semantic": "move.backward" },
+    { "device": "keyboard", "scan_code": 30, "extended": false, "semantic": "move.left" },
+    { "device": "keyboard", "scan_code": 32, "extended": false, "semantic": "move.right" },
+    { "device": "keyboard", "scan_code": 57, "extended": false, "semantic": "move.jump" },
+    { "device": "keyboard", "scan_code": 42, "extended": false, "semantic": "move.sprint" },
+    { "device": "keyboard", "scan_code": 29, "extended": false, "semantic": "move.dodge" },
+    { "device": "keyboard", "scan_code": 46, "extended": false, "semantic": "move.crouch" },
+    { "device": "keyboard", "scan_code": 33, "extended": false, "semantic": "interact.use" },
+    { "device": "keyboard", "scan_code": 19, "extended": false, "semantic": "combat.reload" },
+    { "device": "keyboard", "scan_code": 16, "extended": false, "semantic": "combat.melee" },
+    { "device": "keyboard", "scan_code": 15, "extended": false, "semantic": "ui.scanner" },
+    { "device": "keyboard", "scan_code": 56, "extended": false, "semantic": "inventory.weapon_wheel" },
+    { "device": "keyboard", "scan_code": 18, "extended": false, "semantic": "cyberware.use" },
+    { "device": "keyboard", "scan_code": 45, "extended": false, "semantic": "item.use_consumable" },
+    { "device": "keyboard", "scan_code": 34, "extended": false, "semantic": "move.toggle_walk" },
+    { "device": "keyboard", "scan_code": 48, "extended": false, "semantic": "inventory.holster_weapon" },
+    { "device": "keyboard", "scan_code": 47, "extended": false, "semantic": "vehicle.call" },
+    { "device": "keyboard", "scan_code": 20, "extended": false, "semantic": "communication.phone" },
+    { "device": "keyboard", "scan_code": 35, "extended": false, "semantic": "ui.hub" },
+    { "device": "keyboard", "scan_code": 23, "extended": false, "semantic": "ui.inventory" },
+    { "device": "keyboard", "scan_code": 36, "extended": false, "semantic": "ui.journal" },
+    { "device": "keyboard", "scan_code": 50, "extended": false, "semantic": "ui.map" },
+    { "device": "keyboard", "scan_code": 25, "extended": false, "semantic": "ui.perks" },
+    { "device": "keyboard", "scan_code": 2, "extended": false, "semantic": "inventory.weapon_slot_1" },
+    { "device": "keyboard", "scan_code": 3, "extended": false, "semantic": "inventory.weapon_slot_2" },
+    { "device": "keyboard", "scan_code": 4, "extended": false, "semantic": "inventory.weapon_slot_3" },
+    { "device": "keyboard", "scan_code": 5, "extended": false, "semantic": "inventory.weapon_slot_4" },
+    { "device": "keyboard", "scan_code": 63, "extended": false, "semantic": "system.quicksave" },
+    { "device": "keyboard", "scan_code": 1, "extended": false, "semantic": "ui.pause" },
+    { "device": "mouse", "button": 1, "semantic": "combat.attack" },
+    { "device": "mouse", "button": 2, "semantic": "combat.aim_or_block" }
+  ]
+}

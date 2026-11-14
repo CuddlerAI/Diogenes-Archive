@@ -1,0 +1,24 @@
+# Retired routes converge on the project archive.
+/datasets /#demos 301
+/datasets.html /#demos 301
+/features /#demos 301
+/personas /#demos 301
+/research /#resources 301
+/research.html /#resources 301
+/about /#resources 301
+/about.html /#resources 301
+/models /#resources 301
+/models/ /#resources 301
+/models/index.html /#resources 301
+/privacy /#resources 301
+/pricing /#resources 301
+/download /#resources 301
+/faq /#resources 301
+/models/visual /#resources 301
+/models/visual.html /#resources 301
+/models/world /#resources 301
+/models/world.html /#resources 301
+/models/action /#resources 301
+/models/action.html /#resources 301
+/models/player /#resources 301
+/models/player.html /#resources 301

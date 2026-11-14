@@ -1,0 +1,1521 @@
+:root {
+  color-scheme: dark;
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-2: #1c2128;
+  --line: #2a3038;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --ok: #3fb950;
+  --warn: #d29922;
+  --bad: #f85149;
+  font-family: ui-sans-serif, system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* login */
+
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: min(400px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.login-card h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.login-sub {
+  margin: 4px 0 24px;
+  color: var(--muted);
+}
+
+.login-hint {
+  color: var(--muted);
+  margin-top: 0;
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-card label {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+input,
+select {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 8px 10px;
+  font: inherit;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.login-card button[type="submit"] {
+  margin-top: 20px;
+  background: var(--accent);
+  color: #07121f;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-weight: 600;
+}
+
+.login-card button[type="submit"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  padding: 6px 0;
+  text-align: left;
+}
+
+/* shell */
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.env {
+  font-size: 11px;
+  color: var(--warn);
+  border: 1px solid var(--warn);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-weight: 500;
+}
+
+.topbar nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav {
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+.nav-active {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.role {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 6px;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* panels */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.panel-note {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.panel > *:not(.panel-head) {
+  margin-top: 16px;
+}
+
+/* tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  display: block;
+  overflow-x: auto;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+tr.clickable:hover {
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+.details-cell code {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+/* filters and tabs */
+
+.filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 14px;
+  color: var(--muted);
+}
+
+.tab-active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+/* tiles */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tile-warn {
+  border-color: var(--warn);
+}
+
+.tile-bad {
+  border-color: var(--bad);
+}
+
+.tile-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tile-value {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* 第二读数（片段格子里的时长）：比 note 重、比 value 轻。 */
+.tile-sub {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tile-note {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* fields */
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.field-value {
+  overflow-wrap: anywhere;
+}
+
+/* badges */
+
+.badge {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.badge-ok {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 50%, transparent);
+}
+
+.badge-warn {
+  color: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 50%, transparent);
+}
+
+.badge-bad {
+  color: var(--bad);
+  border-color: color-mix(in srgb, var(--bad) 50%, transparent);
+}
+
+/* misc */
+
+.mono,
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+.json {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  overflow: auto;
+  max-height: 320px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.split h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.card strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.empty-title {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.empty-explanation {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 60ch;
+  margin-inline: auto;
+}
+
+.error-note {
+  color: var(--bad);
+  border: 1px solid color-mix(in srgb, var(--bad) 40%, transparent);
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.loading,
+.muted {
+  color: var(--muted);
+}
+
+.blockers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100px;
+  border-bottom: 1px solid var(--line);
+}
+
+.chart-column {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+}
+
+.chart-bar {
+  width: 100%;
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 2px 2px 0 0;
+  min-height: 1px;
+}
+
+.chart-bar-verified {
+  position: absolute;
+  bottom: 0;
+  background: var(--ok);
+}
+
+/* 游戏分布（docs/153）：占比列的读数 + 内联条，条只是读数的形状不是另一个数。 */
+
+.share-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.share-track {
+  flex: none;
+  width: 90px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.share-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+/* 产出报表（docs/145） */
+
+.segmented {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.segmented button {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--line);
+  color: var(--muted);
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
+.segmented button:last-child {
+  border-right: none;
+}
+
+.segmented button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--text);
+}
+
+.group-by {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.group-by-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+/* 一行不换行：换行的话，值多起来时删除按钮会被挤到自己一行去。
+   chips 自己在内部换行，占满中间的剩余宽度。 */
+.group-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 7px 9px;
+}
+
+.group-row > select {
+  flex: none;
+}
+
+.group-index {
+  flex: none;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  color: var(--muted);
+  width: 14px;
+}
+
+.chips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.chip {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chip[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--ok) 18%, transparent);
+  border-color: color-mix(in srgb, var(--ok) 50%, transparent);
+  color: var(--text);
+}
+
+.group-drop {
+  flex: none;
+  font-size: 16px;
+}
+
+.notice {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--warn);
+}
+
+/* 冻结列要一个自己的滚动容器：全局的 `table { display: block }` 会让 sticky 的
+   参照系变成表格本身，列宽也不再对齐。这里把表格还原成 table 布局，横向滚动
+   交给外面这层。 */
+.grid-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.grid-wrap table.output-grid {
+  display: table;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.output-grid th,
+.output-grid td {
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.output-grid thead th {
+  background: var(--surface);
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.output-grid thead th.dim,
+.output-grid thead th.total-col {
+  text-align: left;
+  cursor: default;
+}
+
+.output-grid thead th.rest {
+  background: var(--surface-2);
+}
+
+.output-grid .bucket-head {
+  display: block;
+}
+
+.output-grid .bucket-sub {
+  display: block;
+  font-size: 10px;
+  opacity: 0.66;
+}
+
+/* 冻结列的 left 是按固定列宽算的，所以列宽必须写死；超长的名字截断并留 title。 */
+.output-grid .dim {
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
+  text-align: left;
+}
+
+.output-grid td.dim > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.output-grid .dim-note {
+  display: block;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.output-grid .total-col {
+  width: 132px;
+  min-width: 132px;
+}
+
+.output-grid .total-col select {
+  font-size: 11px;
+  padding: 1px 4px;
+}
+
+.output-grid .sort {
+  background: none;
+  border: none;
+  color: var(--accent);
+  padding: 0 2px;
+}
+
+.output-grid .pin {
+  position: sticky;
+  background: var(--bg);
+  z-index: 2;
+}
+
+.output-grid thead .pin {
+  background: var(--surface);
+  z-index: 3;
+}
+
+.output-grid .pin-last {
+  box-shadow: 1px 0 0 var(--line);
+}
+
+.output-grid .numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.output-grid td.zero {
+  color: color-mix(in srgb, var(--muted) 55%, transparent);
+  text-align: center;
+}
+
+.output-grid tbody tr:hover td {
+  filter: brightness(1.25);
+}
+
+.output-grid tr.grand-total td {
+  border-top: 1px solid var(--line);
+  border-bottom: none;
+  background: var(--surface);
+}
+
+/* governance actions */
+
+.action-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.action-form {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface-2);
+  max-width: 480px;
+}
+
+.action-form h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.action-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.action-buttons button[type="submit"] {
+  background: var(--accent);
+  color: #07121f;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-weight: 600;
+}
+
+.action-buttons button[type="submit"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.danger {
+  background: none;
+  border: 1px solid color-mix(in srgb, var(--bad) 50%, transparent);
+  color: var(--bad);
+  border-radius: 6px;
+  padding: 6px 14px;
+}
+
+button[type="submit"].danger {
+  background: var(--bad);
+  color: #1a0505;
+  border: none;
+}
+
+.action-result {
+  border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
+  background: color-mix(in srgb, var(--ok) 8%, transparent);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.token-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.token-reveal p {
+  margin: 0;
+}
+
+.token {
+  background: var(--bg);
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  padding: 10px;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.register-device {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.inline-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* clip preview */
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.preview-player {
+  width: 100%;
+  max-width: 720px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #000;
+}
+
+/* data-review surface (docs/33) */
+
+.review-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.review-breadcrumbs {
+  font-size: 13px;
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+
+/* The union-style conflict resolution of #244 + the review face swallowed this
+ * rule's body and closing brace, which — via native CSS nesting — silently
+ * scoped every annotator-portal rule underneath `.review-list` (the exact
+ * hazard docs/… union-merge notes warn about). Restored verbatim from #237. */
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.review-list li {
+  padding: 2px 0;
+}
+
+.review-object {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+}
+
+.reviewer {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.reviewer-main {
+  flex: 1 1 640px;
+  max-width: 1100px;
+}
+
+.reviewer-stage {
+  position: relative;
+  background: #000;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.reviewer-video {
+  width: 100%;
+  display: block;
+  background: #000;
+}
+
+.reviewer-novideo {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.reviewer-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.reviewer-timeline {
+  width: 100%;
+  height: 56px;
+  display: block;
+  cursor: pointer;
+  border-radius: 4px;
+  background: #0c0c10;
+  margin-top: 10px;
+}
+
+.reviewer-legend {
+  display: flex;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.reviewer-legend i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: 4px;
+}
+
+.reviewer-controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.reviewer-side {
+  flex: 0 0 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 280px;
+}
+
+.reviewer-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.reviewer-card h3 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reviewer-json {
+  white-space: pre-wrap;
+  word-break: break-all;
+  font: 11px/1.5 ui-monospace, Menlo, monospace;
+  max-height: 220px;
+  overflow: auto;
+  margin: 0;
+}
+
+.reviewer-dup {
+  color: #ffb300;
+}
+
+.review-verdicts {
+  margin-top: 12px;
+  max-width: 720px;
+}
+
+.review-verdict-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.review-verdict-form input {
+  flex: 1 1 240px;
+}
+
+/* ===========================================================================
+ * Annotator portal (docs/34 §4.1): /join, /claim-account, /account.
+ *
+ * Its own layout system, deliberately NOT the operator sign-in card: these
+ * pages are the one part of the console an end user sees, they stack several
+ * panels per page, and the registration form carries the full terms text.
+ * Kept at the end of this file and self-contained — no rule here reaches into
+ * console styling, and vice versa only the shared input/button base applies.
+ * ========================================================================= */
+
+.portal {
+  display: block;
+  min-height: 100vh;
+  padding: 44px 20px 80px;
+  background:
+    radial-gradient(1200px 500px at 50% -240px, rgba(88, 166, 255, 0.09), transparent 70%),
+    var(--bg);
+}
+
+.portal-inner {
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.portal-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 0 2px 2px;
+}
+
+.portal-brand .mark {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.portal-brand .mark b {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.portal-brand small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.portal-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 26px 30px 30px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 28px rgba(0, 0, 0, 0.28);
+}
+
+.portal-card > h1 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.portal-card .card-sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.portal-card form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 14px;
+}
+
+.portal-card label:not(.check-row) {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.portal-card input,
+.portal-card select {
+  width: 100%;
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+.portal-hint {
+  color: var(--muted);
+  font-size: 12.5px;
+  margin: 8px 0 0;
+  line-height: 1.6;
+}
+
+.portal-note {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(63, 185, 80, 0.4);
+  background: rgba(63, 185, 80, 0.08);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Three-step rail for registration (填写 → 验证 → 完成). */
+.steps {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.steps span {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding-bottom: 7px;
+  border-bottom: 2px solid var(--line);
+}
+
+.steps .on {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.steps .done {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+/* Section divider inside a form: title + aside note on one line. */
+.form-sec {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.form-sec strong {
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
+}
+
+.form-sec small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Paired fields (password ×2, phone/IM …). Collapses on narrow screens. */
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 14px;
+}
+
+.field-grid .span-2 {
+  grid-column: 1 / -1;
+}
+
+/* Grid labels style themselves so the grid works outside the portal too
+ * (the operator-side 代登记 form reuses it inside a console panel). */
+.field-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.field-grid input,
+.field-grid select {
+  width: 100%;
+}
+
+/* Terms: a titled, scrollable reading pane — consent is given against text the
+ * user can actually read, so the text gets a real surface, not an afterthought. */
+.terms-box {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.terms-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.terms-head code {
+  font-size: 11.5px;
+  color: var(--accent);
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid rgba(88, 166, 255, 0.25);
+  border-radius: 999px;
+  padding: 1px 9px;
+}
+
+.terms-body {
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--surface-2) 55%, var(--bg));
+}
+
+.terms-body pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.check-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.check-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.portal-card button[type="submit"] {
+  margin-top: 18px;
+  width: 100%;
+  background: var(--accent);
+  color: #07121f;
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  font-weight: 600;
+}
+
+.portal-card button[type="submit"]:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.portal-card button[type="submit"]:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Quiet footer actions under a form (去登录 / 忘记密码 / 取消). */
+.portal-foot {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.portal-foot .link {
+  padding: 0;
+}
+
+/* Success state: the ✓ badge + what actually happens next. */
+.portal-done {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.portal-done .tick {
+  width: 44px;
+  height: 44px;
+  margin: 4px auto 12px;
+  border-radius: 50%;
+  background: rgba(63, 185, 80, 0.12);
+  border: 1px solid rgba(63, 185, 80, 0.5);
+  color: var(--ok);
+  font-size: 20px;
+  line-height: 42px;
+}
+
+.portal-done h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: var(--text);
+}
+
+.portal-done p {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.7;
+  margin: 0 0 16px;
+  text-align: left;
+}
+
+.portal-done button {
+  width: 100%;
+  background: var(--accent);
+  color: #07121f;
+  border: none;
+  border-radius: 8px;
+  padding: 11px;
+  font-weight: 600;
+}
+
+/* /account: signed-in header row + device rows. */
+.portal-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.portal-session .who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.portal-session h1 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.portal-session .card-sub {
+  margin: 2px 0 0;
+}
+
+.portal-session .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.15);
+  flex: none;
+}
+
+.device-rows {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.device-rows li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 2px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.device-rows li:first-child {
+  border-top: none;
+  padding-top: 2px;
+}
+
+.device-rows .meta {
+  color: var(--muted);
+  font-size: 12.5px;
+  margin-left: auto;
+}
+
+@media (max-width: 600px) {
+  .portal {
+    padding: 24px 12px 56px;
+  }
+  .portal-card {
+    padding: 20px 16px 24px;
+  }
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* nav entries are real anchors now (docs/53): cmd-click opens a tab */
+a.nav {
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* 深度查看器 (docs/77). The canvas is 1280×720 of f32 rendered 1:1 into an
+ * ImageData, so it must scale by CSS rather than by attribute — and it must
+ * scale without smoothing, or the operator is judging depth edges against the
+ * browser's interpolation instead of against the data. */
+.depth-viewer canvas.depth-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  background: #0a0c10;
+  border: 1px solid var(--line, #2c3240);
+  border-radius: 6px;
+  margin: 0.75rem 0;
+}
+
+.depth-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.depth-panels h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.depth-kv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.1rem 0.75rem;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.depth-kv dt {
+  opacity: 0.7;
+}
+
+.depth-kv dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}

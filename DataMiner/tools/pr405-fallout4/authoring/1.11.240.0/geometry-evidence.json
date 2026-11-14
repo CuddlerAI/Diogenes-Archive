@@ -1,0 +1,170 @@
+{
+  "schema": "fallout4-1.11.240-trial-geometry-summary/v1",
+  "captured_on": "2026-09-08",
+  "game_version": "1.11.240.0",
+  "status": "candidate_pending_review",
+  "production_binding_authorized": false,
+  "performance_certified": false,
+  "deliverable": false,
+  "executable_sha256": "sha256:fdcef37ac1230af6d0b0050eb2142b139ef3a867b37b9211fb6edfcc646072f8",
+  "measured_inputs": {
+    "helper_sha256": "sha256:928c20be81f36e87b0896873ffd94e87b2d5c40d1c4ea2752f5b45f9bfbb7ca6",
+    "probe_dll_sha256": "sha256:0cabd73f1b6d596ddd6756d3c117736c3eab6c83d375f1dda95109034328515f",
+    "probe_runtime_version": "0.7.20-local-fo4-scene-opt2",
+    "camera_binding_sha256": "sha256:0c1780f1171822bed1043fe16bf911878e3e85abee5e6f28991ec7e7db544b9a",
+    "depth_profile_sha256": "sha256:c782f6ee400f8e2acbc9d82a572e8ca6dd26b4795d51a074a8e09e734f56c927"
+  },
+  "review_files": {
+    "camera_binding": {
+      "path": "camera-binding.json",
+      "sha256": "sha256:94b11b45256eb3a7c118bd588f2f2c0c588f1b1618f36052c2b62ce5ed025eba",
+      "semantic_changes_from_measured": []
+    },
+    "depth_profile": {
+      "path": "depth-profile.json",
+      "sha256": "sha256:34bc59af869e21e0059bf61d824abd627985452b0b6d11332ea8dff3dc4a0e09",
+      "semantic_changes_from_measured": ["dsv.evidence_path"]
+    }
+  },
+  "discovery": {
+    "raw_report_schema": "camera-discovery-report/v4",
+    "samples_per_phase": 25,
+    "phases": ["POSE_STATIC", "POSE_WALK", "POSE_TURN"],
+    "original_sweep_status": "Ambiguous",
+    "selection": "explicit_local_trial",
+    "pass_ordinal": 3,
+    "draw_ordinal": 0,
+    "bind_slot": 12,
+    "buffer_bytes": 752,
+    "view_offset": 0,
+    "projection_offset": 64,
+    "viewport_min_depth": 0.009999999776482582,
+    "viewport_max_depth": 1.0,
+    "observed_interior_projection_a": 1.0012516,
+    "observed_interior_projection_b": -15.018774
+  },
+  "passing_trials": [
+    {
+      "capture": 11,
+      "scene": "outdoor_holstered_first_person",
+      "report_sha256": "sha256:f891214554f64fce3e28348687ce1616540973e94e93af5ffa70696447098a81",
+      "report_schema": "camera-egeo-trial-validation/v1",
+      "passed": true,
+      "production_binding_authorized": false,
+      "video_frames": 918,
+      "duplicate_frames": 238,
+      "depth_rows": 680,
+      "camera_diagnostic_rows": 0,
+      "eligible_even_frames": 336,
+      "paired_even_frames": 336,
+      "sampled_pairs": 120,
+      "usable_pairs": 96,
+      "translation_pairs": 52,
+      "rotation_pairs": 37,
+      "improvement_p50": 3.7950231947393505,
+      "improved_share": 0.9583333333333334,
+      "valid_frac_p10": 0.7564257812499999,
+      "inverse_improvement_p50": 0.7880738977488304
+    },
+    {
+      "capture": 13,
+      "scene": "outdoor_drawn_weapon_first_person",
+      "report_sha256": "sha256:c4e78f41522923dae8a4973aba0a078b84611c96f67538114e9b9b20bbf976b0",
+      "report_schema": "camera-egeo-trial-validation/v1",
+      "passed": true,
+      "production_binding_authorized": false,
+      "video_frames": 920,
+      "duplicate_frames": 149,
+      "depth_rows": 771,
+      "camera_diagnostic_rows": 0,
+      "eligible_even_frames": 395,
+      "paired_even_frames": 395,
+      "sampled_pairs": 120,
+      "usable_pairs": 106,
+      "translation_pairs": 49,
+      "rotation_pairs": 40,
+      "improvement_p50": 2.596804334935104,
+      "improved_share": 0.8962264150943396,
+      "valid_frac_p10": 0.7264567057291667,
+      "inverse_improvement_p50": 0.7396839167851357
+    },
+    {
+      "capture": 16,
+      "scene": "interior_drawn_weapon_first_person",
+      "report_sha256": "sha256:b7741a6bda6580be59ed59c61349eeca51dad78c542ed8c6cbeda9b8329ca0b5",
+      "report_schema": "camera-egeo-trial-validation/v1",
+      "passed": true,
+      "production_binding_authorized": false,
+      "video_frames": 918,
+      "duplicate_frames": 10,
+      "depth_rows": 908,
+      "camera_diagnostic_rows": 0,
+      "eligible_even_frames": 454,
+      "paired_even_frames": 454,
+      "sampled_pairs": 120,
+      "usable_pairs": 116,
+      "translation_pairs": 58,
+      "rotation_pairs": 28,
+      "improvement_p50": 2.0299634398419726,
+      "improved_share": 0.8103448275862069,
+      "valid_frac_p10": 0.6944623480902778,
+      "inverse_improvement_p50": 0.7420458196722954
+    }
+  ],
+  "retained_failed_trials": [
+    {
+      "capture": 9,
+      "report_sha256": "sha256:8e6524ae5516555b76559ec6bbd4ee6a9b76d6b1123949ffcdaa896821bf1a5e",
+      "passed": false,
+      "reason": "improved_share=0.578431 < 0.6"
+    },
+    {
+      "capture": 12,
+      "report_sha256": "sha256:2c10f8bee381a8a77d7280fa0086b170ac108ed7099380ab0ce30853c8d5f024",
+      "passed": false,
+      "reason": "operator remained stationary; translation/rotation coverage and improvement gates failed"
+    },
+    {
+      "capture": 14,
+      "report_sha256": "sha256:e4666909a25eafe370d507bec928f605ada53df39eb5b99de2f608266b4e9379",
+      "passed": false,
+      "reason": "improved_share=0.577982 < 0.6"
+    }
+  ],
+  "recording_regression": {
+    "capture": 17,
+    "scene": "outdoor_drawn_weapon_first_person",
+    "helper_sha256": "sha256:c7faa471bbfedcae3de6260471b281c32cf86bb9eaafeb3cd12835176d1b0ee0",
+    "intentional_change": "consume_queued_cfr_sources_before_seal_deadline_check",
+    "probe_binding_profile_unchanged_from_measured_inputs": true,
+    "baseline_capture": 13,
+    "comparison_kind": "short_before_after_different_game_process_and_motion",
+    "report_sha256": "sha256:6878ece01a810188beec936d50cc27da730210ac47974d1d783b29bda35db36a",
+    "report_schema": "camera-egeo-trial-validation/v1",
+    "passed": true,
+    "production_binding_authorized": false,
+    "video_frames": 915,
+    "duplicate_frames": 1,
+    "source_superseded": 0,
+    "depth_rows": 914,
+    "camera_diagnostic_rows": 0,
+    "eligible_even_frames": 458,
+    "paired_even_frames": 458,
+    "sampled_pairs": 120,
+    "usable_pairs": 108,
+    "translation_pairs": 81,
+    "rotation_pairs": 17,
+    "improvement_p50": 2.107088482569069,
+    "improved_share": 0.8888888888888888,
+    "valid_frac_p10": 0.7287645399305556,
+    "inverse_improvement_p50": 0.7273238594129074
+  },
+  "limitations": [
+    "Summary for review, not a promotable authoring manifest or performance certificate.",
+    "Full original reports, failed attempts and gameplay remain immutable local evidence outside Git.",
+    "CameraBinding semantics match measured inputs; DepthProfile only changes the evidence locator and formatting.",
+    "Metric scale uses historical engine-convention evidence, not a new absolute-scale measurement.",
+    "No third-person, aiming, firing, all-scene, other-build or cross-machine performance claim.",
+    "One recorder-fix hardware short run improves duplicate count and passes geometry; not an A/B/A causal study or long-run performance certification."
+  ]
+}

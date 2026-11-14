@@ -1,0 +1,55 @@
+# Diogenes VL method validation on open data (gaming-500-hours).
+#
+# Route (doc 16 §4.4): teacher = OPEN Qwen3-VL-235B (Apache-2.0; closed
+# frontier teachers are a legal red line) -> SFT pairs -> LoRA on Qwen3-VL-4B.
+# GRPO refinement comes after the SFT base is strong — separate stage.
+#
+# COMPLIANCE: gaming-500-hours has no declared license — method validation
+# only, never product training (same rule as the phase0 IDM line).
+#
+# Prepare:
+#   python -m diogenes_phase0.data.gaming500 fetch   --out data/gaming500_raw --max-sessions 24
+#   python -m diogenes_phase0.data.gaming500 convert --raw data/gaming500_raw --out data/gaming500
+#   python -m diogenes_vl.bench   --roots data/gaming500 --out data/bench_g500 --per-game 200
+#   python -m diogenes_vl.teacher --bench data/bench_g500 --backend api \
+#       --base-url $QWEN_ENDPOINT --model qwen3-vl-235b-a22b \
+#       --out data/bench_g500/labels.jsonl
+run_name: vl-g500
+seed: 0
+
+data:
+  bench_dir: data/bench_g500
+  labels: [data/bench_g500/labels.jsonl]
+  train_split: test
+
+model:
+  name: Qwen/Qwen3-VL-4B-Instruct
+  lora_r: 32
+  lora_alpha: 64
+  lora_dropout: 0.05
+  lora_targets: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+train:
+  max_steps: 2000
+  grad_accum: 8
+  lr: 1.0e-4
+  weight_decay: 0.0
+  log_every: 20
+
+eval:
+  max_new_tokens: 384   # 192 truncated 41% of responses on the first run
+
+# Phase-0 acceptance = distillation works + format compliance:
+#   json_valid, game_teacher_agree, event_class_acc are vs the 235B teacher
+#   who saw the SAME frame — session-level GT labels are noisy (sessions
+#   contain browser/launcher/loading frames; bare-4B measured 8% on them
+#   while answering correctly). game_top1 vs session GT stays informational
+#   until the human-labeled KNOWN_GAMES bench exists (doc 16 §4.4 评估集);
+#   the >=90% SOTA claim will be judged there, not here.
+gates:
+  json_valid_min: 0.95
+  game_agree_min: 0.70
+  event_acc_min: 0.80
+
+output:
+  dir: runs

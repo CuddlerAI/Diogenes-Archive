@@ -1,0 +1,43 @@
+{
+  "schema_version": "dm-depth-profile-1",
+  "game_id": "ets2-steam-1.61.2.6s",
+  "lane": "lane30",
+  "cadence": "every_present",
+  "executable_sha256": "sha256:b7dffe6b27402c7db6dfd52cf982cd5bf292584138b35e3eb8efb311814ab3f8",
+  "dsv": {
+    "dsv_id": "ets2-main-scene-d32s8-v1",
+    "expected_width": 1920,
+    "expected_height": 1080,
+    "sample_count": 1,
+    "evidence_path": "tools/pr405-ets2/evidence/ets2-dsv-projection-20260810.json"
+  },
+  "readback_path": "copy_to_staging",
+  "readback_slots": 6,
+  "watermark": {
+    "origin_x": 0,
+    "origin_y": 0
+  },
+  "delivery_width": 1280,
+  "delivery_height": 720,
+  "burst": {
+    "interval_seconds": 300,
+    "duration_seconds": 3
+  },
+  "projection_a": 0.00012499094009399414,
+  "projection_b": 0.20002499222755432,
+  "metric_scale": {
+    "value": 1.0,
+    "source": {
+      "path": "engine_convention",
+      "engine": "prism3d"
+    },
+    "cross_check": {
+      "convention": 1.0,
+      "measured": 1.0,
+      "ratio": 1.0,
+      "tolerance": 0.1
+    },
+    "evidence_path": "tools/pr405-ets2/evidence/ets2-dsv-projection-20260810.json"
+  },
+  "projection_source": "constant_buffer"
+}

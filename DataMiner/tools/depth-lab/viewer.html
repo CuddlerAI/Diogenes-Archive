@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>depth 原始缓冲查看器 · depth-lab</title>
+<style>
+  :root{
+    --bg:#12141a; --bg2:#181b23; --bg3:#1f2430; --line:#2c3240;
+    --fg:#dfe4ee; --dim:#8b94a7; --acc:#5fb3f0; --ok:#4ec9a0; --bad:#f0736a; --warn:#e5c07b;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",sans-serif}
+  h1{font-size:14px;margin:0;font-weight:600}
+  h2{font-size:12px;margin:0 0 8px;color:var(--dim);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  a{color:var(--acc)}
+  code,.mono,td.n{font-family:var(--mono)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg2)}
+  header .sub{color:var(--dim);font-size:12px}
+  header .spacer{flex:1}
+  button,select,input[type=number],input[type=text]{
+    background:var(--bg3);color:var(--fg);border:1px solid var(--line);border-radius:5px;
+    padding:4px 8px;font:inherit;font-size:12px}
+  button{cursor:pointer}
+  button:hover{border-color:var(--acc)}
+  button.primary{background:#22405c;border-color:#345f85}
+  input[type=number]{width:88px;font-family:var(--mono)}
+  label.f{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:12px;white-space:nowrap}
+  #app{display:grid;grid-template-columns:250px minmax(420px,1fr) 380px;height:calc(100% - 45px)}
+  #app>section{overflow:auto;padding:12px}
+  #left{border-right:1px solid var(--line);background:var(--bg2)}
+  #right{border-left:1px solid var(--line);background:var(--bg2)}
+  .card{background:var(--bg3);border:1px solid var(--line);border-radius:7px;padding:10px;margin-bottom:12px}
+  table{border-collapse:collapse;width:100%;font-size:12px}
+  td,th{padding:2px 5px;text-align:left;vertical-align:top;border-bottom:1px solid #242a36}
+  th{color:var(--dim);font-weight:500}
+  td.n{text-align:right;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .frame{display:flex;justify-content:space-between;gap:6px;padding:5px 7px;border-radius:5px;cursor:pointer;
+    font-family:var(--mono);font-size:12px;border:1px solid transparent}
+  .frame:hover{background:#232838}
+  .frame.on{background:#22405c;border-color:#345f85}
+  .frame .lat{color:var(--dim)}
+  .frame.miss{opacity:.38;cursor:not-allowed}
+  #stage{display:flex;flex-direction:column;gap:10px;min-width:0}
+  #toolbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+  #canvasWrap{position:relative;background:#0a0c10;border:1px solid var(--line);border-radius:7px;overflow:auto;flex:1;min-height:260px}
+  canvas#view{display:block;image-rendering:pixelated;width:100%;height:auto}
+  canvas#view.native{width:auto}
+  #hist{width:100%;height:90px;display:block;background:#0a0c10;border:1px solid var(--line);border-radius:6px}
+  #drop{border:2px dashed var(--line);border-radius:10px;padding:30px;text-align:center;color:var(--dim)}
+  #drop.hot{border-color:var(--acc);color:var(--fg)}
+  .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)} .dim{color:var(--dim)}
+  .swatch{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:baseline;margin-right:4px}
+  .note{color:var(--dim);font-size:11.5px;line-height:1.55;margin-top:8px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;font-size:12px}
+  .kv>div:nth-child(odd){color:var(--dim)}
+  .kv>div:nth-child(even){font-family:var(--mono);text-align:right}
+  .bar{height:4px;background:#2a3040;border-radius:2px;overflow:hidden;margin-top:2px}
+  .bar>i{display:block;height:100%;background:var(--acc)}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>depth 原始缓冲查看器</h1>
+  <span class="sub">dm-depth-probe <code>raw/*.f32</code> + <code>depth-index.jsonl</code></span>
+  <span class="spacer"></span>
+  <button id="btnDir" class="primary">选择目录…</button>
+  <button id="btnFiles">选择文件…</button>
+  <input type="file" id="fileDir" webkitdirectory directory multiple class="hide">
+  <input type="file" id="fileAny" multiple class="hide">
+</header>
+
+<div id="app">
+  <section id="left">
+    <h2>帧</h2>
+    <div id="frames" class="dim">尚未载入。</div>
+  </section>
+
+  <section id="stage">
+    <div id="drop">
+      把 <code>depth_sample</code> 目录（或其中的 <code>.f32</code> / <code>depth-index.jsonl</code>）拖到这里
+    </div>
+
+    <div id="toolbar" class="hide">
+      <label class="f">值域
+        <select id="domain">
+          <option value="raw">原始缓冲值 d</option>
+          <option value="z">线性深度 z（米）</option>
+          <option value="diff">与上次载入帧差分 |Δd|</option>
+        </select>
+      </label>
+      <label class="f">映射
+        <select id="scaleMode">
+          <option value="histeq">直方图均衡</option>
+          <option value="pct">分位裁剪 p1–p99</option>
+          <option value="minmax">min–max</option>
+          <option value="fixed">固定区间</option>
+        </select>
+      </label>
+      <label class="f hide" id="fixedWrap">
+        <input type="number" id="fixedLo" step="any" value="0">–<input type="number" id="fixedHi" step="any" value="1">
+      </label>
+      <label class="f">色表
+        <select id="cmap">
+          <option value="gray">灰度</option>
+          <option value="turbo">Turbo</option>
+        </select>
+      </label>
+      <label class="f"><input type="checkbox" id="invert"> 反色</label>
+      <label class="f"><input type="checkbox" id="native"> 1:1 像素</label>
+      <span class="dim" id="renderNote"></span>
+    </div>
+
+    <div id="canvasWrap" class="hide"><canvas id="view"></canvas></div>
+
+    <div class="card hide" id="probeCard">
+      <h2>像素探针</h2>
+      <div id="probe" class="dim">把鼠标移到图上。</div>
+    </div>
+
+    <div class="card hide" id="histCard">
+      <h2>直方图（纵轴 log）</h2>
+      <canvas id="hist"></canvas>
+      <div class="note" id="histNote"></div>
+    </div>
+  </section>
+
+  <section id="right">
+    <div class="card">
+      <h2>投影参数（linearize）</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <label class="f">预设
+          <select id="proj">
+            <option value="revinf">reversed-Z + 无穷远</option>
+            <option value="trad">传统 Z（near/far）</option>
+            <option value="ab">直接给 a / b</option>
+          </select>
+        </label>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+        <label class="f" id="wNear">near <input type="number" id="near" step="any" value="0.1"></label>
+        <label class="f hide" id="wFar">far <input type="number" id="far" step="any" value="1000"></label>
+        <label class="f hide" id="wA">a <input type="number" id="pa" step="any" value="0"></label>
+        <label class="f hide" id="wB">b <input type="number" id="pb" step="any" value="0.1"></label>
+        <label class="f">metric_scale <input type="number" id="mscale" step="any" value="1"></label>
+      </div>
+      <div class="kv" style="margin-top:8px">
+        <div>模型</div><div id="projFormula">z = b/(d−a)·scale</div>
+        <div>a / b</div><div id="projAB">—</div>
+      </div>
+      <div class="note">
+        与 <code>depth-lab</code> 的 <code>Projection</code> 同一参数化：<code>d = a + b/z</code>。
+        真实 (a,b) 需由 <code>depth-lab calibrate</code> 标定；此处只是让你把缓冲值换算成米看一眼。
+      </div>
+      <div class="note" id="calib"></div>
+    </div>
+
+    <div class="card"><h2>本帧统计</h2><div id="stats" class="dim">—</div></div>
+    <div class="card"><h2>fp16 交付可行性（68 号 §6.4）</h2><div id="f16" class="dim">—</div></div>
+    <div class="card"><h2>规格对照 · docs/68 §6.4（PR #405 归档）</h2><div id="spec" class="dim">—</div></div>
+    <div class="card"><h2>索引概览 · depth-index.jsonl</h2><div id="idx" class="dim">未载入索引。</div></div>
+  </section>
+</div>
+
+<script>
+"use strict";
+
+/* ============================ 半精度 ============================ */
+const _f32buf = new Float32Array(1), _u32buf = new Uint32Array(_f32buf.buffer);
+
+function f32ToF16Bits(v){
+  _f32buf[0] = v;
+  const x = _u32buf[0];
+  const sign = (x >>> 16) & 0x8000;
+  const exp  = (x >>> 23) & 0xff;
+  let mant   = x & 0x7fffff;
+  if (exp === 0xff) return sign | 0x7c00 | (mant ? 0x0200 : 0);   // Inf / NaN
+  let e = exp - 127 + 15;
+  if (e >= 0x1f) return sign | 0x7c00;                            // 上溢 → Inf
+  if (e <= 0) {                                                   // 次正规 / 下溢
+    if (e < -10) return sign;
+    mant |= 0x800000;
+    const shift = 14 - e;
+    let h = mant >>> shift;
+    const rem = mant & ((1 << shift) - 1), half = 1 << (shift - 1);
+    if (rem > half || (rem === half && (h & 1))) h++;
+    return sign | h;
+  }
+  let h = (e << 10) | (mant >>> 13);
+  const rem = mant & 0x1fff;
+  if (rem > 0x1000 || (rem === 0x1000 && (h & 1))) h++;            // 就近偶数；进位自然抬指数
+  return sign | h;
+}
+function f16BitsToF32(h){
+  const sign = (h & 0x8000) ? -1 : 1, exp = (h >>> 10) & 0x1f, mant = h & 0x3ff;
+  if (exp === 0)    return sign * Math.pow(2, -14) * (mant / 1024);
+  if (exp === 0x1f) return mant ? NaN : sign * Infinity;
+  return sign * Math.pow(2, exp - 15) * (1 + mant / 1024);
+}
+const quantizeF16 = v => f16BitsToF32(f32ToF16Bits(v));
+/** fp16 相邻可表示值间距 ≤ step 的上界：2^ceil(log2(step·1024))。step=0.01 → 16 m。 */
+function f16ResolutionLimit(step){ return Math.pow(2, Math.ceil(Math.log2(step * 1024))); }
+const F16_1CM_LIMIT = f16ResolutionLimit(0.01);            // 16
+const truncate2 = z => Math.trunc(z * 100) / 100;
+
+/* ============================ 工具 ============================ */
+const $ = id => document.getElementById(id);
+const base = p => String(p).split(/[\\/]/).pop();
+const fmt = (v, d = 4) => !Number.isFinite(v) ? String(v)
+  : (Math.abs(v) >= 1e5 || (v !== 0 && Math.abs(v) < 1e-4)) ? v.toExponential(3) : v.toFixed(d);
+const pct = x => (x * 100).toFixed(2) + '%';
+const bytes = n => n >= 1 << 20 ? (n / (1 << 20)).toFixed(2) + ' MiB' : (n / 1024).toFixed(1) + ' KiB';
+
+const TURBO = [[48,18,59],[70,107,227],[41,175,214],[78,222,146],[176,241,64],[249,199,45],[249,120,32],[212,47,8],[122,4,3]];
+function cmapRGB(t, mode){
+  t = t < 0 ? 0 : t > 1 ? 1 : t;
+  if (mode === 'gray'){ const v = Math.round(t * 255); return [v, v, v]; }
+  const x = t * (TURBO.length - 1), i = Math.min(TURBO.length - 2, Math.floor(x)), f = x - i;
+  const a = TURBO[i], b = TURBO[i + 1];
+  return [a[0] + (b[0]-a[0])*f, a[1] + (b[1]-a[1])*f, a[2] + (b[2]-a[2])*f].map(Math.round);
+}
+const INVALID_RGB = [255, 0, 200];   // 无效像素（线性化后应写 NaN 的那些）
+
+/* ============================ 状态 ============================ */
+const S = {
+  files: new Map(),      // basename -> File
+  index: [],             // depth-index.jsonl 的行
+  idxSummary: null,
+  cur: null,             // { row, name, w, h, d:Float32Array }
+  prev: null,            // 上一次载入的帧（用于差分）
+  cache: {},             // 派生数组缓存
+  probeXY: null,
+};
+
+/* ============================ 载入 ============================ */
+async function ingest(fileList){
+  const files = [...fileList];
+  let indexFile = null;
+  for (const f of files){
+    const n = base(f.name);
+    if (n === 'depth-index.jsonl') indexFile = f;
+    else if (/\.f32$/i.test(n)) S.files.set(n, f);
+  }
+  if (indexFile) await loadIndex(indexFile);
+  renderFrameList();
+  if (!S.cur){
+    const first = S.index.find(r => S.files.has(base(r.path))) ||
+                  (S.files.size ? { path: [...S.files.keys()][0], width: 1280, height: 720 } : null);
+    if (first) await loadFrame(first);
+  }
+  if (S.files.size || S.index.length) $('drop').classList.add('hide');
+}
+
+async function loadIndex(file){
+  const text = await file.text();
+  const rows = [], bad = [];
+  for (const line of text.split('\n')){
+    const s = line.trim();
+    if (!s) continue;
+    try { rows.push(JSON.parse(s)); } catch { bad.push(s.slice(0, 60)); }
+  }
+  S.index = rows;
+  S.idxSummary = summarizeIndex(rows, bad);
+  renderIndexPanel();
+}
+
+function summarizeIndex(rows, bad){
+  const cnt = k => rows.reduce((m, r) => (m[r[k]] = (m[r[k]] || 0) + 1, m), {});
+  const seqs = rows.map(r => r.present_seq);
+  const steps = {};
+  for (let i = 1; i < seqs.length; i++){ const d = seqs[i] - seqs[i-1]; steps[d] = (steps[d] || 0) + 1; }
+  const paths = new Set(), dup = [];
+  for (const r of rows){ const b = base(r.path); if (paths.has(b)) dup.push(b); paths.add(b); }
+  // 步进 >2 = 漏采的偶数帧：一个 2k 的步进吃掉 k−1 帧
+  let missing = 0;
+  for (const [k, v] of Object.entries(steps)) if (+k > 2) missing += (+k / 2 - 1) * v;
+  return {
+    n: rows.length, bad,
+    formats: cnt('format'), dsv: cnt('dsv_id'), lat: cnt('readback_latency_frames'),
+    // 落盘变换（94 号）。本工具只读裸 f32，遇到 1−d 会拒——见 loadFrame
+    transform: rows.reduce((m, r) => {
+      const t = r.storage && r.storage.transform ? r.storage.transform : '（无键，读作 identity）';
+      return (m[t] = (m[t] || 0) + 1, m);
+    }, {}),
+    res: rows.reduce((m, r) => (m[r.width + '×' + r.height] = (m[r.width + '×' + r.height] || 0) + 1, m), {}),
+    seqMin: Math.min(...seqs), seqMax: Math.max(...seqs),
+    odd: seqs.filter(s => s % 2 !== 0).length,
+    steps, dup, missing, present: rows.filter(r => S.files.has(base(r.path))).length,
+  };
+}
+
+async function loadFrame(row){
+  const name = base(row.path);
+  const file = S.files.get(name);
+  if (!file) return;
+  // 盘上的字节可能是 `1−d`（94 号）。本工具只解裸 f32、没有 EXR 解码器，
+  // 而 v4 的帧都是 EXR——所以这里不是「暂不支持」，是**根本到不了**。
+  // 真收到了就拒：按 identity 显示会让近处变远、远处变近，而画面看起来完全正常。
+  const tf = row.storage && row.storage.transform;
+  if (tf && tf !== 'identity'){
+    alert(`这一帧的 storage.transform 是 \`${tf}\`（94 号的逆深度落盘）。\n` +
+          '本工具只读裸 f32、不还原变换，按原值显示会把深度整体读反。\n' +
+          '请用 console 的深度查看器（数据审查 → depth），它会按索引还原。');
+    return;
+  }
+  const buf = await file.arrayBuffer();
+  let w = row.width | 0, h = row.height | 0;
+  if (!(w > 0 && h > 0)) { w = 1280; h = 720; }
+  const need = w * h * 4;
+  const d = new Float32Array(buf);
+  if (S.cur && S.cur.name !== name) S.prev = S.cur;
+  S.cur = { row, name, w, h, d, bytes: buf.byteLength, need, short: buf.byteLength !== need };
+  S.cache = {};
+  $('toolbar').classList.remove('hide');
+  $('canvasWrap').classList.remove('hide');
+  $('probeCard').classList.remove('hide');
+  $('histCard').classList.remove('hide');
+  renderFrameList();
+  refresh();
+}
+
+/* ============================ 投影 ============================ */
+function projection(){
+  const mode = $('proj').value, scale = +$('mscale').value || 1;
+  if (mode === 'revinf'){ const n = +$('near').value; return { a: 0, b: n, scale, label: 'reversed-Z 无穷远：a=0, b=near' }; }
+  if (mode === 'trad'){
+    const n = +$('near').value, f = +$('far').value;
+    return { a: f / (f - n), b: -n * f / (f - n), scale, label: '传统 Z：a=f/(f−n), b=−nf/(f−n)' };
+  }
+  return { a: +$('pa').value, b: +$('pb').value, scale, label: '手工 a / b' };
+}
+function linearize(d, p){
+  const den = d - p.a;
+  if (den === 0) return NaN;
+  const z = p.b / den * p.scale;
+  return (Number.isFinite(z) && z > 0) ? z : NaN;
+}
+
+/* ============================ 派生数组 ============================ */
+function metersArray(){
+  const p = projection();
+  const key = 'z:' + p.a + ':' + p.b + ':' + p.scale;
+  if (S.cache[key]) return S.cache[key];
+  const d = S.cur.d, out = new Float32Array(d.length);
+  for (let i = 0; i < d.length; i++) out[i] = linearize(d[i], p);
+  return (S.cache[key] = out);
+}
+function diffArray(){
+  if (!S.prev || S.prev.d.length !== S.cur.d.length) return null;
+  if (S.cache.diff) return S.cache.diff;
+  const a = S.cur.d, b = S.prev.d, out = new Float32Array(a.length);
+  for (let i = 0; i < a.length; i++) out[i] = Math.abs(a[i] - b[i]);
+  return (S.cache.diff = out);
+}
+function activeArray(){
+  const dom = $('domain').value;
+  if (dom === 'z') return { arr: metersArray(), unit: ' m', dom };
+  if (dom === 'diff'){ const a = diffArray(); return a ? { arr: a, unit: '', dom } : { arr: S.cur.d, unit: '', dom: 'raw' }; }
+  return { arr: S.cur.d, unit: '', dom: 'raw' };
+}
+/** 有限值的升序副本（用于分位数与直方图均衡）。 */
+function sortedOf(arr, key){
+  if (S.cache['s:' + key]) return S.cache['s:' + key];
+  let n = 0;
+  const tmp = new Float32Array(arr.length);
+  for (let i = 0; i < arr.length; i++){ const v = arr[i]; if (Number.isFinite(v)) tmp[n++] = v; }
+  const s = tmp.subarray(0, n).slice().sort();
+  return (S.cache['s:' + key] = s);
+}
+const quant = (s, q) => s.length ? s[Math.min(s.length - 1, Math.max(0, Math.round(q * (s.length - 1))))] : NaN;
+
+/* ============================ 渲染 ============================ */
+function refresh(){ if (!S.cur) return; draw(); renderStats(); renderHist(); renderF16(); renderSpec(); renderProjInfo(); }
+
+function draw(){
+  const { w, h } = S.cur;
+  const { arr, dom } = activeArray();
+  const key = dom + ':' + ($('domain').value === 'z' ? JSON.stringify(projection()) : '');
+  const s = sortedOf(arr, key);
+  const mode = $('scaleMode').value, cm = $('cmap').value, inv = $('invert').checked;
+
+  let lo, hi;
+  if (mode === 'minmax'){ lo = s[0]; hi = s[s.length - 1]; }
+  else if (mode === 'pct'){ lo = quant(s, 0.01); hi = quant(s, 0.99); }
+  else if (mode === 'fixed'){ lo = +$('fixedLo').value; hi = +$('fixedHi').value; }
+  else { lo = s[0]; hi = s[s.length - 1]; }
+  if (!(hi > lo)) hi = lo + 1e-9;
+
+  const cv = $('view'); cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d', { willReadFrequently: false });
+  const img = ctx.createImageData(w, h), px = img.data;
+
+  // 直方图均衡：值 → 在有限值排序数组中的秩
+  const N = s.length;
+  const rank = v => {           // 二分：第一个 ≥ v 的下标
+    let lo2 = 0, hi2 = N;
+    while (lo2 < hi2){ const m = (lo2 + hi2) >> 1; if (s[m] < v) lo2 = m + 1; else hi2 = m; }
+    return lo2 / (N || 1);
+  };
+
+  const lut = new Uint8Array(256 * 3);
+  for (let i = 0; i < 256; i++){ const c = cmapRGB(i / 255, cm); lut[i*3] = c[0]; lut[i*3+1] = c[1]; lut[i*3+2] = c[2]; }
+
+  for (let i = 0, o = 0; i < arr.length; i++, o += 4){
+    const v = arr[i];
+    if (!Number.isFinite(v)){ px[o] = INVALID_RGB[0]; px[o+1] = INVALID_RGB[1]; px[o+2] = INVALID_RGB[2]; px[o+3] = 255; continue; }
+    let t = mode === 'histeq' ? rank(v) : (v - lo) / (hi - lo);
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    if (inv) t = 1 - t;
+    const q = (t * 255) | 0;
+    px[o] = lut[q*3]; px[o+1] = lut[q*3+1]; px[o+2] = lut[q*3+2]; px[o+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  cv.classList.toggle('native', $('native').checked);
+  $('renderNote').textContent = `映射区间 [${fmt(lo)}, ${fmt(hi)}]　` +
+    (S.cache.invalidCount != null ? '' : '') + `无效像素以 品红 显示`;
+  S.cache.lastRange = [lo, hi];
+}
+
+function renderStats(){
+  const { w, h, d, bytes: nb, need, short } = S.cur;
+  const { arr, unit, dom } = activeArray();
+  const key = dom + ':' + ($('domain').value === 'z' ? JSON.stringify(projection()) : '');
+  const s = sortedOf(arr, key);
+
+  let nan = 0, inf = 0, neg = 0, zero = 0;
+  for (let i = 0; i < arr.length; i++){
+    const v = arr[i];
+    if (Number.isNaN(v)) nan++; else if (!Number.isFinite(v)) inf++; else { if (v < 0) neg++; if (v === 0) zero++; }
+  }
+  let sum = 0; for (let i = 0; i < s.length; i++) sum += s[i];
+  const uniq = (() => { let u = s.length ? 1 : 0; for (let i = 1; i < s.length; i++) if (s[i] !== s[i-1]) u++; return u; })();
+
+  const rows = [
+    ['尺寸', `${w} × ${h}`],
+    ['字节', `${bytes(nb)}${short ? ` <span class="bad">≠ 期望 ${bytes(need)}</span>` : ' <span class="ok">= w·h·4</span>'}`],
+    ['当前值域', dom === 'z' ? '线性深度 z（米）' : dom === 'diff' ? '与上次载入帧 |Δd|' : '原始缓冲值 d'],
+    ['有限值', `${s.length.toLocaleString()}（${pct(s.length / arr.length)}）`],
+    ['NaN / Inf', `${nan.toLocaleString()} / ${inf.toLocaleString()}`],
+    ['精确 0', `${zero.toLocaleString()}（${pct(zero / arr.length)}）`],
+    ['负值', neg.toLocaleString()],
+    ['唯一值', uniq.toLocaleString()],
+    ['min / max', `${fmt(s[0])} / ${fmt(s[s.length-1])}${unit}`],
+    ['mean', fmt(sum / (s.length || 1)) + unit],
+  ];
+  for (const q of [0.01, 0.25, 0.5, 0.75, 0.99]) rows.push(['p' + (q*100), fmt(quant(s, q)) + unit]);
+
+  if (dom !== 'diff'){
+    const dif = diffArray();
+    if (dif){
+      let same = 0, mx = 0;
+      for (let i = 0; i < dif.length; i++){ if (dif[i] === 0) same++; if (dif[i] > mx) mx = dif[i]; }
+      rows.push(['与上次载入帧相同像素', `${pct(same / dif.length)}${same / dif.length > 0.999 ? ' <span class="bad">疑似重复帧</span>' : ''}`]);
+      rows.push(['与上次载入帧 max|Δd|', fmt(mx)]);
+    }
+  }
+  $('stats').innerHTML = '<div class="kv">' + rows.map(r => `<div>${r[0]}</div><div>${r[1]}</div>`).join('') + '</div>';
+}
+
+function renderHist(){
+  const { arr, unit, dom } = activeArray();
+  const key = dom + ':' + ($('domain').value === 'z' ? JSON.stringify(projection()) : '');
+  const s = sortedOf(arr, key);
+  const cv = $('hist'); const W = cv.width = cv.clientWidth * devicePixelRatio | 0, H = cv.height = 90 * devicePixelRatio | 0;
+  const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, W, H);
+  if (!s.length) return;
+  const lo = quant(s, 0.0005), hi = quant(s, 0.9995), NB = 220;
+  const bins = new Float64Array(NB);
+  const span = (hi - lo) || 1e-9;
+  for (let i = 0; i < arr.length; i++){
+    const v = arr[i]; if (!Number.isFinite(v)) continue;
+    let b = Math.floor((v - lo) / span * NB); if (b < 0) b = 0; if (b >= NB) b = NB - 1;
+    bins[b]++;
+  }
+  let mx = 0; for (const b of bins) if (b > mx) mx = b;
+  const lg = x => Math.log10(1 + x) / Math.log10(1 + mx);
+  ctx.fillStyle = '#5fb3f0';
+  for (let i = 0; i < NB; i++){
+    const bh = lg(bins[i]) * (H - 2);
+    ctx.fillRect(i / NB * W, H - bh, Math.ceil(W / NB), bh);
+  }
+  $('histNote').innerHTML = `区间 [${fmt(lo)}, ${fmt(hi)}]${unit}（p0.05–p99.95），峰值 ${mx.toLocaleString()} px/bin`;
+}
+
+function renderProjInfo(){
+  const p = projection();
+  $('projFormula').textContent = p.label;
+  $('projAB').textContent = `a=${fmt(p.a, 6)}  b=${fmt(p.b, 6)}  scale=${fmt(p.scale, 4)}`;
+  const xy = S.probeXY;
+  if (xy && S.cur){
+    const d = S.cur.d[xy[1] * S.cur.w + xy[0]];
+    $('calib').innerHTML = `标定助手：探针像素 d=${fmt(d, 6)}。若该点真实距离为
+      <input type="number" id="calibZ" step="any" style="width:70px" value="1"> m，
+      则 <b>b = z·(d−a)/scale = <span id="calibB">—</span></b>
+      <button id="calibApply" style="margin-left:4px">写入 b</button>`;
+    const upd = () => { const z = +$('calibZ').value; $('calibB').textContent = fmt(z * (d - p.a) / p.scale, 6); };
+    $('calibZ').oninput = upd; upd();
+    $('calibApply').onclick = () => {
+      const b = +$('calibZ').value * (d - p.a) / p.scale;
+      if ($('proj').value === 'revinf'){ $('near').value = b; } else { $('proj').value = 'ab'; $('pa').value = p.a; $('pb').value = b; syncProjInputs(); }
+      refresh();
+    };
+  } else $('calib').textContent = '';
+}
+
+function renderF16(){
+  const p = projection();
+  const z = metersArray();
+  let valid = 0, beyond = 0, maxAbs = 0, relSum = 0, maxRelAt = 0;
+  for (let i = 0; i < z.length; i++){
+    const v = z[i]; if (!Number.isFinite(v)) continue;
+    valid++;
+    if (v >= F16_1CM_LIMIT) beyond++;
+    const spec = quantizeF16(truncate2(v));           // Variant S
+    const ref  = Math.fround(v);                       // Variant R
+    const e = Math.abs(spec - ref);
+    if (e > maxAbs){ maxAbs = e; maxRelAt = ref; }
+    relSum += ref !== 0 ? e / ref : 0;
+  }
+  const rows = [
+    ['linearize 有效像素', `${valid.toLocaleString()}（${pct(valid / z.length)}）`],
+    ['无效 → 应写 NaN', `${(z.length - valid).toLocaleString()}（${pct((z.length - valid) / z.length)}）`],
+    ['fp16 的 1cm 上限', `${F16_1CM_LIMIT} m`],
+    ['z ≥ 上限的像素', `${pct(beyond / (valid || 1))}${beyond ? ' <span class="warn">此处 1cm 精度不成立</span>' : ''}`],
+    ['max |S − R|', `${fmt(maxAbs)} m${maxAbs ? `（发生在 z≈${fmt(maxRelAt, 2)} m）` : ''}`],
+    ['mean 相对误差', fmt(relSum / (valid || 1), 6)],
+  ];
+  $('f16').innerHTML = '<div class="kv">' + rows.map(r => `<div>${r[0]}</div><div>${r[1]}</div>`).join('') + '</div>' +
+    `<div class="note">S = <code>quantize_f16(trunc(z×100)/100)</code>（68 号 §6.4 交付档），
+     R = fp32 不截断（77 号 §5.5.4 主档）。fp16 相邻可表示值在 16 m 以上已 &gt; 1 cm，
+     所以「float16 + 1cm 截断」在远景上自相矛盾（77 号 §5.5.6）。
+     以上数字随左侧投影参数变化——参数没标定，数值只作量级参考。</div>`;
+}
+
+function renderSpec(){
+  const { w, h, d } = S.cur;
+  let zeros = 0, nan = 0;
+  for (let i = 0; i < d.length; i++){ if (d[i] === 0) zeros++; else if (Number.isNaN(d[i])) nan++; }
+  const s = S.idxSummary;
+  const stepOK = s && s.odd === 0 && s.missing === 0;
+  const R = (item, want, got, verdict) => ({ item, want, got, verdict });
+  const rows = [
+    R('分辨率', '1280 × 720', `${w} × ${h}`, (w === 1280 && h === 720) ? 'ok' : 'bad'),
+    R('抽帧', '15 fps（30 fps 的偶数帧，无缺口）',
+      s ? (s.odd ? `<span class="bad">含 ${s.odd} 个奇数 seq</span>` : '全偶数') +
+          (s.missing ? `，<span class="warn">漏 ${s.missing} 帧</span>` : '，无缺口')
+        : '无索引',
+      s ? (stepOK ? 'ok' : 'warn') : 'na'),
+    R('深度类型', 'View-space linear depth（米）', '原始缓冲值 d（非线性、无单位）', 'bad'),
+    R('数值精度', 'float16', 'float32（4 B/px）', 'bad'),
+    R('文件格式', 'EXR 单通道（Y/Z）', '平铺 raw .f32', 'bad'),
+    R('无效像素', 'NaN', `0.0（clear 值）占 ${pct(zeros / d.length)}；NaN ${nan}`, 'bad'),
+    R('数值处理', 'trunc(depth×100)/100', '未截断', 'bad'),
+    R('命名', 'depth_&lt;偶数帧&gt;', `${S.cur.name}（= present_seq）`, 'bad'),
+  ];
+  const mark = { ok: '<span class="ok">✓</span>', bad: '<span class="bad">✗</span>', warn: '<span class="warn">⚠</span>', na: '<span class="dim">—</span>' };
+  $('spec').innerHTML =
+    '<table><tr><th>项</th><th>68 号要求</th><th>本文件</th><th></th></tr>' +
+    rows.map(r => `<tr><td>${r.item}</td><td class="dim">${r.want}</td><td class="mono" style="font-size:11px">${r.got}</td><td>${mark[r.verdict]}</td></tr>`).join('') +
+    '</table>' +
+    `<div class="note"><b>✗ 不是缺陷。</b>这份 <code>.f32</code> 是 dm-depth-probe 的原始缓冲读回，
+     是 77 号 §5.5 <code>depth-lab linearize</code> 的<b>输入</b>，不是交付物本身。
+     交付档由 linearize 产出两份：Variant S = EXR fp16 + trunc（对齐 68 号），
+     Variant R = EXR fp32 不截断（我方主档）。</div>`;
+}
+
+function renderIndexPanel(){
+  const s = S.idxSummary; if (!s) return;
+  const dist = o => Object.entries(o).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}: ${v.toLocaleString()}`).join('，');
+  const rows = [
+    ['行数', s.n.toLocaleString() + (s.bad.length ? ` <span class="bad">(${s.bad.length} 行解析失败)</span>` : '')],
+    ['本地已有 .f32', `${s.present} / ${s.n}`],
+    ['format', dist(s.formats)],
+    ['落盘变换', dist(s.transform)],
+    ['dsv_id', dist(s.dsv)],
+    ['分辨率', dist(s.res)],
+    ['present_seq', `${s.seqMin} … ${s.seqMax}`],
+    ['奇数 seq', `${s.odd}${s.odd === 0 ? ' <span class="ok">（全偶数，符合 15 fps 抽帧）</span>' : ' <span class="bad">（破坏偶数帧约定）</span>'}`],
+    ['seq 步进', dist(s.steps)],
+    ['漏采偶数帧', `${s.missing.toLocaleString()}${s.missing ? ' <span class="warn">（步进 &gt;2 的缺口）</span>' : ''}`],
+    ['readback 延迟帧', dist(s.lat)],
+    ['重复 path', s.dup.length ? `<span class="bad">${s.dup.length}</span>` : '0'],
+  ];
+  const gaps = Object.entries(s.steps).filter(([k]) => +k !== 2);
+  $('idx').innerHTML = '<div class="kv">' + rows.map(r => `<div>${r[0]}</div><div>${r[1]}</div>`).join('') + '</div>' +
+    (gaps.length ? `<div class="note warn">存在非 2 的步进：${gaps.map(([k, v]) => `${k}帧×${v}`).join('，')} —— 即漏采的 depth 帧，
+       交付前需要按 68 号 §6.5「偶数帧必须都有 depth」核对。</div>` : '');
+}
+
+function renderFrameList(){
+  const el = $('frames');
+  const rows = S.index.length ? S.index : [...S.files.keys()].map(n => ({ path: n, width: 1280, height: 720 }));
+  const have = rows.filter(r => S.files.has(base(r.path)));
+  const list = have.length ? have : rows.slice(0, 300);
+  el.innerHTML = `<div class="note" style="margin:0 0 8px">索引 ${S.index.length.toLocaleString()} 行，本地文件 ${S.files.size} 个。</div>` +
+    list.map((r, i) => {
+      const n = base(r.path), on = S.cur && S.cur.name === n, miss = !S.files.has(n);
+      return `<div class="frame ${on ? 'on' : ''} ${miss ? 'miss' : ''}" data-i="${i}">
+        <span>#${r.present_seq ?? '?'}</span><span class="lat">${r.readback_latency_frames != null ? 'lat ' + r.readback_latency_frames : ''}</span></div>`;
+    }).join('');
+  el.querySelectorAll('.frame:not(.miss)').forEach(node => {
+    node.onclick = () => loadFrame(list[+node.dataset.i]);
+  });
+}
+
+/* ============================ 探针 ============================ */
+$('view').addEventListener('mousemove', ev => {
+  if (!S.cur) return;
+  const cv = $('view'), r = cv.getBoundingClientRect();
+  const x = Math.floor((ev.clientX - r.left) / r.width * cv.width);
+  const y = Math.floor((ev.clientY - r.top) / r.height * cv.height);
+  if (x < 0 || y < 0 || x >= cv.width || y >= cv.height) return;
+  S.probeXY = [x, y];
+  const i = y * S.cur.w + x, d = S.cur.d[i], p = projection();
+  const z = linearize(d, p);
+  const t = truncate2(z), sBits = f32ToF16Bits(Number.isFinite(z) ? t : NaN), sVal = f16BitsToF32(sBits);
+  _f32buf[0] = d;
+  const dif = diffArray();
+  const rows = [
+    ['像素', `(${x}, ${y})　idx ${i.toLocaleString()}`],
+    ['原始 d', `${fmt(d, 8)}　0x${_u32buf[0].toString(16).padStart(8, '0')}`],
+    ['线性 z', Number.isFinite(z) ? fmt(z, 5) + ' m' : '<span class="bad">无效（d = a）→ 按 68 号写 NaN</span>'],
+    ['Variant S', Number.isFinite(z) ? `${fmt(sVal, 5)} m　(trunc→${fmt(t, 3)}, fp16 0x${sBits.toString(16).padStart(4, '0')})` : 'NaN'],
+    ['S − R', Number.isFinite(z) ? fmt(sVal - Math.fround(z), 6) + ' m' : '—'],
+  ];
+  if (dif) rows.push(['|Δd| 上次载入帧', fmt(dif[i], 8)]);
+  $('probe').innerHTML = '<div class="kv">' + rows.map(r2 => `<div>${r2[0]}</div><div>${r2[1]}</div>`).join('') + '</div>';
+  renderProjInfo();
+});
+
+/* ============================ UI 绑定 ============================ */
+function syncProjInputs(){
+  const m = $('proj').value;
+  $('wNear').classList.toggle('hide', m === 'ab');
+  $('wFar').classList.toggle('hide', m !== 'trad');
+  $('wA').classList.toggle('hide', m !== 'ab');
+  $('wB').classList.toggle('hide', m !== 'ab');
+}
+$('proj').onchange = () => { syncProjInputs(); refresh(); };
+for (const id of ['near', 'far', 'pa', 'pb', 'mscale']) $(id).oninput = () => refresh();
+for (const id of ['domain', 'scaleMode', 'cmap', 'invert', 'native', 'fixedLo', 'fixedHi'])
+  $(id).oninput = () => { $('fixedWrap').classList.toggle('hide', $('scaleMode').value !== 'fixed'); if (S.cur) { draw(); renderStats(); renderHist(); } };
+
+$('btnDir').onclick = () => $('fileDir').click();
+$('btnFiles').onclick = () => $('fileAny').click();
+$('fileDir').onchange = e => ingest(e.target.files);
+$('fileAny').onchange = e => ingest(e.target.files);
+
+document.addEventListener('dragover', e => { e.preventDefault(); $('drop').classList.add('hot'); });
+document.addEventListener('dragleave', () => $('drop').classList.remove('hot'));
+document.addEventListener('drop', async e => {
+  e.preventDefault(); $('drop').classList.remove('hot');
+  const items = [...(e.dataTransfer.items || [])];
+  const out = [];
+  const walk = async (entry, path = '') => {
+    if (!entry) return;
+    if (entry.isFile) await new Promise(res => entry.file(f => { out.push(f); res(); }, res));
+    else if (entry.isDirectory){
+      const rd = entry.createReader();
+      for (;;){
+        const batch = await new Promise(res => rd.readEntries(res, () => res([])));
+        if (!batch.length) break;
+        for (const en of batch) await walk(en, path + '/' + entry.name);
+      }
+    }
+  };
+  const entries = items.map(it => it.webkitGetAsEntry && it.webkitGetAsEntry()).filter(Boolean);
+  if (entries.length) { for (const en of entries) await walk(en); await ingest(out); }
+  else await ingest(e.dataTransfer.files);
+});
+
+document.addEventListener('keydown', e => {
+  if (!S.index.length && !S.files.size) return;
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const nodes = [...document.querySelectorAll('#frames .frame:not(.miss)')];
+  const cur = nodes.findIndex(n => n.classList.contains('on'));
+  const next = nodes[cur + (e.key === 'ArrowRight' ? 1 : -1)];
+  if (next) { next.click(); e.preventDefault(); }
+});
+
+syncProjInputs();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Diogenes">
+  <title>Diogenes</title>
+  <!-- Favicon-specific cut of the lamp. logo.svg is drawn with 2.4px strokes,
+       which collapse to mush at 16px; this one is built from solid shapes only,
+       with the lamp filling ~60% of the box and the flame kept fat enough to
+       survive a browser tab. Keep the two in visual sync, but do not merge them
+       — they are optimised for different sizes. -->
+  <rect x="14.4" y="2.5" width="3.2" height="4.5" rx="1.4" fill="#0D1310"/>
+  <path d="M5 13.4 10.8 6h10.4L27 13.4H5Z" fill="#0D1310"/>
+  <path d="M7 14.6h18v9.6A5.8 5.8 0 0 1 19.2 30h-6.4A5.8 5.8 0 0 1 7 24.2v-9.6Z" fill="#0D1310"/>
+  <path d="M20 18.2 13 26" stroke="#A3E635" stroke-width="5.4" stroke-linecap="round"/>
+</svg>

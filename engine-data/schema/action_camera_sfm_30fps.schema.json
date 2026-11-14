@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "68 SFM action_camera_30fps（键名以样例为准：小写 camera_follow_offset、驼峰 mouseX/mouseY；键鼠仅 Open 轨迹必填）",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "time",
+      "fps",
+      "frame",
+      "camera_position",
+      "camera_rotation_quaternion",
+      "camera_follow_offset",
+      "camera_intrinsics",
+      "camera_speed",
+      "player_position",
+      "player_rotation_quaternion",
+      "player_speed",
+      "metric_scale"
+    ],
+    "properties": {
+      "time": {
+        "type": "string"
+      },
+      "fps": {
+        "type": "number",
+        "minimum": 0
+      },
+      "frame": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "camera_position": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "camera_rotation_quaternion": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "camera_follow_offset": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "camera_intrinsics": {
+        "type": "object",
+        "required": [
+          "fx",
+          "fy",
+          "cx",
+          "cy"
+        ],
+        "properties": {
+          "fx": {
+            "type": "number"
+          },
+          "fy": {
+            "type": "number"
+          },
+          "cx": {
+            "type": "number"
+          },
+          "cy": {
+            "type": "number"
+          }
+        }
+      },
+      "camera_speed": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "player_position": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "player_rotation_quaternion": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "player_speed": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "mouseX": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "mouseY": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "mouse_dx": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+      },
+      "mouse_dy": {
+        "type": "number",
+        "minimum": -1,
+        "maximum": 1
+      },
+      "keyCode": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "metric_scale": {
+        "type": "number"
+      }
+    },
+    "additionalProperties": true
+  }
+}

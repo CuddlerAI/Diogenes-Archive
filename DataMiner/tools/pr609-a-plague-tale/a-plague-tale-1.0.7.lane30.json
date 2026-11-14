@@ -1,0 +1,47 @@
+{
+  "schema_version": "dm-depth-profile-1",
+  "game_id": "a-plague-tale-innocence-steam-1.0.7",
+  "lane": "lane30",
+  "cadence": "every_present",
+  "executable_sha256": "sha256:fb5f31c3bd07f89142281fa8469fc4db7811e94992c7a46fdc14e0f5af07b329",
+  "dsv": {
+    "dsv_id": "a-plague-tale-main-d32s8-v1",
+    "expected_width": 2560,
+    "expected_height": 1440,
+    "sample_count": 1,
+    "formats": [
+      "r32_g8_x24_typeless",
+      "d32_float_s8_x24_uint"
+    ],
+    "evidence_path": "tools/pr609-a-plague-tale/evidence/a-plague-tale-depth-camera-certification-20260811.json"
+  },
+  "readback_path": "copy_to_staging",
+  "readback_slots": 6,
+  "watermark": {
+    "origin_x": 0,
+    "origin_y": 0
+  },
+  "delivery_width": 1280,
+  "delivery_height": 720,
+  "burst": {
+    "interval_seconds": 300,
+    "duration_seconds": 3
+  },
+  "projection_a": -0.000014750218724657316,
+  "projection_b": 0.05900087580084801,
+  "metric_scale": {
+    "value": 1.0,
+    "source": {
+      "path": "engine_convention",
+      "engine": "zouna"
+    },
+    "cross_check": {
+      "convention": 1.0,
+      "measured": 1.0,
+      "ratio": 1.0,
+      "tolerance": 0.1
+    },
+    "evidence_path": "tools/pr609-a-plague-tale/evidence/a-plague-tale-depth-camera-certification-20260811.json"
+  },
+  "projection_source": "constant_buffer"
+}

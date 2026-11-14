@@ -1,0 +1,18 @@
+{
+    "name": "Diogenes.EngineCapture.Editor",
+    "rootNamespace": "Diogenes.EngineCapture.Editor",
+    "references": [
+        "Diogenes.EngineCapture.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

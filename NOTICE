@@ -1,0 +1,12 @@
+Diogenes source archive
+
+Owner-authored portions: Diogenes contributors, 2026.
+License for owner-authored code: Apache License, Version 2.0.
+
+This statement does not replace or expand third-party licenses. Preserve all existing source
+copyright notices and component LICENSE/NOTICE files. Game footage, datasets, model weights,
+game assets, trademarks, and internal records are outside the source-code license grant.
+
+The GTA REPlus integration patches retain GPL-3.0-only; the IGCS Connector patch retains MIT.
+Matrix-Game modules retain their official subproject Apache-2.0 license and separate attribution.
+See THIRD-PARTY-NOTICES.md for known third-party components and review limits.

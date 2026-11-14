@@ -1,0 +1,72 @@
+# E4 · Halo 物理探针题库（schema + 模板题干）
+# 每题 = 起始 clip + 动作序列 + 预期结果。clip 引用在 S0 采集结束当周从块 C/D 挑选回填。
+# 判定: VLM 判读 + 人工抽检双轨(eval-harness-design.md E4)。
+
+schema_version: e4-halo-1
+judge_protocol:
+  vlm_prompt: >-
+    给定起始画面、执行的动作与模型生成的后续画面，判断预期结果是否发生。
+    只答 yes/no/uncertain。
+  human_audit_frac: 0.2
+
+questions:
+  - id: grenade-arc-1
+    category: projectile
+    setup: "平地面向开阔区, 手持破片手雷"
+    action: "以固定视角俯仰 30° 投掷手雷"
+    expect: "手雷沿抛物线飞出, 落地弹跳后爆炸, 产生烟尘与冲击"
+    clip: null   # S0 回填: <session>_c<NNNN>@frame
+  - id: grenade-wall-1
+    category: projectile
+    setup: "面对近距离墙壁"
+    action: "朝墙投掷手雷"
+    expect: "手雷被墙反弹回落到玩家附近爆炸, 不穿墙"
+    clip: null
+  - id: warthog-collision-1
+    category: vehicle
+    setup: "驾驶疣猪直线加速"
+    action: "正面撞击岩石/立柱"
+    expect: "车辆骤停或弹起翻转, 不穿透障碍物"
+    clip: null
+  - id: warthog-roll-1
+    category: vehicle
+    setup: "疣猪高速过陡坡"
+    action: "斜向冲坡后松开油门"
+    expect: "车辆腾空后受重力回落, 可能侧翻; 不悬浮"
+    clip: null
+  - id: grapple-swing-1
+    category: equipment
+    setup: "Infinite 持抓钩面对高处挂点"
+    action: "发射抓钩并保持"
+    expect: "玩家被牵引加速摆向挂点, 视角随摆动弧线变化"
+    clip: null
+  - id: fall-damage-1
+    category: gravity
+    setup: "站在高台边缘"
+    action: "走出边缘自由下落"
+    expect: "加速下落, 落地有顿挫/受伤反馈; 不漂浮不减速"
+    clip: null
+  - id: door-interact-1
+    category: interaction
+    setup: "面对可开启舱门"
+    action: "走近触发/按交互键"
+    expect: "门执行开启动画, 门后空间可进入且与门外一致"
+    clip: null
+  - id: melee-impact-1
+    category: combat
+    setup: "近身面对敌人"
+    action: "近战攻击"
+    expect: "命中有顿帧/击退反馈, 敌人受击反应"
+    clip: null
+  - id: shield-recharge-1
+    category: hud_state
+    setup: "护盾受损后脱战"
+    action: "静止等待数秒"
+    expect: "护盾条按固定速率回充, HUD 数值单调恢复"
+    clip: null
+  - id: physics-prop-1
+    category: object
+    setup: "Forge 场景内放置可推动物件"
+    action: "行走推动物件"
+    expect: "物件被持续推移并在松开后因摩擦停下, 不抖动不穿模"
+    clip: null

@@ -1,0 +1,105 @@
+[package]
+name = "dataminer-client"
+description = "DataMiner P0 Windows capture control plane"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+default-run = "dataminer-client"
+
+[lib]
+name = "dataminer_client_lib"
+# Windows desktop only: `main.rs` links this as a normal Rust dependency. The
+# `staticlib`/`cdylib` outputs are Tauri mobile-template leftovers that nothing
+# consumes and that every build pays for.
+crate-type = ["rlib"]
+
+[[bin]]
+name = "dm-depth-acceptance"
+path = "src/bin/dm-depth-acceptance.rs"
+required-features = ["depth-lab"]
+
+[[bin]]
+name = "dm-depth-finalize"
+path = "src/bin/dm-depth-finalize.rs"
+required-features = ["depth-lab"]
+
+[[bin]]
+name = "dm-cp2077-raw-demo-record"
+path = "src/bin/dm-cp2077-raw-demo-record.rs"
+required-features = ["depth-lab", "dev-catalog"]
+
+[features]
+default = []
+dev-catalog = []
+# Explicit diagnostics entry points also require debug_assertions.
+cp2077-diagnostics = ["depth-lab", "dev-catalog", "capture-core/cadence-trace"]
+# Keeps an explicitly compiled DEV catalog authoritative. The All Games DEV
+# installer opts in so its complete bundled roster cannot be replaced remotely.
+local-catalog-only = []
+# 深度采集。Delivered Catalog、production 与 All Games DEV 显式开启并随包投放
+# 锁定的独立 probe 制品；Cargo 默认特性始终关闭，是否能采仍由 catalog 与运行时门禁决定。
+# `dep:time` 用于性能认证候选证据的测量时间（services/depth_lab.rs）。
+depth-lab = ["dep:depth-lab", "dep:zip", "dep:time"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.0", features = [] }
+# build.rs 从 shipped-games.json 派生内嵌目录清单与本地准入名单。
+serde_json.workspace = true
+
+[dependencies]
+# 深度采集契约；只在 depth-lab feature 下引入。
+depth-lab = { path = "../../../tools/depth-lab", optional = true, features = ["client-orchestration"] }
+time = { version = "0.3.41", features = ["formatting"], optional = true }
+zip = { version = "4.6.1", optional = true, default-features = false }
+anyhow.workspace = true
+# Decoding base64-carried bytes in server-delivered signed catalog envelopes (docs/16 P3).
+base64 = "0.22.1"
+capture-core = { path = "../../../crates/capture-core", features = ["process-loopback-audio"] }
+view-scale = { path = "../../../crates/view-scale" }
+crossbeam-channel.workspace = true
+data-demo-converter = { path = "../../../tools/data-demo-converter" }
+# Ed25519 verification for server-delivered signed catalog bundles
+# (docs/16-signed-catalog-delivery.md). Verification only; the client never holds
+# a signing key. `verify_strict` rejects malleable/low-order signatures.
+ed25519-dalek = "2.2.0"
+md-5 = "0.10.6"
+parking_lot.workspace = true
+reqwest = { version = "0.12.24", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+rusqlite = { version = "0.32.1", features = ["bundled"] }
+serde.workspace = true
+serde_json.workspace = true
+sentry = { version = "0.46.2", default-features = false, features = ["reqwest", "rustls"] }
+sha2 = "0.10.9"
+zstd = "0.13.3"
+tauri = { version = "2.9.1", features = ["tray-icon"] }
+# 客户端行为遥测的 eventId（docs/23 §4.1）：全链幂等键，服务端契约要求 uuid。
+uuid = { version = "1", features = ["v4"] }
+# M-A 只使用 check()（GET + semver 比较）；download/install 路径在 M-B 之前
+# 不注册任何 capability、不被任何命令触达（docs/15 裁决 D2/D3）。
+tauri-plugin-updater = "2"
+tokio = { version = "1.48.0", features = ["macros", "rt", "sync", "test-util", "time"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+windows = { workspace = true, features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Dwm",
+  "Win32_Security_Credentials",
+  "Win32_Storage_FileSystem",
+  "Win32_System_Diagnostics_Debug",
+  "Win32_System_Diagnostics_ToolHelp",
+  "Win32_System_Com",
+  "Win32_System_Performance",
+  "Win32_System_ProcessStatus",
+  "Win32_System_Registry",
+  "Win32_System_Threading",
+  "Win32_UI_Input",
+  "Win32_UI_Input_KeyboardAndMouse",
+  "Win32_UI_HiDpi",
+  "Win32_UI_Accessibility",
+  "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging",
+] }
+
+[dev-dependencies]
+tempfile = "3.23.0"
+tauri = { version = "2.9.1", features = ["test"] }

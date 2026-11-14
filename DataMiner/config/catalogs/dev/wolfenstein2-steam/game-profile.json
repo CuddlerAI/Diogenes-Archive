@@ -1,0 +1,49 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "wolfenstein2-steam",
+  "version": "3",
+  "display_name": "Wolfenstein II: The New Colossus (Steam)",
+  "device_profile_id": "wolfenstein2-steam-windows-nvidia-v1",
+  "recording_profile_id": "wolfenstein2-steam-recording-v1",
+  "mapping_id": "game.wolfenstein2.steam.pc",
+  "executable_names": [
+    "NewColossus_x64vk.exe"
+  ],
+  "window_class": "Wolfenstein II The New Colossus",
+  "executable_sha256": "sha256:68e6c21a97c2a0824ff75961a771605dacbd73f17e33e8e7265741535a3818c3",
+  "input_contract": {
+    "keyboard_vks": [
+      9,
+      16,
+      17,
+      32,
+      49,
+      50,
+      65,
+      67,
+      68,
+      69,
+      70,
+      71,
+      81,
+      82,
+      83,
+      86,
+      87,
+      88,
+      90,
+      119,
+      121
+    ],
+    "control_vks": [
+      119,
+      121
+    ],
+    "mouse_buttons": [
+      1,
+      2
+    ],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

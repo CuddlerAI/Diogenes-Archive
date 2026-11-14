@@ -1,0 +1,19 @@
+{
+  "schema_version": "dm-game-profile-3",
+  "game_id": "hades-ii-steam-release-test",
+  "version": "6",
+  "display_name": "Hades II Steam",
+  "device_profile_id": "hades-ii-steam-release-test-windows-nvidia-v2",
+  "recording_profile_id": "hades-ii-steam-release-test-recording-v1",
+  "mapping_id": "game.hades-ii.steam.pc",
+  "executable_names": ["Hades2.exe"],
+  "window_class": "The Forge",
+  "executable_sha256": "sha256:df11c588771105d6e90885a949c512044268ba15b175220decb168da93763ecf",
+  "input_contract": {
+    "keyboard_vks": [17, 32, 65, 66, 67, 68, 69, 70, 71, 73, 81, 83, 84, 87, 119, 121, 122, 188, 190],
+    "control_vks": [119],
+    "mouse_buttons": [1, 2],
+    "capture_mouse_move": true,
+    "capture_wheel": true
+  }
+}

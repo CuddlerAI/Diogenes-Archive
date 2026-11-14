@@ -1,0 +1,59 @@
+{
+  "style": {
+    "comment": "Shared prompt scaffold. Seedream is a photographic model by default, so most of this is negative pressure: it has to be argued out of gradients, shadows, perspective and decoration before it will emit something traceable. Pure black on pure white matters more than it looks — the tracer thresholds the result, and any mid-grey shading becomes a ragged edge in the SVG. The stroke-weight clause is the one that took iterating: asked merely for 'thick uniform strokes', Seedream drew lines 2.2% of the glyph width, which trace to 0.3px at the 17px the nav renders at — invisible. Naming an explicit ratio is what fixes it. Target is ~8%, which lands near the 1.6-unit stroke the hand-drawn symbols in website/sprite.svg use.",
+    "prefix": "极简扁平矢量图标，单色纯黑图形置于纯白背景，",
+    "suffix": "，技术工程线条风格，几何构成，正视角，无透视，居中构图。极其重要：线条必须非常粗壮厚重，线宽约等于图标整体宽度的十二分之一（约 8%），类似 Material Symbols 的 heavy/bold 字重，粗到缩小到 16 像素时依然清晰可辨；所有笔画粗细完全一致，线端为平头或圆头，转角干脆。图形结构尽量简单，元素数量少，不要细密的小装饰。纯白背景，四周留白充足，只有一个图标，不要文字，不要字母，不要数字，不要渐变，不要阴影，不要高光，不要立体，不要材质纹理，不要外框边线，不要多个图标，不要网格排版，不要细线，不要发丝线"
+  },
+  "icons": [
+    {
+      "name": "capture",
+      "role": "nav · 采集工作台",
+      "prompt": "一个取景采集图标：只有四个角上的粗大直角括号标记（左上、右上、左下、右下），四角括号围出一个方形取景范围，正中央是一个短粗的十字准星。不要画完整的矩形外框，四条边中间必须是空的"
+    },
+    {
+      "name": "account",
+      "role": "nav · 标注员账号",
+      "prompt": "一个玩家账号图标：圆形头部加肩部剪影，外圈是一个六边形护框，像游戏里的玩家头像框"
+    },
+    {
+      "name": "history",
+      "role": "nav · 会话历史",
+      "prompt": "一个历史存档图标：一个粗线圆环，圆环内有两根明显的时钟指针——一根从圆心指向正上方 12 点，另一根从圆心指向右侧 3 点，两根指针长度不同，明确形成一个直角夹角。圆环左上方外侧有一个逆时针方向的回溯箭头。指针必须是两根成角度的线段，绝对不要画成一条水平横线或一个减号"
+    },
+    {
+      "name": "refresh",
+      "role": "刷新窗口列表",
+      "prompt": "一个刷新图标：一个接近闭合的圆环箭头，箭头头部为三角形"
+    },
+    {
+      "name": "window",
+      "role": "窗口候选项占位",
+      "prompt": "一个应用窗口图标：一个圆角矩形的**空心轮廓**，只画粗边框，矩形内部完全是空白的背景色；靠近顶部有一条水平粗横线，把上方分隔出一条标题栏。整个图形必须是中空的线框，绝对不要填充成实心色块，不要画小圆点"
+    },
+    {
+      "name": "no-target",
+      "role": "空状态 · 未发现可采集窗口",
+      "prompt": "一个「未发现目标」图标：四个角上的粗大直角括号标记围出一个方形取景范围（四条边中间是空的，不要完整矩形外框），正中央有一条粗壮的直线斜杠从左下贯穿到右上，就像禁止符号里的那一道斜杠。这条斜杠必须是一根等宽的纯线段，两端是平的切口——绝对不要在斜线两端画箭头、箭尖或三角形，不要画成双向箭头，不要画成缩放/全屏图标"
+    },
+    {
+      "name": "record",
+      "role": "录制中",
+      "prompt": "一个录制图标：一个实心圆点，外围环绕一个同心圆环"
+    },
+    {
+      "name": "marker",
+      "role": "会话标记点",
+      "prompt": "一个标记旗帜图标：一根竖直的粗旗杆，旗杆顶部向右伸出一面实心的三角形旗面，旗杆底部有一条短的水平底座横线。旗面必须是完全填满的实心三角形"
+    },
+    {
+      "name": "upload",
+      "role": "上传产物",
+      "prompt": "一个上传图标：一个向上的箭头从一条水平底线升起，箭头头部为三角形"
+    },
+    {
+      "name": "shield",
+      "role": "合规 · 同意条款",
+      "prompt": "一个合规盾牌图标：一个盾牌轮廓，盾牌中心是一个对勾"
+    }
+  ]
+}

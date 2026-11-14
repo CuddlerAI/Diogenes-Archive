@@ -1,0 +1,41 @@
+{
+  "schema": "camera-binding/v1",
+  "binding_id": "dragonsword-awakening-steam-1.0.8-v1",
+  "binding_version": "1",
+  "profile_id": "dragonsword-awakening-steam-1.0.8",
+  "profile_version": "dm-depth-profile-1",
+  "executable_sha256": "sha256:0c9d54a35d7160e671a3db10c5e645140fdad15a7293314681e9eda7e360c1fe",
+  "render_width": 1664,
+  "render_height": 936,
+  "view_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 1,
+      "draw_ordinal": 0,
+      "buffer_bytes": 8192,
+      "offset": 192,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "view",
+      "translation": "col3",
+      "view_transform": "view_rotation_world_position",
+      "world_position_offset": 896
+    }
+  ],
+  "projection_sources": [
+    {
+      "shader_stage": "vertex",
+      "bind_slot": 0,
+      "pass_ordinal": 1,
+      "draw_ordinal": 0,
+      "buffer_bytes": 8192,
+      "offset": 448,
+      "encoding": "f32_little_endian",
+      "layout": "row_major",
+      "transpose": false,
+      "role": "projection"
+    }
+  ]
+}
