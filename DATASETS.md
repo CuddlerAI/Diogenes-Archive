@@ -32,7 +32,7 @@ Original capture streams and sidecars, grouped by game. Use the per-repository m
 | Gameplay Fallout 4 | [Diogenes_Gameplay_Fallout_4_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Gameplay_Fallout_4_Archive_v01) |
 | Gameplay Far Cry 5 | [Diogenes_Gameplay_Far_Cry_5_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Gameplay_Far_Cry_5_Archive_v01) |
 | Gameplay GTA V Legacy | [Diogenes_Gameplay_GTA_V_Legacy_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Gameplay_GTA_V_Legacy_Archive_v01) |
-| Gameplay Halo Infinite | [Diogenes_Gameplay_Halo_Infinite_Archive_v02](https://huggingface.co/datasets/DiogenesLab/Diogenes_Gameplay_Halo_Infinite_Archive_v02) |
+| Gameplay Halo Infinite | [Diogenes_Gameplay_Halo_Infinite_Archive_v03](https://huggingface.co/datasets/DiogenesLab/Diogenes_Gameplay_Halo_Infinite_Archive_v03) |
 | Gameplay Kingdom Come Deliverance 2 | [Diogenes_Gameplay_Kingdom_Come_Deliverance_2_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Gameplay_Kingdom_Come_Deliverance_2_Archive_v01) |
 | Gameplay Red Dead Redemption 2 | [Diogenes_Gameplay_Red_Dead_Redemption_2_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Gameplay_Red_Dead_Redemption_2_Archive_v01) |
 | Gameplay Resident Evil Village | [Diogenes_Gameplay_Resident_Evil_Village_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Gameplay_Resident_Evil_Village_Archive_v01) |
@@ -49,11 +49,13 @@ Synthetic camera plans, scene capture iterations and multicamera delivery artifa
 | CARLA Camera Plans | [Diogenes_CARLA_Camera_Plans_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_CARLA_Camera_Plans_Archive_v01) |
 | CARLA Capture Iterations | [Diogenes_CARLA_Capture_Iterations_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_CARLA_Capture_Iterations_Archive_v01) |
 | CARLA Multicamera | [Diogenes_CARLA_Multicamera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_CARLA_Multicamera_Archive_v01) |
+| Factory Training Iterations | [Diogenes_Factory_Training_Iterations_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Factory_Training_Iterations_Archive_v01) |
 | GTA V Beach 12 Camera | [Diogenes_GTA_V_Beach_12_Camera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_GTA_V_Beach_12_Camera_Archive_v01) |
 | Megacity Capture Iterations | [Diogenes_Megacity_Capture_Iterations_Archive_v02](https://huggingface.co/datasets/DiogenesLab/Diogenes_Megacity_Capture_Iterations_Archive_v02) |
 | Megacity Multicamera | [Diogenes_Megacity_Multicamera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Megacity_Multicamera_Archive_v01) |
 | Robotics Warehouse Iterations | [Diogenes_Robotics_Warehouse_Iterations_Archive_v02](https://huggingface.co/datasets/DiogenesLab/Diogenes_Robotics_Warehouse_Iterations_Archive_v02) |
 | Robotics Warehouse Multicamera | [Diogenes_Robotics_Warehouse_Multicamera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Robotics_Warehouse_Multicamera_Archive_v01) |
+| Stylized SciFi City Iterations | [Diogenes_Stylized_SciFi_City_Iterations_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Stylized_SciFi_City_Iterations_Archive_v01) |
 
 ## Depth and geometry experiments
 
@@ -83,6 +85,7 @@ Historical metadata, handoffs, replay/camera/audio artifacts, converted developm
 | GTA Capture Images | [Diogenes_GTA_Capture_Images_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_GTA_Capture_Images_Archive_v01) |
 | GTA Evidence Handoffs | [Diogenes_GTA_Evidence_Handoffs_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_GTA_Evidence_Handoffs_Archive_v01) |
 | GTA Replay Audio Camera | [Diogenes_GTA_Replay_Audio_Camera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_GTA_Replay_Audio_Camera_Archive_v01) |
+| Halo Development Experiments | [Diogenes_Halo_Development_Experiments_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Halo_Development_Experiments_Archive_v01) |
 | Legacy Capture Metadata | [Diogenes_Legacy_Capture_Metadata_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Legacy_Capture_Metadata_Archive_v01) |
 | Legacy Capture Videos | [Diogenes_Legacy_Capture_Videos_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Legacy_Capture_Videos_Archive_v01) |
 
