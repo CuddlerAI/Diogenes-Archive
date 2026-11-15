@@ -61,7 +61,7 @@ are provided. See `SNAPSHOT-VALIDATION.md` for the checks actually performed on 
 
 ## Data and licensing
 
-Dataset availability and conditions are listed at [Hugging Face / DiogenesLab](https://huggingface.co/DiogenesLab).
+Browse the [public data and research catalog](DATASETS.md) for dataset links, scope, and conditions, or visit [Hugging Face / DiogenesLab](https://huggingface.co/DiogenesLab).
 The root Apache-2.0 license does not override the GPL-3.0-only/MIT licenses of GTA integration patches.
 The source-code license does **not** license gameplay footage, recordings, model weights, datasets,
 game assets, third-party software, trademarks, or private material. Each retains its own terms.

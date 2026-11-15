@@ -24,3 +24,5 @@ their official sources and preserved. This inventory is not an exhaustive depend
 Historical modified REPlus source trees are now included only under their preserved GPL terms.
 The Script Hook V SDK/runtime, full IGCS upstream source tree, ReShade, FFmpeg and GTA assets
 are not bundled; obtain them independently under their respective terms.
+
+The added `historical-capture-source/research-tools/` scripts and DataMiner patches are owner-authored Apache-2.0 material. Added REPlus `.gitignore` files retain the GPL-3.0-only scope of their respective source trees. The source manifest records original and public hashes; two helper copies replace only private home-directory components. No compiled binaries, SDK downloads, or game assets are included by this addition.

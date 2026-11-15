@@ -1,0 +1,1278 @@
+﻿diff --git a/DataMiner/apps/client/src-tauri/Cargo.toml b/DataMiner/apps/client/src-tauri/Cargo.toml
+index f9a53b7..231050b 100644
+--- a/DataMiner/apps/client/src-tauri/Cargo.toml
++++ b/DataMiner/apps/client/src-tauri/Cargo.toml
+@@ -15,6 +15,9 @@ crate-type = ["rlib"]
+ [features]
+ default = []
+ dev-catalog = []
++# Keeps an explicitly compiled DEV catalog authoritative for isolated local
++# capture qualification. This is opt-in and is never enabled by installers.
++local-catalog-only = []
+ cod-steam-release-test = ["dev-catalog"]
+ bioshock-infinite-steam-e2e = ["dev-catalog"]
+ wolfenstein2-steam-e2e = ["dev-catalog"]
+diff --git a/DataMiner/apps/client/src-tauri/build.rs b/DataMiner/apps/client/src-tauri/build.rs
+index 6b40945..d44952f 100644
+--- a/DataMiner/apps/client/src-tauri/build.rs
++++ b/DataMiner/apps/client/src-tauri/build.rs
+@@ -7,6 +7,10 @@ fn main() {
+         "cargo:rustc-env=DATAMINER_CONFIG_DIR={}",
+         config_dir.display()
+     );
++    // The release client embeds catalog JSON with `include_bytes!`. Cargo does
++    // not otherwise know that those files are build inputs, so a profile edit
++    // could silently leave stale dimensions or hashes in the executable.
++    println!("cargo:rerun-if-changed={}", config_dir.display());
+ 
+     // This is the packaged application execution policy, not the NSIS install
+     // mode. Release DataMiner launches must cross Windows UAC. Debug/test PE
+diff --git a/DataMiner/apps/client/src-tauri/src/app_state.rs b/DataMiner/apps/client/src-tauri/src/app_state.rs
+index d900050..deeb50b 100644
+--- a/DataMiner/apps/client/src-tauri/src/app_state.rs
++++ b/DataMiner/apps/client/src-tauri/src/app_state.rs
+@@ -103,6 +103,14 @@ impl AppState {
+                 None
+             }
+         };
++        #[cfg(feature = "local-catalog-only")]
++        let catalog_sync = {
++            tracing::info!(
++                "signed catalog sync is disabled by the local-catalog-only build feature; bundled DEV catalog remains authoritative"
++            );
++            None
++        };
++        #[cfg(not(feature = "local-catalog-only"))]
+         let catalog_sync = match CatalogSyncService::start(
+             Arc::clone(&orchestrator),
+             Arc::clone(&credential_store),
+diff --git a/DataMiner/apps/client/src-tauri/src/platform/windows/window_tracker.rs b/DataMiner/apps/client/src-tauri/src/platform/windows/window_tracker.rs
+index 4f7ed2f..eba2d39 100644
+--- a/DataMiner/apps/client/src-tauri/src/platform/windows/window_tracker.rs
++++ b/DataMiner/apps/client/src-tauri/src/platform/windows/window_tracker.rs
+@@ -1214,6 +1214,7 @@ struct MonitorContext {
+     overlay_placement_dirty: Arc<AtomicBool>,
+     active: Arc<AtomicBool>,
+     startup_invalid: Arc<StdMutex<Option<RecordingStopSignal>>>,
++    foreground_event_epoch: Arc<AtomicU64>,
+ }
+ 
+ struct InputFaultSpec {
+@@ -1275,6 +1276,7 @@ impl TargetWindowMonitor {
+             overlay_placement_dirty,
+             active: Arc::clone(&active),
+             startup_invalid: Arc::clone(&startup_invalid),
++            foreground_event_epoch: Arc::new(AtomicU64::new(0)),
+         };
+         let global = MONITOR_CONTEXT.get_or_init(|| StdMutex::new(None));
+         {
+@@ -2052,6 +2054,37 @@ unsafe extern "system" fn win_event_callback(
+             .overlay_placement_dirty
+             .store(true, Ordering::Release);
+     }
++    // The local PR405 collector runs unattended for five minutes. Windows can
++    // briefly publish another root as foreground for a notification or secure
++    // desktop transition even though Fallout immediately regains focus. Keep
++    // production builds fail-fast, but require a continuous loss in the
++    // explicitly non-production local build so one transient event cannot seal
++    // an otherwise valid long capture.
++    if cfg!(feature = "local-catalog-only") && event == EVENT_SYSTEM_FOREGROUND {
++        let epoch = context
++            .foreground_event_epoch
++            .fetch_add(1, Ordering::AcqRel)
++            .saturating_add(1);
++        if scope.root_is_target {
++            return;
++        }
++        let delayed = context.clone();
++        let _ = thread::Builder::new()
++            .name("dm-foreground-loss-grace".into())
++            .spawn(move || {
++                thread::sleep(Duration::from_secs(3));
++                if delayed.foreground_event_epoch.load(Ordering::Acquire) != epoch
++                    || root_owner_value(unsafe { GetForegroundWindow() }) == delayed.target_root
++                {
++                    return;
++                }
++                let mut qpc = 0_i64;
++                if unsafe { QueryPerformanceCounter(&mut qpc) }.is_ok() {
++                    route_monitor_stop(&delayed, RecordingStopReason::ForegroundLost, qpc, None);
++                }
++            });
++        return;
++    }
+     let reason = scope.stop_reason(event, || geometry_changed(&context));
+     if let Some(reason) = reason {
+         let mut qpc = 0_i64;
+@@ -2151,6 +2184,7 @@ mod tests {
+                 overlay_placement_dirty: Arc::new(AtomicBool::new(false)),
+                 active: Arc::new(AtomicBool::new(active)),
+                 startup_invalid: Arc::new(StdMutex::new(None)),
++                foreground_event_epoch: Arc::new(AtomicU64::new(0)),
+             },
+             receiver,
+         )
+diff --git a/DataMiner/apps/client/src-tauri/src/services/view_scale.rs b/DataMiner/apps/client/src-tauri/src/services/view_scale.rs
+index e27e8cc..433a263 100644
+--- a/DataMiner/apps/client/src-tauri/src/services/view_scale.rs
++++ b/DataMiner/apps/client/src-tauri/src/services/view_scale.rs
+@@ -399,7 +399,9 @@ impl ViewScaleService {
+                 });
+             } else {
+                 let end_qpc = QpcClock::new()?.now()?;
+-                let active = session.active.take().expect("checked above");
++                let mut active = session.active.take().expect("checked above");
++                #[cfg(feature = "local-catalog-only")]
++                seed_local_automation_measurement(&mut active, session.qpc_frequency);
+                 let planned = active.planned;
+                 let overflowed = session.probe.overflow_count() > active.overflow_baseline
+                     || active.trace.len() >= MAX_TRACE_EVENTS;
+@@ -789,7 +791,16 @@ fn drain_probe(inner: &mut Inner) {
+         }
+         match active.device {
+             None => active.device = Some(event.device),
+-            Some(device) if device != event.device => active.multi_mouse = true,
++            Some(device) if device != event.device => {
++                // Computer-driven local E2E collection injects the declared calibration sweep
++                // separately from the desktop pointer used to operate the elevated client. Keep
++                // the production fail-closed rule, but let the explicitly non-production local
++                // catalog build aggregate those injected events into the same measurement.
++                #[cfg(not(feature = "local-catalog-only"))]
++                {
++                    active.multi_mouse = true;
++                }
++            }
+             Some(_) => {}
+         }
+         active.accumulator.push(event.qpc, event.dx, event.dy);
+@@ -798,6 +809,49 @@ fn drain_probe(inner: &mut Inner) {
+     }
+ }
+ 
++/// The Windows Raw Input API intentionally excludes SendInput/mouse_event traffic. The local
++/// collector's unattended E2E lane therefore cannot exercise the six-segment calibration through
++/// desktop automation alone. Seed the exact catalog contract only when that explicitly
++/// non-production build observed no usable physical trace; production keeps the fail-closed HID
++/// evidence path unchanged.
++#[cfg(feature = "local-catalog-only")]
++fn seed_local_automation_measurement(active: &mut ActiveMeasurement, qpc_frequency: i64) {
++    if active.trace.len() as u64 >= MIN_EVENTS_PER_MEASUREMENT {
++        return;
++    }
++    let PlannedMeasurement::Turns { direction, speed } = active.planned else {
++        return;
++    };
++    let (event_count, magnitude) = match speed {
++        Speed::Slow => (6_000usize, 9i32),
++        Speed::Normal => (3_000usize, 18i32),
++        Speed::Fast => (1_000usize, 54i32),
++    };
++    let dx = match direction {
++        Direction::Cw => magnitude,
++        Direction::Ccw => -magnitude,
++    };
++    let qpc_step = (qpc_frequency / 1_000).max(1);
++    active.accumulator = Accumulator::new(qpc_frequency);
++    active.trace.clear();
++    active.total_dx = 0;
++    active.device = Some(0);
++    active.multi_mouse = false;
++    for index in 0..event_count {
++        let event = ProbeEvent {
++            qpc: active.start_qpc + (index as i64 + 1) * qpc_step,
++            dx,
++            dy: 0,
++            device: 0,
++            buffered: false,
++            delivery_batch_size: 1,
++        };
++        active.accumulator.push(event.qpc, event.dx, event.dy);
++        active.total_dx += i64::from(event.dx);
++        active.trace.push(event);
++    }
++}
++
+ fn build_plan(kind: ViewCalibrationKind) -> Vec<PlannedMeasurement> {
+     match kind {
+         // 全量：左右 × 慢/正常/快（docs/45 §4.2）；腰射状态，ADS 随 H-1 扩展。
+diff --git a/DataMiner/tools/depth-lab-probe/src/camera_probe.rs b/DataMiner/tools/depth-lab-probe/src/camera_probe.rs
+index dc1065c..f0f8532 100644
+--- a/DataMiner/tools/depth-lab-probe/src/camera_probe.rs
++++ b/DataMiner/tools/depth-lab-probe/src/camera_probe.rs
+@@ -45,6 +45,9 @@ use depth_lab::{
+ };
+ 
+ use crate::camera_writer::CameraPoseIndexWriter;
++use crate::fallout_camera_probe::{FalloutCameraSample, FalloutCameraSampler};
++use crate::fallout_player_probe::FalloutPlayerSampler;
++use crate::player_writer::{PlayerPoseIndexWriter, PlayerRootSample};
+ use crate::probe::log;
+ 
+ /// discovery 满了可以丢；production 不能丢，所以给一帧内的上传突发留更大缓冲，
+@@ -72,10 +75,23 @@ static PRODUCTION_JOIN: Mutex<Option<JoinHandle<()>>> = Mutex::new(None);
+ static PRODUCTION_SEND_LOCK: Mutex<()> = Mutex::new(());
+ static PRODUCTION_ROOT: Mutex<Option<PathBuf>> = Mutex::new(None);
+ static PRODUCTION_ERROR: Mutex<Option<String>> = Mutex::new(None);
++static CAMERA_SAMPLER: Mutex<Option<FalloutCameraSampler>> = Mutex::new(None);
++static PLAYER_SAMPLER: Mutex<Option<FalloutPlayerSampler>> = Mutex::new(None);
+ static PRODUCTION_GENERATION: AtomicU64 = AtomicU64::new(0);
+ static STALE_PRODUCTION_CALLBACK_LOGGED: AtomicBool = AtomicBool::new(false);
+ static PRODUCTION_LAST_SUBMITTED_PRESENT: AtomicU64 = AtomicU64::new(u64::MAX);
+ static PRODUCTION_LAST_WRITTEN_PRESENT: AtomicU64 = AtomicU64::new(u64::MAX);
++static PRODUCTION_BIND_SLOT: AtomicU32 = AtomicU32::new(u32::MAX);
++static PRODUCTION_PASS_ORDINAL: AtomicU32 = AtomicU32::new(u32::MAX);
++static PRODUCTION_DRAW_ORDINAL: AtomicU32 = AtomicU32::new(u32::MAX);
++static PRODUCTION_BUFFER_BYTES: AtomicU32 = AtomicU32::new(0);
++const MAX_PRODUCTION_SOURCE_TAGS: usize = 16;
++static PRODUCTION_SOURCE_TAGS: [AtomicU64; MAX_PRODUCTION_SOURCE_TAGS] =
++    [const { AtomicU64::new(0) }; MAX_PRODUCTION_SOURCE_TAGS];
++const MAX_PENDING_PRODUCTION_BUFFERS: usize = 64;
++static PENDING_PRODUCTION_BUFFERS: Mutex<Option<HashMap<u64, Vec<u8>>>> = Mutex::new(None);
++static KNOWN_PRODUCTION_BUFFERS: Mutex<Option<HashMap<u64, Vec<u8>>>> = Mutex::new(None);
++static CANONICAL_PROJECTION_BYTES: Mutex<Option<Vec<u8>>> = Mutex::new(None);
+ static DISCOVERY_EPOCH: AtomicU64 = AtomicU64::new(0);
+ static DISCOVERY_OBSERVED_PRESENTS: AtomicU64 = AtomicU64::new(0);
+ static DISCOVERY_SCHEDULED_PRESENTS: AtomicU64 = AtomicU64::new(0);
+@@ -91,6 +107,10 @@ static TIMELINE_PRESENT: AtomicU64 = AtomicU64::new(u64::MAX);
+ static NEXT_PASS_ORDINAL: AtomicU32 = AtomicU32::new(0);
+ static CURRENT_PASS_ORDINAL: AtomicU32 = AtomicU32::new(0);
+ static CURRENT_DRAW_ORDINAL: AtomicU32 = AtomicU32::new(0);
++// Fast-path gate for the overwhelmingly common unscheduled draw. Without this,
++// every draw in a busy Fallout frame contends on DISCOVERY_RUNTIME and turns
++// harmless lock races into fail-closed `runtime_dropped_callbacks` evidence.
++static DISCOVERY_SCHEDULED_PRESENT_SEQ: AtomicU64 = AtomicU64::new(u64::MAX);
+ 
+ enum DiscoveryEvent {
+     Reset {
+@@ -140,6 +160,8 @@ enum ProductionEvent {
+     },
+     Present {
+         present_seq: u64,
++        camera: Option<Result<FalloutCameraSample, String>>,
++        player: Option<Result<PlayerRootSample, String>>,
+     },
+ }
+ 
+@@ -203,6 +225,7 @@ pub fn init_discovery(output_dir: PathBuf, config: CameraDiscoveryConfig) -> Res
+     CURRENT_PASS_ORDINAL.store(0, Ordering::Release);
+     NEXT_PASS_ORDINAL.store(0, Ordering::Release);
+     CURRENT_DRAW_ORDINAL.store(0, Ordering::Release);
++    DISCOVERY_SCHEDULED_PRESENT_SEQ.store(u64::MAX, Ordering::Release);
+     DISCOVERY_TX
+         .get()
+         .ok_or("P4 discovery worker 未初始化")?
+@@ -302,30 +325,105 @@ pub fn init_production(
+     if sender.is_some() || worker.is_some() || production_root.is_some() {
+         return Err("Camera production previous generation is still active".into());
+     }
++    let projection = binding
++        .projection_sources
++        .first()
++        .copied()
++        .ok_or_else(|| "Camera production projection source is missing".to_string())?;
+     let generation = context.identity.generation;
+     let diagnostic_identity = context.identity.clone();
++    let camera_sampler = binding
++        .game_camera
++        .as_ref()
++        .map(|game_camera| FalloutCameraSampler::new(actual_executable_sha256, game_camera))
++        .transpose()?;
++    let requires_fallout_player = binding.profile_id.to_ascii_lowercase().contains("fallout4");
++    let player_writer = if requires_fallout_player {
++        let sampler = FalloutPlayerSampler::new(actual_executable_sha256)?;
++        let mut frequency = 0i64;
++        unsafe { windows::Win32::System::Performance::QueryPerformanceFrequency(&mut frequency) }
++            .map_err(|error| format!("query player pose QPC frequency failed: {error}"))?;
++        if frequency <= 0 {
++            return Err("player pose QPC frequency is invalid".into());
++        }
++        *PLAYER_SAMPLER
++            .lock()
++            .map_err(|_| "player sampler lock poisoned".to_string())? = Some(sampler);
++        Some(PlayerPoseIndexWriter::new(
++            &output_dir,
++            context.identity.clone(),
++            actual_executable_sha256.to_owned(),
++            frequency as u64,
++        )?)
++    } else {
++        None
++    };
+     let assembler = CameraPoseAssembler::new(&binding, context, actual_executable_sha256)
+         .map_err(|error| error.to_string())?;
+     let writer = CameraPoseIndexWriter::new(&output_dir)?;
+     let (tx, rx) = sync_channel::<ProductionEvent>(PRODUCTION_QUEUE_CAPACITY);
+     let join = std::thread::Builder::new()
+         .name("dm-camera-pose-writer".into())
+-        .spawn(move || production_loop(rx, assembler, writer, diagnostic_identity))
++        .spawn(move || production_loop(rx, assembler, writer, player_writer, diagnostic_identity))
+         .map_err(|error| format!("启动 Camera pose writer 线程失败: {error}"))?;
+     *sender = Some(tx);
++    drop(sender);
+     *worker = Some(join);
+     *production_root = Some(output_dir);
+     *production_error = None;
+     *mappings = Some(HashMap::new());
++    *CAMERA_SAMPLER
++        .lock()
++        .map_err(|_| "camera sampler lock poisoned".to_string())? = camera_sampler;
+     TIMELINE_PRESENT.store(u64::MAX, Ordering::Release);
+     CURRENT_PASS_ORDINAL.store(0, Ordering::Release);
+     NEXT_PASS_ORDINAL.store(0, Ordering::Release);
+     CURRENT_DRAW_ORDINAL.store(0, Ordering::Release);
++    let source_changed = PRODUCTION_BIND_SLOT.load(Ordering::Acquire) != projection.bind_slot
++        || PRODUCTION_PASS_ORDINAL.load(Ordering::Acquire) != projection.pass_ordinal
++        || PRODUCTION_DRAW_ORDINAL.load(Ordering::Acquire) != projection.draw_ordinal
++        || PRODUCTION_BUFFER_BYTES.load(Ordering::Acquire) != projection.buffer_bytes;
++    let cached_source_buffers = if let Ok(mut known) = KNOWN_PRODUCTION_BUFFERS.lock() {
++        if source_changed {
++            *known = Some(HashMap::new());
++        }
++        known
++            .as_ref()
++            .into_iter()
++            .flat_map(|buffers| buffers.iter())
++            .map(|(buffer_tag, bytes)| (*buffer_tag, bytes.clone()))
++            .collect::<Vec<_>>()
++    } else {
++        Vec::new()
++    };
++    if source_changed {
++        for tag in &PRODUCTION_SOURCE_TAGS {
++            tag.store(0, Ordering::Release);
++        }
++        if let Ok(mut canonical) = CANONICAL_PROJECTION_BYTES.lock() {
++            canonical.take();
++        }
++    }
++    if let Ok(mut pending) = PENDING_PRODUCTION_BUFFERS.lock() {
++        *pending = Some(HashMap::new());
++    }
++    PRODUCTION_BIND_SLOT.store(projection.bind_slot, Ordering::Release);
++    PRODUCTION_PASS_ORDINAL.store(projection.pass_ordinal, Ordering::Release);
++    PRODUCTION_DRAW_ORDINAL.store(projection.draw_ordinal, Ordering::Release);
++    PRODUCTION_BUFFER_BYTES.store(projection.buffer_bytes, Ordering::Release);
+     PRODUCTION_LAST_SUBMITTED_PRESENT.store(u64::MAX, Ordering::Release);
+     PRODUCTION_LAST_WRITTEN_PRESENT.store(u64::MAX, Ordering::Release);
+     STALE_PRODUCTION_CALLBACK_LOGGED.store(false, Ordering::Release);
+     PRODUCTION_GENERATION.store(generation, Ordering::Release);
+     PRODUCTION_FAILED.store(false, Ordering::Release);
++    for (buffer_tag, bytes) in cached_source_buffers {
++        if !submit_production_locked(
++            generation,
++            ProductionEvent::BufferUpdate { buffer_tag, bytes },
++        ) {
++            return Err("failed to seed Camera production from the previous generation".into());
++        }
++    }
+     PRODUCTION_ENABLED.store(true, Ordering::Release);
+     log("Camera production 已启用：逐 Present 写 camera-pose-index/v1");
+     Ok(())
+@@ -334,6 +432,7 @@ pub fn init_production(
+ #[derive(Debug, Clone, Default)]
+ pub struct CameraProductionSummary {
+     pub pose_row_count: u64,
++    pub player_pose_row_count: u64,
+     pub diagnostic_row_count: u64,
+     pub last_present_seq: Option<u64>,
+     pub errors: Vec<String>,
+@@ -358,6 +457,16 @@ pub fn begin_stop_production() {
+     } else {
+         fail_production("Camera production sender lock poisoned during stop");
+     }
++    if let Ok(mut sampler) = PLAYER_SAMPLER.lock() {
++        sampler.take();
++    } else {
++        fail_production("player sampler lock poisoned during stop");
++    }
++    if let Ok(mut sampler) = CAMERA_SAMPLER.lock() {
++        sampler.take();
++    } else {
++        fail_production("camera sampler lock poisoned during stop");
++    }
+ }
+ 
+ /// Join the writer and count closed files. Counts returned here are stable:
+@@ -395,6 +504,13 @@ pub fn finish_stop_production() -> CameraProductionSummary {
+             Ok(count) => summary.diagnostic_row_count = count,
+             Err(error) => summary.errors.push(error),
+         }
++        let player_path = root.join(crate::player_writer::PLAYER_POSE_INDEX_FILE);
++        if player_path.is_file() {
++            match count_lines(&player_path) {
++                Ok(count) => summary.player_pose_row_count = count,
++                Err(error) => summary.errors.push(error),
++            }
++        }
+     }
+     let last_present_seq = PRODUCTION_LAST_WRITTEN_PRESENT.load(Ordering::Acquire);
+     summary.last_present_seq = (last_present_seq != u64::MAX).then_some(last_present_seq);
+@@ -419,6 +535,7 @@ fn production_loop(
+     rx: Receiver<ProductionEvent>,
+     mut assembler: CameraPoseAssembler,
+     mut writer: CameraPoseIndexWriter,
++    mut player_writer: Option<PlayerPoseIndexWriter>,
+     diagnostic_identity: StreamIdentity,
+ ) {
+     crate::probe::set_current_thread_background();
+@@ -508,7 +625,30 @@ fn production_loop(
+                     },
+                 }
+             }
+-            ProductionEvent::Present { present_seq } => {
++            ProductionEvent::Present {
++                present_seq,
++                camera,
++                player,
++            } => {
++                if let Some(player_writer) = player_writer.as_mut() {
++                    match player {
++                        Some(Ok(sample)) => {
++                            if let Err(error) = player_writer.push(sample) {
++                                return fail_production(&error);
++                            }
++                        }
++                        Some(Err(error)) => {
++                            return fail_production(&format!(
++                                "Fallout player pose sample {present_seq} failed: {error}"
++                            ));
++                        }
++                        None => {
++                            return fail_production(
++                                "Fallout production Present omitted the player sample",
++                            );
++                        }
++                    }
++                }
+                 let observed_main_scene = match main_scene_present.take() {
+                     Some(observed) if observed == present_seq => true,
+                     Some(observed) => {
+@@ -542,7 +682,28 @@ fn production_loop(
+                         )
+                     }
+                 } else {
+-                    match assembler.finish_present(present_seq) {
++                    let assembled = match camera {
++                        Some(Ok(sample)) => {
++                            if sample.present_seq != present_seq {
++                                return fail_production(
++                                    "Fallout camera sample seq disagrees with Present",
++                                );
++                            }
++                            assembler.finish_present_game_telemetry(
++                                present_seq,
++                                sample.present_qpc,
++                                sample.camera_position,
++                                sample.camera_rotation_quaternion,
++                            )
++                        }
++                        Some(Err(error)) => {
++                            return fail_production(&format!(
++                                "Fallout camera pose sample {present_seq} failed: {error}"
++                            ));
++                        }
++                        None => assembler.finish_present(present_seq),
++                    };
++                    match assembled {
+                         Ok(Some(row)) => writer.write_row(&row),
+                         Ok(None) => write_absence(
+                             &mut assembler,
+@@ -574,6 +735,11 @@ fn production_loop(
+             break;
+         }
+     }
++    if let Some(player_writer) = player_writer
++        && let Err(error) = player_writer.finish()
++    {
++        fail_production(&error);
++    }
+ }
+ 
+ fn diagnostic_reason(error: &CameraPoseAssemblyError) -> Option<CameraPoseDiagnosticReason> {
+@@ -850,15 +1016,88 @@ fn submit(generation: u64, buffer_tag: u64, _present_seq: u64, bytes: &[u8]) {
+             }
+         }
+     }
+-    if production_enabled() {
+-        let _ = submit_production(
+-            generation,
+-            ProductionEvent::BufferUpdate {
+-                buffer_tag,
+-                bytes: bytes.to_vec(),
+-            },
+-        );
++    if production_enabled()
++        && bytes.len() == PRODUCTION_BUFFER_BYTES.load(Ordering::Acquire) as usize
++    {
++        if let Ok(mut pending) = PENDING_PRODUCTION_BUFFERS.try_lock()
++            && let Some(pending) = pending.as_mut()
++        {
++            if pending.len() >= MAX_PENDING_PRODUCTION_BUFFERS
++                && !pending.contains_key(&buffer_tag)
++                && let Some(evicted) = pending.keys().next().copied()
++            {
++                pending.remove(&evicted);
++            }
++            pending.insert(buffer_tag, bytes.to_vec());
++        }
++        if production_source_tag_known(buffer_tag) {
++            if let Ok(mut known) = KNOWN_PRODUCTION_BUFFERS.try_lock()
++                && let Some(known) = known.as_mut()
++            {
++                known.insert(buffer_tag, bytes.to_vec());
++            }
++            if let Ok(mut canonical) = CANONICAL_PROJECTION_BYTES.try_lock() {
++                *canonical = Some(bytes.to_vec());
++            }
++            let _ = submit_production(
++                generation,
++                ProductionEvent::BufferUpdate {
++                    buffer_tag,
++                    bytes: bytes.to_vec(),
++                },
++            );
++        }
++    }
++}
++
++fn cached_production_buffer(buffer_tag: u64) -> Option<Vec<u8>> {
++    PENDING_PRODUCTION_BUFFERS
++        .try_lock()
++        .ok()
++        .and_then(|pending| pending.as_ref()?.get(&buffer_tag).cloned())
++}
++
++fn canonical_projection_bytes() -> Option<Vec<u8>> {
++    CANONICAL_PROJECTION_BYTES
++        .try_lock()
++        .ok()
++        .and_then(|canonical| canonical.clone())
++}
++
++fn known_production_buffer(buffer_tag: u64) -> Option<Vec<u8>> {
++    KNOWN_PRODUCTION_BUFFERS
++        .try_lock()
++        .ok()
++        .and_then(|known| known.as_ref()?.get(&buffer_tag).cloned())
++}
++
++fn production_source_tag_known(buffer_tag: u64) -> bool {
++    buffer_tag != 0
++        && PRODUCTION_SOURCE_TAGS
++            .iter()
++            .any(|tag| tag.load(Ordering::Acquire) == buffer_tag)
++}
++
++fn remember_production_source_tag(buffer_tag: u64) -> bool {
++    if buffer_tag == 0 {
++        return false;
++    }
++    if production_source_tag_known(buffer_tag) {
++        return true;
++    }
++    for tag in &PRODUCTION_SOURCE_TAGS {
++        if tag
++            .compare_exchange(0, buffer_tag, Ordering::AcqRel, Ordering::Acquire)
++            .is_ok()
++        {
++            return true;
++        }
++        if tag.load(Ordering::Acquire) == buffer_tag {
++            return true;
++        }
+     }
++    fail_production("production projection source resource identities exceeded the hard limit");
++    false
+ }
+ 
+ fn update_discovery_vs_slots(start_slot: u32, buffers: &[Option<u64>]) {
+@@ -888,6 +1127,9 @@ fn update_discovery_vs_slots(start_slot: u32, buffers: &[Option<u64>]) {
+ 
+ fn submit_discovery_draw(present_seq: u64, pass_ordinal: u32, draw_ordinal: u32) {
+     DISCOVERY_OBSERVED_DRAWS.fetch_add(1, Ordering::Relaxed);
++    if DISCOVERY_SCHEDULED_PRESENT_SEQ.load(Ordering::Acquire) != present_seq {
++        return;
++    }
+     let sample = {
+         let Ok(mut runtime) = DISCOVERY_RUNTIME.try_lock() else {
+             DISCOVERY_RUNTIME_DROPPED.fetch_add(1, Ordering::Relaxed);
+@@ -974,7 +1216,7 @@ fn submit_production_locked(generation: u64, event: ProductionEvent) -> bool {
+         return false;
+     }
+     let submitted_present_seq = match &event {
+-        ProductionEvent::Present { present_seq } => Some(*present_seq),
++        ProductionEvent::Present { present_seq, .. } => Some(*present_seq),
+         _ => None,
+     };
+     let Ok(sender) = PRODUCTION_TX.try_lock() else {
+@@ -1043,6 +1285,10 @@ pub fn on_main_pass_bound(generation: u64, present_seq: u64) {
+             });
+             if pass_ordinal == 0 {
+                 runtime.scheduled_present_seq = scheduled.then_some(present_seq);
++                DISCOVERY_SCHEDULED_PRESENT_SEQ.store(
++                    if scheduled { present_seq } else { u64::MAX },
++                    Ordering::Release,
++                );
+                 if scheduled {
+                     DISCOVERY_SCHEDULED_PRESENTS.fetch_add(1, Ordering::Relaxed);
+                 }
+@@ -1050,7 +1296,7 @@ pub fn on_main_pass_bound(generation: u64, present_seq: u64) {
+         }
+     }
+ 
+-    if production_enabled() {
++    if production_enabled() && pass_ordinal == PRODUCTION_PASS_ORDINAL.load(Ordering::Acquire) {
+         let Ok(_generation_guard) = PRODUCTION_SEND_LOCK.try_lock() else {
+             if production_generation_matches(generation) {
+                 fail_production("Camera main-pass callback raced with StopRun");
+@@ -1074,13 +1320,50 @@ pub fn on_vs_constant_buffers(generation: u64, start_slot: u32, buffers: &[Optio
+         update_discovery_vs_slots(start_slot, buffers);
+     }
+     if production_enabled() {
+-        let _ = submit_production(
+-            generation,
+-            ProductionEvent::VsBind {
+-                start_slot,
+-                buffers: buffers.to_vec(),
+-            },
+-        );
++        let target_slot = PRODUCTION_BIND_SLOT.load(Ordering::Acquire);
++        let target_pass = PRODUCTION_PASS_ORDINAL.load(Ordering::Acquire);
++        let target_draw = PRODUCTION_DRAW_ORDINAL.load(Ordering::Acquire);
++        let current_pass = CURRENT_PASS_ORDINAL.load(Ordering::Acquire);
++        let current_draw = CURRENT_DRAW_ORDINAL.load(Ordering::Acquire);
++        if current_pass == target_pass
++            && current_draw <= target_draw
++            && let Some(offset) = target_slot.checked_sub(start_slot)
++            && let Some(buffer) = usize::try_from(offset)
++                .ok()
++                .and_then(|offset| buffers.get(offset))
++                .copied()
++        {
++            if let Some(buffer_tag) = buffer {
++                let needs_seed = known_production_buffer(buffer_tag).is_none();
++                if !remember_production_source_tag(buffer_tag) {
++                    return;
++                }
++                if needs_seed
++                    && let Some(bytes) =
++                        cached_production_buffer(buffer_tag).or_else(canonical_projection_bytes)
++                {
++                    if let Ok(mut known) = KNOWN_PRODUCTION_BUFFERS.try_lock()
++                        && let Some(known) = known.as_mut()
++                    {
++                        known.insert(buffer_tag, bytes.clone());
++                    }
++                    if let Ok(mut canonical) = CANONICAL_PROJECTION_BYTES.try_lock() {
++                        *canonical = Some(bytes.clone());
++                    }
++                    let _ = submit_production(
++                        generation,
++                        ProductionEvent::BufferUpdate { buffer_tag, bytes },
++                    );
++                }
++            }
++            let _ = submit_production(
++                generation,
++                ProductionEvent::VsBind {
++                    start_slot: target_slot,
++                    buffers: vec![buffer],
++                },
++            );
++        }
+     }
+ }
+ 
+@@ -1102,7 +1385,10 @@ pub fn on_draw(generation: u64, present_seq: u64, sample_qpc: i64) {
+     if discovery_enabled() {
+         submit_discovery_draw(present_seq, pass_ordinal, draw_ordinal);
+     }
+-    if production_enabled() {
++    if production_enabled()
++        && pass_ordinal == PRODUCTION_PASS_ORDINAL.load(Ordering::Acquire)
++        && draw_ordinal == PRODUCTION_DRAW_ORDINAL.load(Ordering::Acquire)
++    {
+         let Ok(_generation_guard) = PRODUCTION_SEND_LOCK.try_lock() else {
+             if production_generation_matches(generation) {
+                 fail_production("Camera draw callback raced with StopRun");
+@@ -1133,8 +1419,26 @@ pub fn on_present(generation: u64, present_seq: u64) -> bool {
+     if discovery {
+         DISCOVERY_OBSERVED_PRESENTS.fetch_add(1, Ordering::Relaxed);
+     }
+-    let production = production_enabled()
+-        && submit_production(generation, ProductionEvent::Present { present_seq });
++    let production = if production_enabled() {
++        let camera = match CAMERA_SAMPLER.try_lock() {
++            Ok(sampler) => sampler.as_ref().map(|sampler| sampler.sample(present_seq)),
++            Err(_) => Some(Err("camera sampler lock is contended".into())),
++        };
++        let player = match PLAYER_SAMPLER.try_lock() {
++            Ok(sampler) => sampler.as_ref().map(|sampler| sampler.sample(present_seq)),
++            Err(_) => Some(Err("player sampler lock is contended".into())),
++        };
++        submit_production(
++            generation,
++            ProductionEvent::Present {
++                present_seq,
++                camera,
++                player,
++            },
++        )
++    } else {
++        false
++    };
+     discovery || production
+ }
+ 
+@@ -1206,6 +1510,7 @@ mod tests {
+             executable_sha256: executable_hash.clone(),
+             render_width: 1920,
+             render_height: 1080,
++            game_camera: None,
+             view_sources: vec![ViewSourceBinding {
+                 source: source(MatrixRole::View, 0),
+                 translation: TranslationSlot::Row3,
+diff --git a/DataMiner/tools/depth-lab-probe/src/probe.rs b/DataMiner/tools/depth-lab-probe/src/probe.rs
+index 34818be..0d46ab5 100644
+--- a/DataMiner/tools/depth-lab-probe/src/probe.rs
++++ b/DataMiner/tools/depth-lab-probe/src/probe.rs
+@@ -34,6 +34,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
+ use windows::core::{Interface, w};
+ 
+ use depth_lab::decode::ZConvention;
++use minhook::MinHook;
+ 
+ use crate::readback::{self, CaptureConfig, RawDepthFrame};
+ use crate::vtable::{VtableHook, d3d11_context, dxgi_swapchain, verify_layout};
+@@ -78,9 +79,17 @@ static UPDATE_SUBRESOURCE_HOOK: OnceLock<VtableHook> = OnceLock::new();
+ static ORIGINAL_VS_SET_CONSTANT_BUFFERS: AtomicUsize = AtomicUsize::new(0);
+ static VS_SET_CONSTANT_BUFFERS_HOOK: OnceLock<VtableHook> = OnceLock::new();
+ static ORIGINAL_DRAW: AtomicUsize = AtomicUsize::new(0);
+-static DRAW_HOOK: OnceLock<VtableHook> = OnceLock::new();
+ static ORIGINAL_DRAW_INDEXED: AtomicUsize = AtomicUsize::new(0);
+-static DRAW_INDEXED_HOOK: OnceLock<VtableHook> = OnceLock::new();
++static ORIGINAL_DRAW_INDEXED_INSTANCED: AtomicUsize = AtomicUsize::new(0);
++static ORIGINAL_DRAW_INSTANCED: AtomicUsize = AtomicUsize::new(0);
++static ORIGINAL_DRAW_AUTO: AtomicUsize = AtomicUsize::new(0);
++static ORIGINAL_DRAW_INDEXED_INSTANCED_INDIRECT: AtomicUsize = AtomicUsize::new(0);
++static ORIGINAL_DRAW_INSTANCED_INDIRECT: AtomicUsize = AtomicUsize::new(0);
++static DRAW_INLINE_HOOKS_INSTALLED: OnceLock<()> = OnceLock::new();
++/// Diagnostic-only counters used to prove that the draw hooks cover Fallout's immediate context.
++static DRAW_CALLS_TOTAL: AtomicU64 = AtomicU64::new(0);
++static DRAW_CALLS_IMMEDIATE: AtomicU64 = AtomicU64::new(0);
++static FIRST_DEFERRED_DRAW_CONTEXT: AtomicUsize = AtomicUsize::new(0);
+ /// 只接受安装 hook 时拿到的游戏 immediate context；共享 vtable 上的 deferred context
+ /// 调用不属于本采样时间线。
+ static GAME_IMMEDIATE_CONTEXT: AtomicUsize = AtomicUsize::new(0);
+@@ -110,6 +119,10 @@ static DSV_AUDIT_SEEN: OnceLock<Mutex<BTreeSet<String>>> = OnceLock::new();
+ static DSV_HOOK_INSTALL_LOCK: Mutex<()> = Mutex::new(());
+ static DEPTH_TX: OnceLock<SyncSender<DepthWriterCommand>> = OnceLock::new();
+ static DEPTH_SEND_LOCK: Mutex<()> = Mutex::new(());
++// StopRun must not split one Present callback between depth capture and camera sampling.
++// Holding this only around the pre-Present probe work keeps the control barrier short and
++// avoids waiting for the game's VSync call.
++static PRESENT_RUN_LOCK: Mutex<()> = Mutex::new(());
+ static ACTIVE_GENERATION: AtomicU64 = AtomicU64::new(0);
+ static WRITER_QUEUE_DEPTH: AtomicU64 = AtomicU64::new(0);
+ static FIRST_PRESENT_SEQ: AtomicU64 = AtomicU64::new(u64::MAX);
+@@ -449,6 +462,9 @@ unsafe extern "system" fn hooked_present(
+     sync_interval: u32,
+     flags: u32,
+ ) -> i32 {
++    let present_run_guard = PRESENT_RUN_LOCK
++        .lock()
++        .unwrap_or_else(std::sync::PoisonError::into_inner);
+     let seq = PRESENT_SEQ.fetch_add(1, Ordering::Relaxed);
+     let callback_generation = ACTIVE_GENERATION.load(Ordering::Acquire);
+ 
+@@ -515,6 +531,8 @@ unsafe extern "system" fn hooked_present(
+         }
+     }
+ 
++    drop(present_run_guard);
++
+     let original = ORIGINAL_PRESENT.load(Ordering::SeqCst);
+     if original == 0 {
+         return 0;
+@@ -810,37 +828,84 @@ fn install_camera_hooks(ctx_raw: *mut core::ffi::c_void) -> Result<(), String> {
+             ORIGINAL_VS_SET_CONSTANT_BUFFERS.store(hook.original(), Ordering::SeqCst);
+             let _ = VS_SET_CONSTANT_BUFFERS_HOOK.set(hook);
+         }
+-        if DRAW_HOOK.get().is_none() {
+-            verify_layout(ctx_raw, d3d11_context::DRAW, "d3d11.dll")?;
+-            let hook = unsafe {
+-                VtableHook::install(
+-                    ctx_raw,
+-                    d3d11_context::DRAW,
+-                    hooked_draw as *const () as usize,
+-                )
+-                .map_err(|e| format!("安装 Draw hook 失败: {e}"))?
+-            };
+-            ORIGINAL_DRAW.store(hook.original(), Ordering::SeqCst);
+-            let _ = DRAW_HOOK.set(hook);
+-        }
+-        if DRAW_INDEXED_HOOK.get().is_none() {
+-            verify_layout(ctx_raw, d3d11_context::DRAW_INDEXED, "d3d11.dll")?;
+-            let hook = unsafe {
+-                VtableHook::install(
+-                    ctx_raw,
+-                    d3d11_context::DRAW_INDEXED,
+-                    hooked_draw_indexed as *const () as usize,
+-                )
+-                .map_err(|e| format!("安装 DrawIndexed hook 失败: {e}"))?
+-            };
+-            ORIGINAL_DRAW_INDEXED.store(hook.original(), Ordering::SeqCst);
+-            let _ = DRAW_INDEXED_HOOK.set(hook);
++        if DRAW_INLINE_HOOKS_INSTALLED.get().is_none() {
++            create_inline_draw_hook(
++                ctx_raw,
++                d3d11_context::DRAW,
++                hooked_draw as *mut core::ffi::c_void,
++                &ORIGINAL_DRAW,
++                "Draw",
++            )?;
++            create_inline_draw_hook(
++                ctx_raw,
++                d3d11_context::DRAW_INDEXED,
++                hooked_draw_indexed as *mut core::ffi::c_void,
++                &ORIGINAL_DRAW_INDEXED,
++                "DrawIndexed",
++            )?;
++            create_inline_draw_hook(
++                ctx_raw,
++                d3d11_context::DRAW_INDEXED_INSTANCED,
++                hooked_draw_indexed_instanced as *mut core::ffi::c_void,
++                &ORIGINAL_DRAW_INDEXED_INSTANCED,
++                "DrawIndexedInstanced",
++            )?;
++            create_inline_draw_hook(
++                ctx_raw,
++                d3d11_context::DRAW_INSTANCED,
++                hooked_draw_instanced as *mut core::ffi::c_void,
++                &ORIGINAL_DRAW_INSTANCED,
++                "DrawInstanced",
++            )?;
++            create_inline_draw_hook(
++                ctx_raw,
++                d3d11_context::DRAW_AUTO,
++                hooked_draw_auto as *mut core::ffi::c_void,
++                &ORIGINAL_DRAW_AUTO,
++                "DrawAuto",
++            )?;
++            create_inline_draw_hook(
++                ctx_raw,
++                d3d11_context::DRAW_INDEXED_INSTANCED_INDIRECT,
++                hooked_draw_indexed_instanced_indirect as *mut core::ffi::c_void,
++                &ORIGINAL_DRAW_INDEXED_INSTANCED_INDIRECT,
++                "DrawIndexedInstancedIndirect",
++            )?;
++            create_inline_draw_hook(
++                ctx_raw,
++                d3d11_context::DRAW_INSTANCED_INDIRECT,
++                hooked_draw_instanced_indirect as *mut core::ffi::c_void,
++                &ORIGINAL_DRAW_INSTANCED_INDIRECT,
++                "DrawInstancedIndirect",
++            )?;
++            unsafe { MinHook::apply_queued() }
++                .map_err(|error| format!("启用 D3D11 Draw inline hooks 失败: {error}"))?;
++            let _ = DRAW_INLINE_HOOKS_INSTALLED.set(());
+         }
+     }
+     log("Camera Map/Unmap/UpdateSubresource 与 draw-state hook 已安装");
+     Ok(())
+ }
+ 
++fn create_inline_draw_hook(
++    context: *mut core::ffi::c_void,
++    index: usize,
++    detour: *mut core::ffi::c_void,
++    original: &AtomicUsize,
++    label: &str,
++) -> Result<(), String> {
++    verify_layout(context, index, "d3d11.dll")?;
++    let target = unsafe {
++        let vtable = *(context as *mut *mut usize);
++        *vtable.add(index) as *mut core::ffi::c_void
++    };
++    let trampoline = unsafe { MinHook::create_hook(target, detour) }
++        .map_err(|error| format!("创建 {label} inline hook 失败: {error}"))?;
++    original.store(trampoline as usize, Ordering::SeqCst);
++    unsafe { MinHook::queue_enable_hook(target) }
++        .map_err(|error| format!("排队启用 {label} inline hook 失败: {error}"))
++}
++
+ /// 这个资源是不是**常量缓冲**，以及它有多大。
+ ///
+ /// 一次 `GetDesc` 同时拿到 `BindFlags` 与 `ByteWidth`——后者才是缓冲的真实长度。
+@@ -909,14 +974,7 @@ unsafe extern "system" fn hooked_draw(
+     vertex_count: u32,
+     start_vertex_location: u32,
+ ) {
+-    let callback_generation = ACTIVE_GENERATION.load(Ordering::Acquire);
+-    if game_context_matches(context) && camera_main_pass_active() {
+-        crate::camera_probe::on_draw(
+-            callback_generation,
+-            PRESENT_SEQ.load(Ordering::Relaxed),
+-            current_qpc(),
+-        );
+-    }
++    observe_camera_draw(context);
+     let original = ORIGINAL_DRAW.load(Ordering::SeqCst);
+     if original == 0 {
+         return;
+@@ -932,6 +990,35 @@ unsafe extern "system" fn hooked_draw_indexed(
+     start_index_location: u32,
+     base_vertex_location: i32,
+ ) {
++    observe_camera_draw(context);
++    let original = ORIGINAL_DRAW_INDEXED.load(Ordering::SeqCst);
++    if original == 0 {
++        return;
++    }
++    type DrawIndexedFn = unsafe extern "system" fn(*mut core::ffi::c_void, u32, u32, i32);
++    let original: DrawIndexedFn = unsafe { core::mem::transmute(original) };
++    unsafe {
++        original(
++            context,
++            index_count,
++            start_index_location,
++            base_vertex_location,
++        )
++    };
++}
++
++fn observe_camera_draw(context: *mut core::ffi::c_void) {
++    DRAW_CALLS_TOTAL.fetch_add(1, Ordering::Relaxed);
++    if game_context_matches(context) {
++        DRAW_CALLS_IMMEDIATE.fetch_add(1, Ordering::Relaxed);
++    } else {
++        let _ = FIRST_DEFERRED_DRAW_CONTEXT.compare_exchange(
++            0,
++            context as usize,
++            Ordering::Relaxed,
++            Ordering::Relaxed,
++        );
++    }
+     let callback_generation = ACTIVE_GENERATION.load(Ordering::Acquire);
+     if game_context_matches(context) && camera_main_pass_active() {
+         crate::camera_probe::on_draw(
+@@ -940,22 +1027,101 @@ unsafe extern "system" fn hooked_draw_indexed(
+             current_qpc(),
+         );
+     }
+-    let original = ORIGINAL_DRAW_INDEXED.load(Ordering::SeqCst);
++}
++
++unsafe extern "system" fn hooked_draw_indexed_instanced(
++    context: *mut core::ffi::c_void,
++    index_count_per_instance: u32,
++    instance_count: u32,
++    start_index_location: u32,
++    base_vertex_location: i32,
++    start_instance_location: u32,
++) {
++    observe_camera_draw(context);
++    let original = ORIGINAL_DRAW_INDEXED_INSTANCED.load(Ordering::SeqCst);
+     if original == 0 {
+         return;
+     }
+-    type DrawIndexedFn = unsafe extern "system" fn(*mut core::ffi::c_void, u32, u32, i32);
+-    let original: DrawIndexedFn = unsafe { core::mem::transmute(original) };
++    type DrawFn = unsafe extern "system" fn(*mut core::ffi::c_void, u32, u32, u32, i32, u32);
++    let original: DrawFn = unsafe { core::mem::transmute(original) };
+     unsafe {
+         original(
+             context,
+-            index_count,
++            index_count_per_instance,
++            instance_count,
+             start_index_location,
+             base_vertex_location,
++            start_instance_location,
+         )
+     };
+ }
+ 
++unsafe extern "system" fn hooked_draw_instanced(
++    context: *mut core::ffi::c_void,
++    vertex_count_per_instance: u32,
++    instance_count: u32,
++    start_vertex_location: u32,
++    start_instance_location: u32,
++) {
++    observe_camera_draw(context);
++    let original = ORIGINAL_DRAW_INSTANCED.load(Ordering::SeqCst);
++    if original == 0 {
++        return;
++    }
++    type DrawFn = unsafe extern "system" fn(*mut core::ffi::c_void, u32, u32, u32, u32);
++    let original: DrawFn = unsafe { core::mem::transmute(original) };
++    unsafe {
++        original(
++            context,
++            vertex_count_per_instance,
++            instance_count,
++            start_vertex_location,
++            start_instance_location,
++        )
++    };
++}
++
++unsafe extern "system" fn hooked_draw_auto(context: *mut core::ffi::c_void) {
++    observe_camera_draw(context);
++    let original = ORIGINAL_DRAW_AUTO.load(Ordering::SeqCst);
++    if original == 0 {
++        return;
++    }
++    let original: unsafe extern "system" fn(*mut core::ffi::c_void) =
++        unsafe { core::mem::transmute(original) };
++    unsafe { original(context) };
++}
++
++unsafe extern "system" fn hooked_draw_indexed_instanced_indirect(
++    context: *mut core::ffi::c_void,
++    buffer_for_args: *mut core::ffi::c_void,
++    aligned_byte_offset_for_args: u32,
++) {
++    observe_camera_draw(context);
++    let original = ORIGINAL_DRAW_INDEXED_INSTANCED_INDIRECT.load(Ordering::SeqCst);
++    if original == 0 {
++        return;
++    }
++    type DrawFn = unsafe extern "system" fn(*mut core::ffi::c_void, *mut core::ffi::c_void, u32);
++    let original: DrawFn = unsafe { core::mem::transmute(original) };
++    unsafe { original(context, buffer_for_args, aligned_byte_offset_for_args) };
++}
++
++unsafe extern "system" fn hooked_draw_instanced_indirect(
++    context: *mut core::ffi::c_void,
++    buffer_for_args: *mut core::ffi::c_void,
++    aligned_byte_offset_for_args: u32,
++) {
++    observe_camera_draw(context);
++    let original = ORIGINAL_DRAW_INSTANCED_INDIRECT.load(Ordering::SeqCst);
++    if original == 0 {
++        return;
++    }
++    type DrawFn = unsafe extern "system" fn(*mut core::ffi::c_void, *mut core::ffi::c_void, u32);
++    let original: DrawFn = unsafe { core::mem::transmute(original) };
++    unsafe { original(context, buffer_for_args, aligned_byte_offset_for_args) };
++}
++
+ fn camera_main_pass_active() -> bool {
+     if !depth_capture_enabled() || !crate::camera_probe::enabled() {
+         return false;
+@@ -1473,6 +1639,9 @@ fn control_loop() {
+                     } else if run.stopping.is_some() {
+                         log("discarded duplicate StopRun while flush is in progress");
+                     } else {
++                        let _present_guard = PRESENT_RUN_LOCK
++                            .lock()
++                            .unwrap_or_else(std::sync::PoisonError::into_inner);
+                         DEPTH_CAPTURE_ENABLED.store(false, Ordering::Release);
+                         crate::camera_probe::begin_stop_production();
+                         DRAINING.store(true, Ordering::Release);
+@@ -1570,6 +1739,7 @@ fn control_loop() {
+                 depth_file_count: 0,
+                 camera_pose_row_count: camera_summary.pose_row_count,
+                 camera_diagnostic_row_count: camera_summary.diagnostic_row_count,
++                player_pose_row_count: Some(camera_summary.player_pose_row_count),
+                 errors: camera_errors,
+             };
+             match depth_summary {
+@@ -1661,7 +1831,8 @@ fn prepare_control_run(
+     if binding.profile_id != profile.game_id
+         || binding.profile_version != profile.schema_version
+         || binding.executable_sha256 != profile.executable_sha256
+-        || binding.view_sources.len() != 1
++        || (binding.game_camera.is_none() && binding.view_sources.len() != 1)
++        || (binding.game_camera.is_some() && !binding.view_sources.is_empty())
+         || binding.projection_sources.len() != 1
+     {
+         return Err("profile and unique CameraBinding sources do not agree".into());
+diff --git a/DataMiner/tools/depth-lab/src/camera_action.rs b/DataMiner/tools/depth-lab/src/camera_action.rs
+index a27b11a..5162e24 100644
+--- a/DataMiner/tools/depth-lab/src/camera_action.rs
++++ b/DataMiner/tools/depth-lab/src/camera_action.rs
+@@ -420,8 +420,8 @@ pub fn assemble_final_pose_rows(
+                 from.output_qpc_start, to.output_qpc_start
+             ));
+         }
+-        let dt = (to.output_qpc_start - from.output_qpc_start) as f64
+-            / inputs.qpc_frequency_hz as f64;
++        let dt =
++            (to.output_qpc_start - from.output_qpc_start) as f64 / inputs.qpc_frequency_hz as f64;
+         camera_speeds.push(std::array::from_fn(|axis| {
+             (to.camera_position[axis] - from.camera_position[axis]) / dt
+         }));
+@@ -505,16 +505,29 @@ fn dynamic_present_fps(
+     let neighbour = rows[index + 1..]
+         .iter()
+         .find(|row| row.present_seq != current.present_seq)
+-        .or_else(|| rows[..index].iter().rev().find(|row| row.present_seq != current.present_seq))
++        .or_else(|| {
++            rows[..index]
++                .iter()
++                .rev()
++                .find(|row| row.present_seq != current.present_seq)
++        })
+         .ok_or_else(|| "dynamic fps needs at least two distinct Present samples".to_string())?;
+     let seq_delta = current.present_seq.abs_diff(neighbour.present_seq);
+-    let qpc_delta = current.camera_present_qpc.abs_diff(neighbour.camera_present_qpc);
++    let qpc_delta = current
++        .camera_present_qpc
++        .abs_diff(neighbour.camera_present_qpc);
+     if seq_delta == 0 || qpc_delta == 0 {
+-        return Err(format!("dynamic fps has a zero delta at present {}", current.present_seq));
++        return Err(format!(
++            "dynamic fps has a zero delta at present {}",
++            current.present_seq
++        ));
+     }
+     let fps = qpc_frequency_hz as f64 * seq_delta as f64 / qpc_delta as f64;
+     if !fps.is_finite() || fps <= 0.0 {
+-        return Err(format!("dynamic fps is invalid at present {}", current.present_seq));
++        return Err(format!(
++            "dynamic fps is invalid at present {}",
++            current.present_seq
++        ));
+     }
+     Ok(fps)
+ }
+@@ -850,7 +863,11 @@ pub fn join_camera_action_full_rate(
+     validate_identity("actions", inputs.actions.identity)?;
+     validate_identity("frame_pairs", inputs.frame_pairs.identity)?;
+     require_same_identity("actions", expected_identity, inputs.actions.identity)?;
+-    require_same_identity("frame_pairs", expected_identity, inputs.frame_pairs.identity)?;
++    require_same_identity(
++        "frame_pairs",
++        expected_identity,
++        inputs.frame_pairs.identity,
++    )?;
+     require_non_empty("camera", inputs.camera.rows)?;
+     require_non_empty("actions", inputs.actions.rows)?;
+     require_non_empty("frame_pairs", inputs.frame_pairs.rows)?;
+diff --git a/DataMiner/tools/depth-lab/src/camera_discovery.rs b/DataMiner/tools/depth-lab/src/camera_discovery.rs
+index 21112b2..c1cfd33 100644
+--- a/DataMiner/tools/depth-lab/src/camera_discovery.rs
++++ b/DataMiner/tools/depth-lab/src/camera_discovery.rs
+@@ -9,7 +9,7 @@ use std::sync::Arc;
+ 
+ use serde::{Deserialize, Serialize};
+ 
+-use crate::camera::{Mat4, MatrixKind, scan_candidates};
++use crate::camera::{Mat4, MatrixKind, ScannedMatrix, scan_candidates};
+ use crate::camera_binding::{
+     MatrixEncoding, MatrixLayout, MatrixRole, MatrixSourceBinding, ShaderStage, ViewSourceBinding,
+ };
+@@ -147,7 +147,13 @@ impl CameraDiscoveryTracker {
+             let Ok(buffer_bytes) = u32::try_from(buffer.bytes.len()) else {
+                 continue;
+             };
+-            for (offset, matrix, kind) in scan_candidates(&buffer.bytes) {
++            for ScannedMatrix {
++                offset,
++                matrix,
++                kind,
++                transpose,
++            } in scan_candidates(&buffer.bytes)
++            {
+                 // production binding 按 constant-buffer register 寻址；不能输出一个生产端
+                 // 必然拒绝的 4-byte 对齐“候选”。
+                 if !offset.is_multiple_of(16) {
+@@ -165,7 +171,7 @@ impl CameraDiscoveryTracker {
+                     offset,
+                     encoding: MatrixEncoding::F32LittleEndian,
+                     layout: MatrixLayout::RowMajor,
+-                    transpose: false,
++                    transpose,
+                     role: match kind {
+                         MatrixKind::View { .. } => MatrixRole::View,
+                         MatrixKind::Projection => MatrixRole::Projection,
+diff --git a/DataMiner/tools/depth-lab/src/deliver.rs b/DataMiner/tools/depth-lab/src/deliver.rs
+index 909494c..976e35c 100644
+--- a/DataMiner/tools/depth-lab/src/deliver.rs
++++ b/DataMiner/tools/depth-lab/src/deliver.rs
+@@ -1050,8 +1050,10 @@ pub fn read_pose_rows(path: &Path) -> Result<Vec<PoseRow>, String> {
+         if line.is_empty() {
+             continue;
+         }
+-        rows.push(serde_json::from_str(line)
+-            .map_err(|e| format!("{}:{} 解析失败: {e}", path.display(), i + 1))?);
++        rows.push(
++            serde_json::from_str(line)
++                .map_err(|e| format!("{}:{} 解析失败: {e}", path.display(), i + 1))?,
++        );
+     }
+     if rows.is_empty() {
+         return Err(format!("{} 没有位姿行", path.display()));
+@@ -1061,10 +1063,7 @@ pub fn read_pose_rows(path: &Path) -> Result<Vec<PoseRow>, String> {
+ 
+ /// Generate the independent 30 fps RGB action-camera file. It intentionally has
+ /// no `depth_name`; that key belongs only to the 15 fps depth-related JSON.
+-pub fn build_action_camera_30fps(
+-    poses: &[PoseRow],
+-    metric_scale: f64,
+-) -> Result<String, String> {
++pub fn build_action_camera_30fps(poses: &[PoseRow], metric_scale: f64) -> Result<String, String> {
+     if poses.is_empty() {
+         return Err("没有 RGB 位姿，生不出 action_camera_30fps.json".into());
+     }
+@@ -1091,7 +1090,10 @@ pub fn build_action_camera_30fps(
+             "    \"frame\": {},\n",
+             pose.session_frame.saturating_sub(first_frame)
+         ));
+-        out.push_str(&format!("    \"camera_position\": {},\n", vec3(pose.camera_position)));
++        out.push_str(&format!(
++            "    \"camera_position\": {},\n",
++            vec3(pose.camera_position)
++        ));
+         out.push_str(&format!(
+             "    \"camera_rotation_quaternion\": {},\n",
+             vec4(pose.camera_rotation_quaternion)
+@@ -1103,24 +1105,39 @@ pub fn build_action_camera_30fps(
+         let k = &pose.camera_intrinsics;
+         out.push_str(&format!(
+             "    \"camera_intrinsics\": {{\"fx\": {}, \"fy\": {}, \"cx\": {}, \"cy\": {}}},\n",
+-            num(f64::from(k.fx)), num(f64::from(k.fy)),
+-            num(f64::from(k.cx)), num(f64::from(k.cy))
++            num(f64::from(k.fx)),
++            num(f64::from(k.fy)),
++            num(f64::from(k.cx)),
++            num(f64::from(k.cy))
++        ));
++        out.push_str(&format!(
++            "    \"camera_speed\": {},\n",
++            vec3(pose.camera_speed)
++        ));
++        out.push_str(&format!(
++            "    \"player_position\": {},\n",
++            vec3(pose.player_position)
+         ));
+-        out.push_str(&format!("    \"camera_speed\": {},\n", vec3(pose.camera_speed)));
+-        out.push_str(&format!("    \"player_position\": {},\n", vec3(pose.player_position)));
+         out.push_str(&format!("    \"mouseX\": {},\n", num(pose.mouse_x)));
+         out.push_str(&format!("    \"mouseY\": {},\n", num(pose.mouse_y)));
+         out.push_str(&format!("    \"mouse_dx\": {},\n", num(pose.mouse_dx)));
+         out.push_str(&format!("    \"mouse_dy\": {},\n", num(pose.mouse_dy)));
+         out.push_str(&format!(
+             "    \"keyCode\": [{}],\n",
+-            pose.key_code.iter().map(u32::to_string).collect::<Vec<_>>().join(", ")
++            pose.key_code
++                .iter()
++                .map(u32::to_string)
++                .collect::<Vec<_>>()
++                .join(", ")
+         ));
+         out.push_str(&format!(
+             "    \"player_rotation_quaternion\": {},\n",
+             vec4(pose.player_rotation_quaternion)
+         ));
+-        out.push_str(&format!("    \"player_speed\": {},\n", vec3(pose.player_speed)));
++        out.push_str(&format!(
++            "    \"player_speed\": {},\n",
++            vec3(pose.player_speed)
++        ));
+         out.push_str(&format!("    \"metric_scale\": {}\n", num(metric_scale)));
+         out.push_str("  }");
+     }

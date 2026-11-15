@@ -453,5 +453,41 @@
     "original_sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
     "sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
     "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/research-tools/issue-544-pr405-convertible-handoff-20260806-1900/process-artifacts/_handoff_pr405_convertible_20260806-1900/tooling/source-state/capture-uncommitted.patch",
+    "targets": [
+      "DataMiner/apps/client/src-tauri/Cargo.toml",
+      "DataMiner/apps/client/src-tauri/build.rs",
+      "DataMiner/apps/client/src-tauri/src/app_state.rs",
+      "DataMiner/apps/client/src-tauri/src/platform/windows/window_tracker.rs",
+      "DataMiner/apps/client/src-tauri/src/services/view_scale.rs",
+      "DataMiner/tools/depth-lab-probe/src/camera_probe.rs",
+      "DataMiner/tools/depth-lab-probe/src/probe.rs",
+      "DataMiner/tools/depth-lab/src/camera_action.rs",
+      "DataMiner/tools/depth-lab/src/camera_discovery.rs",
+      "DataMiner/tools/depth-lab/src/deliver.rs"
+    ],
+    "original_sha256": "b151b2714a6c70d12468a237fb6baa0d1f9dc1124ca2f8ceffc0c77568794c77",
+    "sha256": "b151b2714a6c70d12468a237fb6baa0d1f9dc1124ca2f8ceffc0c77568794c77",
+    "license_scope": "Apache-2.0 (owner-authored controller/integration patch)"
+  },
+  {
+    "path": "historical-capture-source/research-tools/issue-544-pr405-convertible-handoff-20260806-1900/tooling/source-state/capture-uncommitted.patch",
+    "targets": [
+      "DataMiner/apps/client/src-tauri/Cargo.toml",
+      "DataMiner/apps/client/src-tauri/build.rs",
+      "DataMiner/apps/client/src-tauri/src/app_state.rs",
+      "DataMiner/apps/client/src-tauri/src/platform/windows/window_tracker.rs",
+      "DataMiner/apps/client/src-tauri/src/services/view_scale.rs",
+      "DataMiner/tools/depth-lab-probe/src/camera_probe.rs",
+      "DataMiner/tools/depth-lab-probe/src/probe.rs",
+      "DataMiner/tools/depth-lab/src/camera_action.rs",
+      "DataMiner/tools/depth-lab/src/camera_discovery.rs",
+      "DataMiner/tools/depth-lab/src/deliver.rs"
+    ],
+    "original_sha256": "b151b2714a6c70d12468a237fb6baa0d1f9dc1124ca2f8ceffc0c77568794c77",
+    "sha256": "b151b2714a6c70d12468a237fb6baa0d1f9dc1124ca2f8ceffc0c77568794c77",
+    "license_scope": "Apache-2.0 (owner-authored controller/integration patch)"
   }
 ]

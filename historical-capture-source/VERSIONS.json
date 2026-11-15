@@ -59,9 +59,9 @@
   },
   {
     "artifact_group": "gta/2026-09-22/mc10/replus-cursor-refresh-candidate-01",
-    "files": 78,
-    "bytes": 1739409,
-    "file_list_sha256": "c6dac07655607233e6b788b5f5633ad6bfd834ae0ffd3557d11aff55bc94c24f",
+    "files": 79,
+    "bytes": 1741403,
+    "file_list_sha256": "d30d6ca6a2a50345b34ad9a6085e22a62e03ce42eb31a7b6ce89e9443333e336",
     "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
     "original_git_history_bundled": false,
     "license_scopes": [
@@ -71,9 +71,9 @@
   },
   {
     "artifact_group": "gta/2026-09-22/mc10/replus-cursor-refresh-candidate-02",
-    "files": 78,
-    "bytes": 1739409,
-    "file_list_sha256": "1058ba7104d255d244c0502d15883f670d1674e5d0f974f423628d7a0efeb42d",
+    "files": 79,
+    "bytes": 1741403,
+    "file_list_sha256": "4034ccbf1e43486490629a30441496c4a392853b479746b31c0b826e881ffc66",
     "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
     "original_git_history_bundled": false,
     "license_scopes": [
@@ -83,9 +83,9 @@
   },
   {
     "artifact_group": "gta/2026-09-22/mc10/replus-cursor-refresh-candidate-03",
-    "files": 78,
-    "bytes": 1743230,
-    "file_list_sha256": "fc72f939a2a762f27b6f9443b73ce64464f5b717bbe362fd776a093bfc3a5e24",
+    "files": 79,
+    "bytes": 1745224,
+    "file_list_sha256": "0b9559c7f83d275a0088b4340761d4e1dc12b01daf1494103c74d1925490491e",
     "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
     "original_git_history_bundled": false,
     "license_scopes": [
@@ -117,9 +117,9 @@
   },
   {
     "artifact_group": "gta/2026-09-22/mc10/replus-draw-guard-candidate-01",
-    "files": 82,
-    "bytes": 1904719,
-    "file_list_sha256": "43e312775b1607e1cf1469cd44a71496b34fb975022025bd4594c7cab181fbe4",
+    "files": 83,
+    "bytes": 1906713,
+    "file_list_sha256": "ad272748ac6a7145a8f290ec12f3f134f35275b9397601ed6f1c7dbd8a8fe505",
     "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
     "original_git_history_bundled": false,
     "license_scopes": [
@@ -262,9 +262,9 @@
   },
   {
     "artifact_group": "gta/2026-09-22/mc2/replus-story-mode-fix-01",
-    "files": 78,
-    "bytes": 1730194,
-    "file_list_sha256": "3b5e07b9f5d3a4da67008d746ac724e3824343061d71e6c5e484d538b92bc059",
+    "files": 79,
+    "bytes": 1732188,
+    "file_list_sha256": "9c2f862b7de9ba461c980bc0bd82ceb5cab5cbcd350bd6061ab6ba8936ebcec2",
     "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
     "original_git_history_bundled": false,
     "license_scopes": [
@@ -274,9 +274,9 @@
   },
   {
     "artifact_group": "gta/2026-09-22/mc2/replus-story-mode-fix-02",
-    "files": 78,
-    "bytes": 1730232,
-    "file_list_sha256": "82bfd8af27b575fcf44224a59385cb10325e8d285db4bd334aaf25ac4cc8e0a0",
+    "files": 79,
+    "bytes": 1732226,
+    "file_list_sha256": "91e22aeacd3b53f500c626f36a52d1abd57ba6ccaccc788f8aa5dce4fe4a46f7",
     "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
     "original_git_history_bundled": false,
     "license_scopes": [
@@ -286,14 +286,81 @@
   },
   {
     "artifact_group": "gta/2026-09-22/mc2/replus-story-mode-fix-03",
-    "files": 78,
-    "bytes": 1730249,
-    "file_list_sha256": "08d7374893c11589ce9c610923fc608f910c474744fb70e6fb175d7724c71b33",
+    "files": 79,
+    "bytes": 1732243,
+    "file_list_sha256": "c3081e6c577e398e1a11096eab31c76e224f6cfb3efc9c9d589562c0e4e7c633",
     "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
     "original_git_history_bundled": false,
     "license_scopes": [
       "BSD-2-Clause and preserved MinHook/HDE notices",
       "GPL-3.0-only (REPlus derivative)"
+    ]
+  },
+  {
+    "artifact_group": "research-tools/gta-cloud-demo",
+    "files": 1,
+    "bytes": 4032,
+    "file_list_sha256": "3d23d489f0caa89c4479c0f10c41bbb94b87b341b8fd7b0b68331d4619f247c7",
+    "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
+    "original_git_history_bundled": false,
+    "license_scopes": [
+      "Apache-2.0 (owner-authored source)"
+    ]
+  },
+  {
+    "artifact_group": "research-tools/gta-mc-demos-20260910",
+    "files": 6,
+    "bytes": 133814,
+    "file_list_sha256": "23a096650daad64051143896af93794f771f2521848367faa8b8a3924cbe9c2a",
+    "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
+    "original_git_history_bundled": false,
+    "license_scopes": [
+      "Apache-2.0 (owner-authored source)"
+    ]
+  },
+  {
+    "artifact_group": "research-tools/issue-518-audit-dev-1785924823441-0003",
+    "files": 1,
+    "bytes": 3775,
+    "file_list_sha256": "cd7026e160497cd842367de6a35284994dc29dffd375c763014748163d7dd39c",
+    "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
+    "original_git_history_bundled": false,
+    "license_scopes": [
+      "Apache-2.0 (owner-authored source)"
+    ]
+  },
+  {
+    "artifact_group": "research-tools/issue-544-pr405-convertible-handoff-20260806-1900",
+    "files": 4,
+    "bytes": 120414,
+    "file_list_sha256": "e8b6aa820a651e62255ad332ad61b84600bb3a025348d1e7572e7a9d3637f7b4",
+    "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
+    "original_git_history_bundled": false,
+    "license_scopes": [
+      "Apache-2.0 (owner-authored controller/integration patch)",
+      "Apache-2.0 (owner-authored source)"
+    ]
+  },
+  {
+    "artifact_group": "research-tools/issue-735-cp2077",
+    "files": 1,
+    "bytes": 29851,
+    "file_list_sha256": "356eca87a314d8f574867ead19b474350f29d64ade5145ac80502b827c15d8dc",
+    "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
+    "original_git_history_bundled": false,
+    "license_scopes": [
+      "Apache-2.0 (owner-authored source)"
+    ]
+  },
+  {
+    "artifact_group": "research-tools/qc-issue-591-ets2-0807",
+    "files": 5,
+    "bytes": 26577,
+    "file_list_sha256": "611e3c7ebd176c7c7b1541fd6478cd0b61512779e7ca8b5b3399036512d8c8a3",
+    "source_tree_sha_definition": "SHA-256 over sorted compact JSONL path/bytes/sha256 entries in SOURCE_MANIFEST",
+    "original_git_history_bundled": false,
+    "license_scopes": [
+      "Apache-2.0 (owner-authored source)"
     ]
   }
 ]
