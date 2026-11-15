@@ -1,0 +1,2505 @@
+diff --git a/engine-data/gta-capture/README.md b/engine-data/gta-capture/README.md
+index bf0ae38e..f6fdafff 100644
+--- a/engine-data/gta-capture/README.md
++++ b/engine-data/gta-capture/README.md
+@@ -7,10 +7,36 @@ PR #405 GTA 实机采集框架。设计裁决见
+ 
+ 操作手册见 **[RUNBOOK-MC2-60S.md](RUNBOOK-MC2-60S.md)**；契约依据
+ [docs/158 §2.5](../../DataMiner/docs/158-gta5-legacy-pr405-multicamera-feasibility-and-implementation-plan.md#25-按验收基准-demo-校准合同2026-09-08)。
+-三条新链路（2026-09-08，开发机侧，**未在 Windows 上跑过**）：
++本轮 Windows Python 全量回归 **256/256** 通过，包含新增 RE+-only 来源验证的 **20 项**测试；
++第三人称控制组件完成真实 MSVC 构建及完整 CTest **8/8**。002 母片实录 60 秒、1800 帧遥测，
++第三人称保护取得 3778 次 mode 1 观察；原 002 和 retry01 的指针污染证据保留。
++最终 [retry02 RUN](out/mc2-20260908/run-mc2-beach-002-reexport-02/run-manifest.json) 已完成
++四路各 1800 帧的 collect 和 finalize，`capture/` 中四个 60 秒视频、八个元数据文件已物化。
++**内部成片已完成**：[最终产物说明](out/mc2-20260908/run-mc2-beach-002-reexport-02/README-最终产物.md)、
++[四视图预览](out/mc2-20260908/run-mc2-beach-002-reexport-02/preview/mc2-final/four-camera-preview.mp4)。
++预览已验证 1800 解码帧、60.0 秒、1920×1080、30fps，同目录 `review-media-manifest.json` 保存回执。
++
++7200 张原始 PNG 的 SHA 全部核验通过，固定位置旧指针模板零候选；64 张抽查帧中人物均在画内。
++这不等于全图无 UI 或受信人工验收。音频已封存为 60.01 秒、连续、非静音、无削波；
++[元数据反变换诊断](out/mc2-20260908/review/retry02-metadata-world-roundtrip.json) **54/54** 通过，
++仅证明与封存原生事件数值一致，不授予投影或 replay-origin 批准。
++四路已绑定同母片、同 frame 索引和同回放时间轴；20 秒 frame 600 曾观察到步态外观差异。
++随后对第 1、2 路 19–21 秒各 60 张连续原帧核验 SHA 并目视检查，未见支持超过 3 帧错位的明显证据，
++差异更像俯视角度所致；目视事件定位约有 0–2 帧不确定性，不是骨骼相位误差上界。
++[连续片段诊断](out/mc2-20260908/review/retry02-gait-19-21-diagnostic/FINDINGS.md) 仅覆盖这两路两秒，
++全片实际实体/骨骼状态尚未测量，`entity_animation_state` 仍未验证。
++
++已绑定的 [正式 QC 报告](out/mc2-20260908/run-mc2-beach-002-reexport-02/evidence/engine-qc.json)
++为 **148 PASS / 1 FAIL / 14 SKIP / 0 UNVERIFIED，verdict FAIL**：`num.input_stream` 检出首路累计旋转 139°，
++但原生 writer 以 `native_task_go_straight` 来源给 1800 帧固定输出 `mouse_dx/dy=0`，
++并未采集物理鼠标，不能据此声称真实零输入；程序控制的相机旋转未满足该输入流契约。
++实际导出姿态的 24 段六向平移、解耦和第四路俯视逐项 PASS，但总体 QC 失败，轨迹正式授权为空。
++三条 calibration 也仍 FAIL；`internal_poc_usable=false`、`delivery_eligible=false` 和 non-trainable
++保持。本轮完成的是内部视频和诊断物化，不能称正式验收通过。
+ 
+ | 命令 | 作用 |
+ |---|---|
++| `python -m gta_capture.moving_plan ... --record-run-dir ... --scenario ...` | 根据已封存 master 的真实录制遥测重编相机轨迹，冻结原生命令与观察来源，复算规划 QC |
+ | `place-trajgen` | 把 trajgen clip 刚体摆位到实测 Story Mode 锚点，产出可飞的 GTA 世界带子 + `subject-route.json` |
+ | `solve-calibration` | 从实测对应点解 fx/fy 与 filmback，出 `dm-gta-projection-calibration/1` 证据 |
+ | （`run` 内置） | 写 gate 前跑一次 `engine_qc`，把轨迹族翻译成 gate 规则并落 `evidence/trajectory-verdict.json` |
+@@ -18,7 +44,30 @@ PR #405 GTA 实机采集框架。设计裁决见
+ `import-trajgen` 仍保留，但它产出的是 trajgen 原生坐标、标注 `pending calibration` 的带子，
+ `orchestrator`/`staged` 不接受它做实机采集——**要飞的带子一律用 `place-trajgen`**。
+ 
+-## 当前状态（2026-08-31）
++移动主体流程为 `native-record-smoke` → `moving_plan --record-run-dir` → `place-trajgen` →
++四路分阶段导出。场景中的 `player.speed_mps` 是兼容旧契约的原生任务参数，**不能视为实测米/秒**；
++相机追踪封存遥测的平滑路线，`native_command` 单独保存原生参数。拟合最大残差不得超过 0.25 m，
++并报告最大/P95 残差和实测运动量；来源或轨迹不符、换用其他 replay、改变帧起点都会被绑定检查拒绝。
++master 录制与四路导出须处于同一 GTA 进程；场景、来源计划及 replay/遥测在封存后保持原始字节。
++实测路线的 placement 绑定录制首帧实体观测位置，允许场景请求位置到实测起点在既有 0.25 m
++边界内发生沉降；不会把观测轨迹平移回场景请求坐标。旧 authored 路线仍要求 anchor 与场景相差不超过 1 mm。
++操作命令和恢复约束见 runbook §3、§5。
++
++录制前须在 Story Mode 中**目视确认第三人称画面能看到受控角色**，预热和录制期间保持该视角。
++新版原生组件自动选择中距第三人称，连续两帧确认跟随相机生效，预热后重新确认，
++并在录制期间检查视角漂移；失败时丢弃录制。`recording_start_verified` 和原生视角状态
++都不证明导出像素中的角色可见，`recording_camera.pixel_visibility_verified` 保持 false，
++必须先检查首路原始 PNG，再继续其他机位。
++第一人称 master 曾在 Editor 提示视角限制，原生导出只见海滩、没有主体；出现该情况必须新 run
++重录，再绑定新遥测重生成计划。正常步行速度的 60 秒计划使用显式
++`--choreography-mode independent_windows`，命令见 runbook §3。
++
++`covis.json` 当前基于明确标注的规划平面 proxy，不是实测 GTA 遮挡/共视。缺少真实批准的
++projection 时，三条 calibration 继续 FAIL；录制侧遥测也不证明 Editor replay frame 0，
++不授予 `player_replay_origin` / `player_state`。历史上 PR #921 首次 Windows 执行的
++134 项测试与路线未接线而停止的结论，仅描述首次尝试，不能当作当前实现或 60 秒实机完成证明。
++
++## 既有实机状态（2026-08-31）
+ 
+ | 层 | 状态 | 说明 |
+ |---|---|---|
+@@ -161,8 +210,11 @@ real mode。实机 POC 先读取当前 Story Mode 锚点，再生成绝对 GTA-n
+   --anchor-x <probe-x> --anchor-y <probe-y> --anchor-z <probe-z> --duration 10
+ ```
+ 
+-最终 real seal 会要求 scenario 的显式 location、tape 的 anchor 和原生录制回报的 player 起点一致；
+-示例中的 `[0,0,0]` 只允许用作尚未绑定的模板，不能通过 `finalize-native-poc`。
++最终 real seal 分别校验场景来源、tape anchor 与原生实体起点：旧 authored tape 使用 1 mm 场景
++匹配，实测录制路线保留 0.25 m 起点边界并严格绑定观测首点。示例中的 `[0,0,0]` 只允许用作
++尚未绑定的模板，不能通过 `finalize-native-poc`。
++这里的 probe `player_position` 来自角色实体位置读回，不是独立测得的脚底或地面高度；地面与净空
++需另外勘查。
+ 
+ tape 保存四路逐帧计划 pose、统一 `source_t_ns`、K、焦距和分辨率。真实交付 pose 不直接取
+ tape；必须由 ASI 在 RE+ v18 final-writer/request/pixel-ready 同代际边界读取 final rendered camera 和
+@@ -235,7 +287,7 @@ cmake --build native/build-asi --config Release
+ ```
+ 
+ RE+、IgcsConnector 与 controller 三个 PE 的字节哈希会受链接时间戳和绝对 PDB 路径影响，因此不把
+-某次临时构建 hash 硬编码进仓库。必须在干净的已提交 controller 源码上生成构建收据；脚本核对第三方
++某次临时构建 hash 硬编码进仓库。完整栈 v1 收据必须在干净的已提交 controller 源码上生成；脚本核对第三方
+ commit、字节完全相同的完整补丁 diff、未跟踪文件和工具链；随后脚本自己执行三次 clean Release
+ rebuild，只封存本次从固定输出目录新生成的三个产物：
+ 
+@@ -256,6 +308,89 @@ powershell -File scripts/write-capture-build-receipt.ps1 `
+ 运行时 RE+ 不信任 plan 回显：它每个 tick 独立读取实际 `Config::renderIniPath`、计算 SHA-256 并与
+ plan-v2 比较，同时发布实际摘要和规范化输出根；从启动、逐帧等待直到 DONE 任一漂移都会失败。
+ 
++仅更新 controller 时可用 [write-controller-build-receipt.py](scripts/write-controller-build-receipt.py)
++封存 `dm-gta-capture-build-receipt/2`：它完整复验不可变的 v1 父收据及旧 controller 备份，继承所有
++未变组件与 Render.ini；新增 controller 绑定实际编译源码清单、base commit + 未提交补丁/新增文件、
++同锁 SDK、工具与 CMake 配置、真实 configure/build/完整 8 项 CTest 日志和 ASI 字节。
++源码快照与补丁须逐文件一致，manifest 只允许 controller/receipt 与对应源码标识变化。
++这是本地无签名来源审计，不声称重新构建 RE+/IGCS，也不批准 calibration、权利、视频验收或交付。
++
++在已验证的 RE+-v3 栈上再次只更新 controller 时，同一工具封存
++`dm-gta-capture-build-receipt/4`（`controller_on_replus_derived`），仅接受固定的
++v4 → v3 → v2 → v1 链，不接受 v4 父或任意递归派生。它完整复验原 v3 链、新 controller 的
++冻结源码与真实构建，并要求构建收据绑定该 v3 父收据。父 manifest/receipt 原字节不变；旧 controller
++备份须同时匹配父 manifest 和历史 v2 构建的 SHA/长度，安装路径被替换后也只按该历史 SHA 解析备份。
++当前 manifest 只允许 controller、capture receipt 及 controller 的 base commit/源码清单标识变化；
++RE+、Render.ini、其它来源与全部批准字段保持原值。新 RE+ patch pin 和 render profile 只有完整链验证
++通过才可继承。v1/v2/v3 的原规则不变，v4 仍不授予运行、标定、训练或交付批准。
++
++```powershell
++python scripts/write-controller-build-receipt.py `
++  --controller-build <FROZEN_CONTROLLER_BUILD>/controller-staging-build-receipt.json `
++  --parent-manifest <VERIFIED_REPLUS_V3_MANIFEST.json> `
++  --parent-controller-backup <EXACT_OLD_CONTROLLER.asi> `
++  --build-helper <ACTUAL_CONTROLLER_BUILD_HELPER.py> `
++  --out-dir <NEW_DERIVATION_DIR>
++```
++
++v4 输出 `manifest-source-review.json` 和完整来源复验结果 `source-verification.json`；输出目录必须全新，
++失败文件保留。该 manifest 指向候选构建文件，不表示已安装。实际部署后新建安装 manifest，仅将
++controller 的路径改为已逐字节核验的实际安装路径，再运行完整来源检查与 real preflight。
++
++仅更新 RE+ 时使用独立的 [write-replus-build-receipt.py](scripts/write-replus-build-receipt.py)
++封存 `dm-gta-capture-build-receipt/3`（`replus_only_derived`）。它只接受完整验证的 controller-v2 父链，
++父 v2 内部继续按原规则验证 v1；父 manifest/receipt 保留原字节，旧 RE+ 备份同时匹配父 manifest
++和原始 v1 artifact 的 SHA/长度。当前 manifest 只允许 RE+ ASI、capture receipt、RE+ 完整补丁和
++源码清单标识变化，其他组件、配置、政策和 calibration 原样继承。v3 不支持递归 v3 父链。
++
++v3 把锁定 Git commit、完整 base archive、代码中逐份登记的完整补丁与全部编译源逐文件重构比较。
++当前登记 [Story-idle 补丁](patches/replus-v18-story-idle-state.patch) 和
++[指针刷新补丁](patches/replus-v18-cursor-refresh.patch)，两者 SHA 独立固定；
++并核对实际 configure/build 日志、CMake cache、生成项目、五个工具文件以及诊断日志中的真实 `rc.exe`
++命令。原 [v18 补丁](patches/replus-v18-evidence-fence.patch) 和 v1/v2 的固定 pin 不变；预检只有在
++整条 v3 验证 PASS 后才接受该次实际构建对应的已登记 patch pin，伪造 schema 或修改 manifest hash 不会放行。
++两份补丁各自固定 9 项和 14 项编译期契约断言，不记为 CTest；未运行的 `mt.exe` 也不写成实际执行工具。
++
++```powershell
++python scripts/write-replus-build-receipt.py `
++  --replus-build <FROZEN_REPLUS_BUILD>/replus-staging-build-receipt.json `
++  --parent-manifest <VERIFIED_CONTROLLER_V2_MANIFEST.json> `
++  --parent-replus-backup <ORIGINAL_REPLUS.asi> `
++  --source-repository <REPLUS_GIT_OBJECT_REPOSITORY> `
++  --out-dir <NEW_DERIVATION_DIR>
++```
++
++`--parent-replus-backup` 可省略以读取父 manifest 的原安装文件；若该路径已被替换，必须提供原字节备份，
++错误备份会拒绝。脚本只封存和复验已完成的候选构建，生成 `manifest-source-review.json`，不执行编译、
++部署或游戏调用。输出目录必须全新，失败产物保留。部署后以实际安装路径的新 manifest 再完整复验。
++
++`--source-repository` 可省略，默认采用构建收据中的对象仓库路径，未提供时采用编译源码快照。
++若冻结快照没有 `.git`，应显式指向保存锁定 RE+ 提交对象的原仓库。脚本在创建输出目录前实际检查
++`c6eba57160ca444817b149b3304ed1454e0ba2d9` 提交对象；随后仍从该对象重建完整 base + patch，
++并逐文件核对实际编译快照。该参数只决定对象读取位置，不修改成功构建收据或替换编译源，
++也不能绕过旧父链、工具、日志和 ASI 校验。定位失败时保留原失败目录，用新目录重新封存，无需重编同一快照。
++
++本机 `replus-story-mode-fix-03` 已真实构建并安装，
++[安装后 v3 manifest](out/mc2-20260908/replus-story-idle-derived-01/manifest-installed.json) 和
++[部署回执](out/mc2-20260908/replus-story-idle-derived-01/deployment-receipt.json) 的完整来源验证 PASS。
++这次仅修正 RE+ 对 Story idle 的状态发布；截至该回执，Story sampler 运行效果及 Editor 投影等价仍未验证，
++不改变已封存 retry02 视频/元数据的 FAIL，也不批准标定或交付。
++
++安装后的真实运行已补充 **128/128** Story 世界标记 PNG 观测与独立检点，
++[分析报告](out/mc2-20260908/story-projection-analysis-01/analysis.json) 的中心固定重投影 RMS
++为 **0.679542 px**（18 mm 留一法最大 **1.010471 px**），
++[独立复核](out/mc2-20260908/review/story-projection128-review/review.md) 检查了输入哈希和采样前后稳定性。
++这些后续证据不改写安装回执，也不把 Story-only 结果升级为 Editor、实米尺度或正式交付批准。
++
++后续 Story→Editor 对照也已完成：同一新母片、四个焦段各两段静止相机，共 **600 张真实 Editor PNG**。
++[完整性复核](out/mc2-20260908/review/story-editor-integrity-review/all4.json) 的文件、相机控制读回、
++generation 与时间轴检查通过；[八组局部静态像素对照](out/mc2-20260908/review/story-editor-transfer-summary-01/SUMMARY.md)
++保留全部原始匹配差，未做几何修正或按误差删点。35 mm 第一组存在跨楼层窗框错配，
++原始最大距离 **40.584344 px**、RMS **1.562569 px** 保留；50 mm 第二组仅有 51 个匹配。
++这些是有限静态区域的诊断，不能授予全画面、动态人物或正式 Editor 标定等价。
++60 秒四路视频、最新实测和正式 QC FAIL 的完整入口见
++[最终交接](out/mc2-20260908/README-最终交接.md)。
++
+ ### 3. 部署并生成本机 manifest
+ 
+ 所有来源、收据、产物 hash、allowlist 和 Render.ini 键会在写游戏目录前预检；部署拒绝游戏目录本身、
+@@ -382,7 +517,9 @@ powershell -File scripts/run-real-poc.ps1 `
+ 
+ 中断后加 `-Resume`。已 seal 的 master replay 和已完成 lane 会复用；缺文件或 hash 不一致时拒绝
+ 续跑，不静默重录成另一个世界。v18 只允许进程期 owner 对匹配 request 执行失败释放与 RE+ cancel；
+-未知或不匹配的 pending request 不会被猜成 stale。若 owner/identity 无法证明，停止并重启 GTA 后再续跑。
++未知或不匹配的 pending request 不会被猜成 stale。若 owner/identity 无法证明，停止当前导出；
++重启 GTA 后进程期 master 绑定失效，须用新 run 重录 master、重生成实测计划并重新导出，不能复用
++旧进程绑定继续同一轮。已封存的旧产物保留供诊断。
+ 
+ ### 5. QC 与打包
+ 
+@@ -399,7 +536,7 @@ powershell -File scripts/run-real-poc.ps1 `
+ `package` 命令未来同时要求：真实像素、QC PASS、非 mock、policy delivery eligible，以及独立
+ `gta-pr405-gate.json` 的实际时钟、机器证明的四路同 replay、v18 generation/像素/pose 栅栏、独立 player telemetry 诊断、音频、projection、
+ 完整 trajgen/共视/cam4/动态/竖屏/运动/六平移、source action、实体动画状态、人工复核和商业权利全部
+-PASS。当前 10 秒 anchor tape 只是 bring-up，不会获得完整 PR #405 轨迹规则；checked-in GTA profile
++PASS。历史 10 秒 anchor tape 只是 bring-up，不会获得完整 PR #405 轨迹规则；checked-in GTA profile
+ 和 example manifest 也都是 non-trainable，
+ 且在独立 in-band replay-origin calibration artifact 与验证器实现前，player telemetry 不会授予
+ `player_state`；
+diff --git a/engine-data/gta-capture/RUNBOOK-MC2-60S.md b/engine-data/gta-capture/RUNBOOK-MC2-60S.md
+index 998731d5..6b749481 100644
+--- a/engine-data/gta-capture/RUNBOOK-MC2-60S.md
++++ b/engine-data/gta-capture/RUNBOOK-MC2-60S.md
+@@ -1,10 +1,18 @@
+ # Runbook · 60 秒 mc2 形态四路采集（Windows 采集机）
+ 
+-面向 **hakko-win / GTA V Legacy 3889 采集机**的操作手册。目标是产出一条 60 秒、
++面向 **Windows / GTA V Legacy 3889 采集机**的操作手册。目标是产出一条 60 秒、
+ docs/69 §8.3 **mc2 形态**的四路 clip：人形受控角色 + 三路地面跟随 + 第四路高空垂直俯视伴飞。
+ 
+ 契约依据 [docs/158 §2.5](../../DataMiner/docs/158-gta5-legacy-pr405-multicamera-feasibility-and-implementation-plan.md#25-按验收基准-demo-校准合同2026-09-08)。
+-本轮开发机侧已完成的部分见 docs/158 §0.0「2026-09-08」。
++docs/158 §0.0「2026-09-08」记录初次实施状态；本轮后续完成的录制遥测轨迹接线以本文和源码为准。
++**本轮四路各 60 秒视频及八个元数据文件已物化，正式 QC 未通过。** 最终
++[retry02 RUN](out/mc2-20260908/run-mc2-beach-002-reexport-02/run-manifest.json) 的四路原始帧已全部
++collect，音频已封存，finalize 已成功，内部成片已完成：
++[最终产物说明](out/mc2-20260908/run-mc2-beach-002-reexport-02/README-最终产物.md)、
++[四视图预览](out/mc2-20260908/run-mc2-beach-002-reexport-02/preview/mc2-final/four-camera-preview.mp4)。
++预览已验证 1800 解码帧、60.0 秒、1920×1080、30fps。已绑定 QC 为
++148 PASS / 1 FAIL / 14 SKIP / 0 UNVERIFIED，失败为 `num.input_stream`，并非仅缺标定；三条 calibration 也仍 FAIL。
++`internal_poc_usable=false`、`delivery_eligible=false` 和 non-trainable 保持。
+ 
+ > **先读这条**：本 runbook 只覆盖到「产出内部证据」。`package` 仍被代码硬阻断，
+ > `non_trainable` 未解除，L1（Rockstar 商业权利）与 C1/C2（需方同步/元数据语义）
+@@ -19,8 +27,30 @@ cd engine-data\gta-capture
+ .\scripts\test.ps1
+ ```
+ 
+-期望 Python **134/134**、原生 CTest 7/7。开发机上 134 条已过，但本轮改动
+-**从未在 Windows 上跑过**——这一步失败就先停下报回，不要继续往下走。
++所有 Python 命令使用 Python 3.10+；若默认解释器版本过旧，测试脚本显式传 `-Python`，
++后续命令也使用同一个解释器。
++
++本轮 Python 全量回归 **256/256** 通过，包含新增 RE+-only 来源验证的 **20 项**测试。
++带第三人称保护的原生组件已完成 Windows MSVC Release 构建及完整 CTest **8/8**，
++并通过明确的 controller-only 派生 v2 来源验证；旧组件和父 v1 回执保留，未冒充全栈重建。
++新环境仍须运行检查，失败先修复。PR #921 初次执行的 **134/134** 和因角色路线未接线而停止，
++均为历史记录；新增链路的离线测试通过不等于 60 秒 GTA 画面已通过验收。
++
++本机后续只重建 RE+，采用独立 `dm-gta-capture-build-receipt/3`，没有把 RE+ 更新写成 controller-only v2。
++`replus-story-mode-fix-03` 的真实 configure/build 均成功，9 项模式判断编译期断言通过；
++[安装后 manifest](out/mc2-20260908/replus-story-idle-derived-01/manifest-installed.json) 的完整
++v3 → v2 → v1 来源验证 PASS。旧 RE+、两级父收据和此前尝试 01/02 均保留，旧 retry02 RUN 不改写。
++
++准备下一次 RE+ 候选时，先冻结完整源码、锁定 Git base archive 和完整补丁，再在全新 build 目录构建，
++实际构建加 `-- /v:diag` 记录资源编译器命令。使用 README「构建 ASI 与构建收据」中的
++`write-replus-build-receipt.py` 封存候选；它会核对真实工具、日志、项目和编译源，错误 backup 或来源不一致
++会拒绝。生成的 source-review manifest 只供检查候选，安装后须生成指向实际安装文件的独立 manifest 再复验。
++不要修改 v1/v2 的旧 RE+ patch pin；新 pin 只在完整 v3 PASS 后由预检接受。
++
++该安装回执中的 `story_projection_runtime_tested=false`、`editor_equivalence_verified=false` 和
++`delivery_eligible=false` 记录安装时状态，原回执不追溯改写。随后已完成 128 点真实 Story 采样与独立
++PNG 检点，见第 4.1 节；Story/Editor 投影关系另做实际导出诊断。原三条 calibration FAIL 和输入流 FAIL
++不因采样完成而消失，诊断数值不授予正式标定或交付批准。
+ 
+ ---
+ 
+@@ -41,13 +71,15 @@ cd engine-data/qc
+ python -m engine_qc check-clip --mode mc <CLIP_DIR>
+ ```
+ 
+-开发机参考值：`128 PASS / 0 FAIL / 20 SKIP → PASS`。
++初次计划的历史参考值：`128 PASS / 0 FAIL / 20 SKIP → PASS`。
++这是相机编排的来源计划，尚未绑定真实角色运动；第 3 节会根据 master 遥测重生成并重新 QC。
++规划平面 proxy 上的共视率不能替代 GTA 实景的投影、遮挡和动态可见性证据。
+ 
+ ---
+ 
+ ## 2 · 勘点：在 Story Mode 里选锚点
+ 
+-摆位需要三个实测量。用现成命令读当前 Story Mode 状态：
++后续 `gta_capture` 命令均从 `engine-data/gta-capture` 执行。用现成命令读当前 Story Mode 状态：
+ 
+ ```powershell
+ python -m gta_capture probe-game
+@@ -57,34 +89,83 @@ python -m gta_capture probe-game
+ 
+ | 量 | 含义 | 怎么取 |
+ |---|---|---|
+-| `anchor_x/y/z` | **t=0 时受控角色脚下**的 GTA 世界坐标 | 把角色走到起点，读 probe 的 player 位置；`z` 取可行走地面 |
+-| `heading_deg` | 整个机位组绕世界 Z 的朝向，0 = +Y | 想让路线朝哪条街，就填那个 GTA heading，取 `[0,360)` |
++| `anchor_x/y/z` | 受控角色实体观测位置的 GTA 世界坐标 | 把角色移到起点，读取 probe 的 `player_position`；该 `z` 不等于独立测得的脚底或地面高度，地面需另行勘查 |
++| 场景 `player.heading_deg` | 原生角色行进命令的朝向，0 = +Y | 取 `[0,360)`；实测路线已在世界坐标中，后续摆位不能再重复旋转 |
+ | `ground_y` | trajgen 场景的地面在交付基下的高度 | 内置合成场景（`urban_block` 等）**恒为 0**，用默认值即可 |
+ 
+ 选点要求（这些**不由代码验证**，是勘点纪律）：
+ 
+-- 角色起点周围约 **40 m 半径**内相机自由体积充足——三路机位在锚点后 12–15 m、
+-  高 2–3 m，第四路在锚点上方 **21–24 m**（实测该高度区间），路径上不能有屋檐、天桥、树冠；
++- 勘查角色整段行进路线和四路相机的完整运动体积，不只检查起点；按实际计划的逐帧位置范围
++  确认屋檐、天桥、树冠和建筑间隙，改变路线或 `choreography-scale` 后重新检查；
+ - 开阔、无近景遮挡物（POC061 就栽在前景灯杆上）；
+ - 不在任务触发区、不在室内、不在会刷警察的区域；
+ - 电台关闭（`radio_off` 走原生状态回读，不是手填布尔）。
+ 
+ ---
+ 
+-## 3 · 摆位：把计划钉到 GTA 世界
++## 3 · 录制 master，再按实测路线生成相机计划并摆位
++
++先完成第 4 节的 preflight 判定。冻结一份 `replay.duration_s=60`、`fps=30` 的场景文件到
++`<RUN>\config\scenario.json`，绑定勘点位置、原生行进方向和距离；`<RUN>` 必须是新 run。
++`player.speed_mps` 名称沿用旧协议，数值是原生任务参数，**不保证角色以相同的米/秒行进**。
++先短录观察真实速度/行程，再用新 run 录正式 master；不要由参数直接推算相机追踪路线。
++
++新版 controller 在应用场景时自动选择中距第三人称（`follow_ped_camera_view_mode=1`），
++要求该模式与 `follow_ped_camera_active=true` 连续 **2 个游戏帧**回读一致；最长等待 60 帧，
++未稳定则拒绝录制。预热后、recorder 启动前会重新准备并确认。录制窗口内持续按游戏帧回读，
++若模式偏离或 follow-ped 相机不再活跃，就丢弃 clip。`probe-game` 可读出当前模式和活跃状态；
++录制结果记录最后观察模式及游戏帧观察次数。旧组件不能套用这项自动验证结论。
++
++**自动视角检查不能替代画面检查。** 准备后仍须目视确认 Story Mode 中受控角色可见。
++`recording_start_verified=true` 只说明 recorder 的启动边界；录制结果中的
++`recording_camera.pixel_visibility_verified=false` 仍须保留，模式回读不证明导出像素中的角色可见性。
++本轮早期第一人称 master 曾在 Editor 出现视角限制提示，导出的原生 PNG 只有海滩、没有受控角色。
++录完后先检查 Editor 是否存在第一人称限制提示，**必须检查第一路原生 PNG 实际包含完整角色，
++再继续其他路导出**；若失败，保留诊断，用新 run 重录 master、重生成计划，不要复用旧 replay
++或声称规划入框率已证明主体可见。
+ 
+ ```powershell
+-python -m gta_capture place-trajgen <CLIP_DIR> `
++python -m gta_capture native-record-smoke `
++  --scenario <RUN>\config\scenario.json --run-dir <RUN>
++
++python -m gta_capture.moving_plan <CLIP_DIR> <RUN>\config\recorded-plan `
++  --record-run-dir <RUN> --scenario <RUN>\config\scenario.json `
++  --ground-y 0 --choreography-mode independent_windows
++```
++
++第二条命令需要完整的 1800 帧 master 遥测，读取 `evidence/native-record-result.json` 所封存的
++replay/telemetry 和场景 SHA-256。它将原生命令放入 `native_command`，从观察位置生成平滑路线，
++重新计算四路相机与规划 QC，写出 `forward-plan-qc.json`、`provenance.json` 和 `plan.json`。
++默认平滑为 15 帧居中窗口、3 次处理并保留首点；最大拟合残差上限为 **0.25 m**，报告最大/P95
++残差、实测路程和速度。场景、replay、遥测、来源计划及生成计划在封存后保持字节不变。
++
++`independent_windows` 用六个独立轴向平移窗口和平滑连接重新安排机位，可跟随正常步行约
++1.7 m/s、末段自然停止的实测路线；前三路保持地面视角，第四路约 20 m 高空俯视。
++不带该选项仍是来源编排适配方式，不能假定它能通过正常步速路线的 QC；本模式要求
++`choreography-scale=1.0`，无需另加缩放参数。它还把全部平滑实体观测的纵向高度趋势确定性拟合
++为规划斜平面，并同时保留原水平代理的完整诊断和哈希。单条实体路线没有测量脚底、横坡或可见
++场景表面，两种代理都不能授予 GTA 实景共视结论，最终须核对原生四路画面。
++
++命令输出的 `placement` 是实测世界坐标摆位依据。下面的 X/Y/Z **逐项取该输出的 anchor**，
++`heading-deg` 固定为 **0**，`ground-y` 与生成时相同；不得再填角色行进朝向，也不得平移到另一地点。
++角色沉降后，实测 placement 可与冻结场景请求位置不同：录制路线保留原有 **0.25 m** 起点边界，
++并严格绑定首帧实体观测坐标；不会为了满足旧 authored 路线的 1 mm 检查而平移观测数据。
++`ground-y` 仅是规划坐标中的地面参考，不构成 GTA 脚底/地面采样证据。
++
++```powershell
++python -m gta_capture place-trajgen <RUN>\config\recorded-plan `
+   --out <RUN>\config\camera-tape.json `
+-  --filmback-id <批准的 filmback id> `
++  --filmback-id <MANIFEST中的filmback_id> `
+   --clip-id gta-mc2-001 `
+   --anchor-x <X> --anchor-y <Y> --anchor-z <Z> `
+-  --heading-deg <H>
++  --heading-deg 0 --ground-y 0
+ ```
+ 
+ 输出会打印 `rigidity_residual_m`（刚体残差，应为 1e-12 量级）、`cam4_mode`（须为 `topdown`）、
+ `coordinate_convention`（须为 `gta-native-z-up-right-handed-order2`）。
+-同时在 `--out` 旁边写出 **`subject-route.json`**——受控角色要走的路线，与相机来自同一次变换。
++同时在 `--out` 旁边写出 **`subject-route.json`**，并把同一份路线和来源绑定嵌入 camera tape。
++它描述角色已经录下的运动，不驱动 ASI 执行 waypoint。校验器会重新打开冻结来源，复算平滑结果，
++核对计划锚点的世界 XYZ/瞄准高度，并拒绝其他 replay、被改写的轨迹或非零起始帧裁剪。
+ 
+ 命令会在以下情况**拒绝出带**，不要绕过：
+ 
+@@ -93,21 +174,53 @@ python -m gta_capture place-trajgen <CLIP_DIR> `
+ - 刚体残差超限（相机组被拉伸，一切共视结论作废）；
+ - 输入不是四路 mc clip。
+ 
+-> **已知形态差距**：`subject-route.json` 来自计划的锚点轨迹，60 秒净位移只有约 1–3 m
+-> （实测三个种子 2.07 / 1.02 / 3.16 m，包围盒约 3×3 m）。角色是**原地走动**，
+-> 不是 mc2 里那种沿路线行进。这不违反 docs/69 §8.3 的六条校准，但看上去与 mc2 不同，
+-> 已列入 docs/158 §0.0 的下一项。勘点时按「原地走动」选场地即可，不必找长街。
++历史版本直接使用 trajgen 的小范围锚点轨迹，既不能证明角色会执行该路线，也未接入原生 waypoint
++驱动。当前真实移动路径采用上述“先录制、后拟合”的流程；不带 `--record-run-dir` 的
++`moving_plan` 仍是理想匀速规划诊断，不能冒充实测角色速度。
++
++**保持当前 GTA 进程运行到四路导出和音频封存完成。** 离线生成计划可以在此期间执行，
++但重启 GTA 会丢失进程期 master 绑定；若重启，用新 run 重录 master，并重新生成及摆位，
++不要仅复制旧文件或改路径继续导出。需要迁移来源时，`build_recorded_subject_route(..., artifact_dir=...)`
++Python API 可复制并复核四份来源的原始字节；CLI 没有 `--artifact-dir` 参数。摆位和导出封存之后，
++不可再改 tape 中的来源路径或混用其他 run 的文件。
+ 
+ ---
+ 
+ ## 4 · 投影标定：清掉三条 FAIL
+ 
+-`preflight --real` 目前固定 30 PASS / **3 FAIL**（`calibration.binding`、
++首次实机 `preflight --mode real` 为 30 PASS / **3 FAIL**（`calibration.binding`、
+ `calibration.projection_evidence`、`calibration.projection_contract`）。这三条要的是同一份
+ 批准的投影证据。**不要手写 JSON，也不要抄示例数字**（docs/158 §11 P0 明令禁止）。
+ 
+ ### 4.1 采样
+ 
++可用 `sample-story-projection --request <REQUEST.json> --out-dir <NEW_SAMPLE_DIR>` 取得独立标注的
++Story 诊断。该命令只接受离线 Story，真实观察与原生 PNG 按 SHA 绑定，输出保持 draft、
++`editor_equivalence_verified=false`、`delivery_eligible=false`，不直接进入 Editor v18 标定组装器。
++每点使用全新目录；从 PNG 全图独立检出世界标记像素，不能拿规划投影或原生返回 UV 充当图像检测值。
++128 点离线请求计划见
++[Story 采样计划](out/mc2-20260908/story-projection-128/README.md)：四焦距各 32 点，两个倾角、两个深度，
++预测横纵覆盖各 60%；实际覆盖和遮挡是否合格须由真实 PNG 决定。批处理失败保留，显式续传先重哈希。
++
++本轮已完成 **128/128** 真实 PNG 观测，独立从全图检出全部世界标记；实际横纵跨度约 60%。
++[实测分析](out/mc2-20260908/story-projection-analysis-01/analysis.json) 的中心固定模型重投影 RMS
++为 **0.679542 px**、最大 **0.793862 px**；native UV 与独立像素中心的 P95 为 **0.709486 px**。
++18 mm 留一法最大误差为 **1.010471 px**，不能宣称所有交叉验证误差小于 1 px。
++[独立复核](out/mc2-20260908/review/story-projection128-review/review.md) 核验了 774 个输入文件、
++姿态/FOV 稳定性和 request/ready/release/ack 绑定。结果仍为 Story-only、draft、non-trainable；
++名义焦距和 FOV 推导的 filmback 不是物理传感器或实米尺度测量，不能自动填入正式 Editor 标定契约。
++
++随后已在同一新录制进程中完成 Story→Editor 四焦段、每焦段两个静止姿态的真实对照导出，
++四路各 150 帧，共 **600 张 Editor 原始 PNG**。独立 [完整性报告](out/mc2-20260908/review/story-editor-integrity-review/all4.json)
++为 PASS：文件绑定、600 个像素/姿态 generation fence、相机控制读回与同母片时间轴均已核对；
++这只证明采集链与控制参数一致，不等于实测投影或人物骨骼一致。
++[八组像素诊断](out/mc2-20260908/review/story-editor-transfer-summary-01/SUMMARY.md) 实际比较每路第 45/120 帧
++与对应 Story 原图，只使用预先圈定的静态区域，保持原尺寸原坐标、同一双向描述符算法和阈值。
++不做 warp、RANSAC、平移扣除或按位移删点。35 mm 第一组的跨楼层窗框错配仍计入原始结果
++（RMS **1.562569 px**、max **40.584344 px**）；50 mm 第二组只有 51 个匹配，不能泛化到全画面。
++全部结果保持 draft、`editor_equivalence_verified=false`，不重写旧 60 秒 RUN 的正式 QC 与 gate。
++视频与后续证据的统一入口见 [最终交接](out/mc2-20260908/README-最终交接.md)。
++
+ 在采集机上测一批「世界点 ↔ 像素 ↔ 当帧相机位姿」对应点，写成
+ `dm-gta-calibration-samples/1`：
+ 
+@@ -155,10 +268,15 @@ python -m gta_capture solve-calibration `
+ `calibration_id` / `filmback_id` / `metric_scale` / `acceptance` 与证据逐字一致。
+ 
+ ```powershell
+-python -m gta_capture preflight --real ...
++python -m gta_capture preflight --manifest <MANIFEST.json> --mode real `
++  --out <RUN>\evidence\preflight.json
+ ```
+ 
+-期望三条 calibration 转 PASS。**没转就停下**，不要放宽阈值、不要改门。
++真实批准的 projection 证据齐全时，才期望三条 calibration 转 PASS；缺失时必须保留 FAIL，
++求解器或轨迹规划不会自动解除它们。正式验收在这里停止，不放宽阈值、不改门。
++若本轮明确只产出本地不可训练证据，分阶段流程允许最后用
++`--materialize-internal-poc-with-calibration-gaps` 物化视频；该选项只容许上述三条 calibration
++失败，保留失败记录并令产物不可交付，其余 preflight 失败仍阻断。它不等于完成标定。
+ 
+ ---
+ 
+@@ -168,21 +286,50 @@ python -m gta_capture preflight --real ...
+ 会硬失败（见 README「当前状态」）；能跑的是操作员逐门路径：
+ 
+ ```powershell
+-python -m gta_capture native-record-smoke ...   # 录 master replay 并封存
+-python -m gta_capture native-export-smoke ...   # 每次只导一条 lane，四条分别跑
+-python -m gta_capture native-audio-smoke ...    # 从最近一次导出封存音频
+-python -m gta_capture finalize-native-poc ...   # 四路封成一条 PR #405 证据 run
++python -m gta_capture native-export-smoke `
++  --lane 1 --manifest <MANIFEST.json> --tape <RUN>\config\camera-tape.json `
++  --replay <RUN>\source\master-replay.clip --run-dir <RUN>
++# 上一条依次完成 lane 1、2、3、4 后，再执行音频与 finalize。
++python -m gta_capture native-audio-smoke `
++  --replay <RUN>\source\master-replay.clip --run-dir <RUN> --duration 60
++python -m gta_capture finalize-native-poc `
++  --manifest <MANIFEST.json> --scenario <RUN>\config\scenario.json `
++  --tape <RUN>\config\camera-tape.json --run-dir <RUN>
+ ```
+ 
+-导 lane 时**一条一条来**：RE+ 返回菜单后必须回 Story Mode 收口本条命令，再开下一条。
+-摆位后的带子走的是和 POC061 相同的原生链路，唯一变化是坐标来源。
+-
+-角色驱动：ASI 按 `subject-route.json` 的 waypoint 走受控角色。
+-`look_at_height_m` 是相机的瞄准高度（胸/头部），`position` 的 z 是勘点地面。
++master 已在第 3 节录制，不要在生成实测计划后再录第二份。上面的导出命令依次替换为 lane 1–4，
++**一条一条来**：命令从 Story Mode 启动，确认 ARMED 后进入 Editor，使用只含同一 master 的项目；
++RE+ 返回菜单后必须回 Story Mode 收口本条命令，再开下一条。四路完成后封存音频并 finalize。
++若仅三条 projection FAIL 且目标为本地证据，在最后一条命令显式追加第 4.3 节的物化选项。
++
++本轮 retry01 已正常取消，回 Story collect 返回 RE+ rejected/failed 后释放会话，新 retry02
++随后成功 arm。当前续接目录为 `out/mc2-20260908/run-mc2-beach-002-reexport-02`，它沿用
++同一 GTA 进程和原 002 母片，录制回执、replay、遥测和冻结配置逐文件保留原始字节与 SHA，
++补充 lineage 引用 retry01 的诊断证据；不代表重新录制。原 002 和 retry01 证据均保留。
++retry02 已在最终导出确认前完成正常焦点切出切入，再确认开始；音频 pass 期间未切焦点。
++四路各 1800 帧现已全部成功 collect，7200 张原始 PNG 全部 SHA 核验通过，固定位置旧指针
++模板零候选；64 张抽查帧中人物均在画内。上述检查不等于全图无 UI 或受信人工验收。
++音频已封存为 60.01 秒、连续、非静音、无削波，finalize 已完成 `run-manifest.json` 和
++`capture/` 中四个 60 秒视频、八个元数据文件。54/54 元数据反变换诊断通过，报告位于
++[review/retry02-metadata-world-roundtrip.json](out/mc2-20260908/review/retry02-metadata-world-roundtrip.json)，
++只核对数值与封存原生事件一致，不授予投影、尺度或 replay-origin 批准。
++quad 已完成并验证 1800 解码帧、60.0 秒、1920×1080、30fps，回执位于
++`preview/mc2-final/review-media-manifest.json`。内部成片完成不等于符合全部 docs/69 正式验收。
++四路已绑定同母片、同 frame 索引和同回放时间轴；20 秒 frame 600 曾观察到步态外观差异。
++随后对第 1、2 路 19–21 秒各 60 张连续原帧核验 SHA 并目视检查，未见支持超过 3 帧错位的明显证据，
++差异更像俯视角度所致；目视事件定位约有 0–2 帧不确定性，不是骨骼相位误差上界。
++[连续片段诊断](out/mc2-20260908/review/retry02-gait-19-21-diagnostic/FINDINGS.md) 仅覆盖这两路两秒；
++继续真实标定，不据该单帧疑点修改步进或重导。全片实际实体/骨骼状态尚未测量，
++`entity_animation_state` 仍未验证。
++
++角色由场景中的 `native_task_go_straight` 原生命令驱动；ASI 不读取 `subject-route.json`。
++录制轨迹中的 `position` 保留观察位置的世界 XYZ，`look_at_height_m` 为其上方的瞄准高度。
++该来源仍是 `recording_side_estimate`，不能证明它的首帧等于 Editor replay frame 0，
++不会授予 `player_replay_origin` / `player_state`。
+ 
+ 录制前注意 POC061 的两个教训：
+ 
+-- 开录边界重申角色朝向，落地锚点任一轴偏差 > 0.25 m 就拒绝启动 recorder；
++- 开录边界重申角色朝向，沉降后的实体位置相对场景请求位置任一轴偏差 > 0.25 m 就拒绝启动 recorder；
+ - Export 前隐藏鼠标指针（POC026 四路原生 PNG 都有同位置指针，事后修图冒充原生无 UI
+   是明令禁止的）。
+ 
+@@ -206,12 +353,23 @@ python -m gta_capture inspect <RUN>
+ | `motion_limits` | `phys.*` 的 p95/max 族 |
+ | `six_translation_honesty` | `plan.pink_coverage` / `plan.pink_honesty` |
+ 
++表中的映射不改变证据来源：当前 `covis.*` 使用规划平面 proxy，轨迹族通过也不能声称
++实际 GTA 共视、遮挡或动态可见性通过；仍须检查最终导出画面和对应的实测证据。
++
+ 族内**任一 FAIL 即整族不给**；`engine_qc` 退出码非 0 则一条不给。
+ cam4 的必过集由 **tape 声明的形态**决定，不能事后按结果挑形态。
+ 
+-预期这一轮**仍不会全绿**。以下继续 missing，属设计内：
++本轮 retry02 的最终绑定报告 `evidence/engine-qc.json` 为 **148 PASS / 1 FAIL / 14 SKIP / 0 UNVERIFIED**。
++实际导出姿态的 24 段六向平移、解耦及第四路俯视逐项 PASS；唯一 FAIL 是首路
++`num.input_stream`：镜头累计旋转 139°，原生 writer 以 `native_task_go_straight` 来源给
++1800 帧固定输出 `mouse_dx/dy=0`，并未采集物理鼠标，不能据此声称真实零输入。
++程序控制旋转未满足既有输入流契约；保留原事件，不能伪造鼠标值或改阈值使其通过；总体 verdict 仍 FAIL，
++轨迹正式授权为空，formal gate 为 4 passed / 15 missing。三条 calibration FAIL 与
++`internal_poc_usable=false`、`delivery_eligible=false` 仍独立保留。
++
++本轮**没有全绿**。以下继续 missing，属设计内：
+ 
+-`dynamic_visibility`（需要 GTA 渲染侧可见性探针）、`player_replay_origin`、`player_state`、
++`dynamic_visibility`（需要 GTA 渲染侧可见性探针）、`entity_animation_state`、`player_replay_origin`、`player_state`、
+ `human_review`、`audio_rights`、`commercial_rights`。
+ `package` 被代码硬阻断，不要尝试绕过。
+ 
+@@ -224,10 +382,12 @@ cam4 的必过集由 **tape 声明的形态**决定，不能事后按结果挑
+ 1. `scripts\test.ps1` 的 Python 与 CTest 计数；
+ 2. `place-trajgen` 输出的 `rigidity_residual_m` / `cam4_mode` / `coordinate_convention`；
+ 3. `solve-calibration` 的 `rms_px` / `filmback_spread_mm` / 每档 `filmback_mm`，
+-   以及 `preflight --real` 三条 calibration 的最终状态；
++   以及 `preflight --mode real` 三条 calibration 的最终状态；
+ 4. `engine_qc` 的 PASS/FAIL/SKIP 计数与**全部 FAIL 条目原文**；
+ 5. `evidence/trajectory-verdict.json` 的 `granted_rules`，
+    和 `evidence/gta-pr405-gate.json` 的 `passed_rules` / `missing_rules`；
+ 6. 四路原生帧的人工抽查结论：有无 HUD / 指针 / 手 / 遮挡 / 穿模，受控角色是否全程在画面里。
++7. 录制路线来源绑定、实测运动量、拟合最大/P95 残差，以及 `recording_side_estimate` 限制；
++   明确区分规划 QC、既有 10/15 秒实机证据与本轮 60 秒实机完成情况。
+ 
+ 遇到本 runbook 没覆盖的失败，**不要改阈值或改门绕过**，把现象和原文回报即可。
+diff --git a/engine-data/gta-capture/gta_capture/calibration.py b/engine-data/gta-capture/gta_capture/calibration.py
+index fb25e848..bbd12df3 100644
+--- a/engine-data/gta-capture/gta_capture/calibration.py
++++ b/engine-data/gta-capture/gta_capture/calibration.py
+@@ -40,6 +40,9 @@ SAMPLES_SCHEMA = "dm-gta-calibration-samples/1"
+ #: focal length exactly and prove nothing; the residual only becomes meaningful
+ #: once the fit is over-determined across depths and image positions.
+ MIN_SAMPLES_PER_FOCAL = 8
++#: The capture contract calibrates the whole four-camera focal set, not just
++#: whichever focal group happens to fit. A single group cannot test consistency.
++REQUIRED_FOCALS = (18.0, 24.0, 35.0, 50.0)
+ #: Spread required across the frame, as a fraction of width/height.  A cluster in
+ #: the middle of the image fits almost any focal length within a pixel.
+ MIN_PIXEL_SPREAD_FRAC = 0.35
+@@ -163,8 +166,10 @@ def solve_projection(samples: Sequence[dict], *, width: int, height: int) -> dic
+                 f"calibration sample {index} pixel ({u:.1f}, {v:.1f}) is outside the frame")
+         groups.setdefault(float(focal), []).append(sample)
+ 
+-    if not groups:
+-        raise ContractError("calibration needs at least one focal-length group")
++    if set(groups) != set(REQUIRED_FOCALS):
++        raise ContractError(
++            "calibration requires all four focal groups 18/24/35/50 mm; "
++            f"got {sorted(groups)}")
+ 
+     per_focal = []
+     residuals: list[float] = []
+@@ -242,7 +247,7 @@ def load_samples(path) -> dict:
+ 
+ 
+ def build_projection_evidence(document: dict, *, calibration_id: str, filmback_id: str,
+-                              metric_scale: float, approval_status: str = "approved"
++                              metric_scale: float, approval_status: str = "draft"
+                               ) -> dict:
+     """Turn a solved measurement set into the document the gates re-open.
+ 
+@@ -251,6 +256,8 @@ def build_projection_evidence(document: dict, *, calibration_id: str, filmback_i
+     ``preflight``, which re-reads this file by hash and re-checks every field
+     against the manifest — building it here is a convenience, not an approval.
+     """
++    if approval_status not in ("draft", "approved"):
++        raise ContractError("approval_status must equal draft or approved")
+     if not _finite(metric_scale) or float(metric_scale) <= 0:
+         raise ContractError("metric_scale must be a finite positive number")
+     for label, value in (("calibration_id", calibration_id), ("filmback_id", filmback_id)):
+diff --git a/engine-data/gta-capture/gta_capture/cli.py b/engine-data/gta-capture/gta_capture/cli.py
+index 84b4fa44..55487b3a 100644
+--- a/engine-data/gta-capture/gta_capture/cli.py
++++ b/engine-data/gta-capture/gta_capture/cli.py
+@@ -25,6 +25,7 @@ from .tape import (GTA_COORDINATE_CONVENTION, import_trajgen_clip, load_tape, ma
+                    make_gta_poc_tape, write_tape)
+ from .calibration import build_projection_evidence, load_samples
+ from .traj_adapter import Placement, place_trajgen_clip
++from .story_projection import capture_sample
+ 
+ 
+ def _print(value) -> None:
+@@ -156,6 +157,14 @@ def _cmd_probe_game(args) -> int:
+     return 0
+ 
+ 
++def _cmd_story_projection_sample(args) -> int:
++    result = capture_sample(Path(args.request), Path(args.out_dir), pipe=args.pipe)
++    _print({"ok": True, "observation": str(Path(args.out_dir).resolve() / "observation.json"),
++            "png": result["output_path"], "approval_status": "draft",
++            "editor_equivalence_verified": False})
++    return 0
++
++
+ def _cmd_native_record_smoke(args) -> int:
+     scenario = Scenario.load(args.scenario)
+     run_dir = Path(args.run_dir).resolve()
+@@ -497,15 +506,22 @@ def build_parser() -> argparse.ArgumentParser:
+     p.add_argument("--filmback-id", required=True)
+     p.add_argument("--metric-scale", type=float, required=True,
+                    help="approved manifest metric_scale; carried through, never fitted")
+-    p.add_argument("--approval-status", default="approved",
++    p.add_argument("--approval-status", default="draft",
+                    choices=("approved", "draft"),
+-                   help="use draft while the measurement is still under review")
++                   help="defaults to draft; select approved only after measurement review")
+     p.set_defaults(func=_cmd_solve_calibration)
+ 
+     p = sub.add_parser("probe-game", help="read current Story Mode anchor and final camera")
+     p.add_argument("--pipe", default=DEFAULT_PIPE)
+     p.set_defaults(func=_cmd_probe_game)
+ 
++    p = sub.add_parser("sample-story-projection",
++                       help="capture one unapproved Story projection diagnostic through Igcs")
++    p.add_argument("--request", required=True)
++    p.add_argument("--out-dir", required=True)
++    p.add_argument("--pipe", default=DEFAULT_PIPE)
++    p.set_defaults(func=_cmd_story_projection_sample)
++
+     p = sub.add_parser(
+         "native-record-smoke",
+         help="apply one scenario and record a replay before the full adapter gate is opened")
+diff --git a/engine-data/gta-capture/gta_capture/evidence.py b/engine-data/gta-capture/gta_capture/evidence.py
+index ad4663cc..afeeab5c 100644
+--- a/engine-data/gta-capture/gta_capture/evidence.py
++++ b/engine-data/gta-capture/gta_capture/evidence.py
+@@ -591,7 +591,6 @@ def materialize_metadata(capture_dir: Path, lanes: dict[int, list[dict]], tape:
+             for row in lane_events
+         ]
+         action = []
+-        previous_euler = None
+         for frame, row in enumerate(lane_events):
+             camera = row["final_camera"]
+             player = row["player_state"]
+@@ -628,13 +627,31 @@ def materialize_metadata(capture_dir: Path, lanes: dict[int, list[dict]], tape:
+                 "camera_speed": _speed(camera_positions, frame),
+             }
+             if lane == 1:
+-                input_state = row.get("input", {})
+-                if previous_euler is None:
+-                    derived_dx = derived_dy = 0.0
+-                else:
+-                    derived_dx = max(-1.0, min(1.0, (float(euler[1]) - float(previous_euler[1])) / 6.0))
+-                    derived_dy = max(-1.0, min(1.0, -(float(euler[0]) - float(previous_euler[0])) / 6.0))
+-                previous_euler = euler
++                input_state = row.get("input")
++                if not isinstance(input_state, dict):
++                    raise ContractError(
++                        f"lane 1 frame {frame}: input object is missing or invalid; "
++                        "unobserved mouse input cannot be derived from camera motion")
++                # Camera motion does not establish a mouse observation. This
++                # also applies to mock materialization: its backend already
++                # supplies explicit input values, separately labelled mock.
++                mouse = {}
++                for key in ("mouse_dx", "mouse_dy"):
++                    value = input_state.get(key)
++                    if (not isinstance(value, (int, float))
++                            or isinstance(value, bool)):
++                        raise ContractError(
++                            f"lane 1 frame {frame}: input.{key} must be an explicit "
++                            "finite number; missing input cannot be inferred")
++                    try:
++                        number = float(value)
++                    except OverflowError as exc:
++                        raise ContractError(
++                            f"lane 1 frame {frame}: input.{key} must be finite") from exc
++                    if not math.isfinite(number):
++                        raise ContractError(
++                            f"lane 1 frame {frame}: input.{key} must be finite")
++                    mouse[key] = round(number, 6)
+                 rec.update({
+                     "camera_rotation_oula": _round_vec(euler, 4),
+                     "player_position": _round_vec(player_position),
+@@ -643,8 +660,8 @@ def materialize_metadata(capture_dir: Path, lanes: dict[int, list[dict]], tape:
+                     "player_speed": _speed(player_positions, frame),
+                     "mouse_x": 0.5,
+                     "mouse_y": 0.5,
+-                    "mouse_dx": round(float(input_state.get("mouse_dx", derived_dx)), 6),
+-                    "mouse_dy": round(float(input_state.get("mouse_dy", derived_dy)), 6),
++                    "mouse_dx": mouse["mouse_dx"],
++                    "mouse_dy": mouse["mouse_dy"],
+                     "keyCode": input_state.get("keyCode", []),
+                     "metric_scale": float(metric_scale),
+                 })
+diff --git a/engine-data/gta-capture/gta_capture/media.py b/engine-data/gta-capture/gta_capture/media.py
+index fbdb67fc..927742ea 100644
+--- a/engine-data/gta-capture/gta_capture/media.py
++++ b/engine-data/gta-capture/gta_capture/media.py
+@@ -4,7 +4,9 @@ from __future__ import annotations
+ 
+ import json
+ import math
++import os
+ import shutil
++import stat
+ import subprocess
+ from fractions import Fraction
+ from pathlib import Path
+@@ -163,6 +165,33 @@ def mux_master_audio(ffmpeg: str, video_path: Path, audio_path: Path, out_path:
+     return out_path
+ 
+ 
++def _file_identity(path: Path) -> tuple[int, int, int]:
++    info = path.lstat()
++    if (stat.S_ISLNK(info.st_mode)
++            or getattr(info, "st_file_attributes", 0)
++            & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)):
++        raise ContractError(f"media scratch path is redirected: {path}")
++    return info.st_dev, info.st_ino, stat.S_IFMT(info.st_mode)
++
++
++def _require_owned_path(path: Path, expected: Path, identity: tuple[int, int, int]) -> None:
++    # Check the resolved absolute target and its identity before any cleanup.
++    # A replaced directory, junction or symlink must not turn scratch cleanup
++    # into deletion of RAW, an earlier failed attempt, or another output.
++    if (not expected.is_absolute() or path != expected
++            or path.resolve(strict=True) != expected
++            or _file_identity(path) != identity):
++        raise ContractError(f"media scratch path escaped or changed ownership: {path}")
++
++
++def _copy_new_file(source: Path, destination: Path) -> None:
++    # Exclusive creation never overwrites an existing file or follows an
++    # existing destination link. Both source and copied bytes are checked by
++    # the caller against the original seal.
++    with source.open("rb") as reader, destination.open("xb") as writer:
++        shutil.copyfileobj(reader, writer, length=1024 * 1024)
++
++
+ def _copy_sealed_audio(artifact: dict, scratch: Path) -> tuple[Path, dict]:
+     value = artifact.get("audio_path")
+     expected_sha = artifact.get("audio_sha256")
+@@ -181,8 +210,7 @@ def _copy_sealed_audio(artifact: dict, scratch: Path) -> tuple[Path, dict]:
+     if sha256_file(source) != expected_sha.casefold():
+         raise ContractError("master audio sha256 differs from its seal")
+     destination = scratch / "master-audio.wav"
+-    destination.unlink(missing_ok=True)
+-    shutil.copy2(source, destination)
++    _copy_new_file(source, destination)
+     if (destination.stat().st_size != measured_bytes
+             or sha256_file(destination) != expected_sha.casefold()
+             or source.stat().st_size != measured_bytes
+@@ -198,14 +226,15 @@ def _verify_staged_audio(path: Path, seal: dict) -> None:
+ 
+ 
+ def _copy_sealed_frames(artifact: dict, rows: list[dict], scratch: Path,
+-                        lane: int) -> tuple[str, int, list[dict]]:
++                        lane: int) -> tuple[str, int, list[dict], tuple[int, int, int]]:
+     pattern = artifact.get("frame_pattern")
+     if not isinstance(pattern, str) or "%" not in pattern:
+         raise ContractError(f"lane {lane} frame_pattern is missing or not indexed")
+     if artifact.get("frame_count") != len(rows) or not rows:
+         raise ContractError(f"lane {lane} frame_count differs from sealed events")
+     lane_dir = scratch / f"lane-{lane}-frames"
+-    lane_dir.mkdir(parents=True, exist_ok=True)
++    lane_dir.mkdir()
++    lane_identity = _file_identity(lane_dir)
+     copied = []
+     extension = None
+     for index, row in enumerate(rows):
+@@ -228,14 +257,15 @@ def _copy_sealed_frames(artifact: dict, rows: list[dict], scratch: Path,
+         elif source.suffix.casefold() != extension:
+             raise ContractError(f"lane {lane} mixes image extensions")
+         destination = lane_dir / f"frame_{index:06d}{extension}"
+-        shutil.copy2(source, destination)
++        _require_owned_path(lane_dir, scratch / f"lane-{lane}-frames", lane_identity)
++        _copy_new_file(source, destination)
+         if (destination.stat().st_size != expected_bytes
+                 or sha256_file(destination) != expected_sha):
+             raise ContractError(f"lane {lane} frame {index} staging copy is not sealed")
+         copied.append({"path": destination, "bytes": expected_bytes,
+-                       "sha256": expected_sha})
++                       "sha256": expected_sha, "identity": _file_identity(destination)})
+     assert extension is not None
+-    return str(lane_dir / f"frame_%06d{extension}"), len(rows), copied
++    return str(lane_dir / f"frame_%06d{extension}"), len(rows), copied, lane_identity
+ 
+ 
+ def _verify_staged_frames(copied: list[dict], lane: int) -> None:
+@@ -246,14 +276,47 @@ def _verify_staged_frames(copied: list[dict], lane: int) -> None:
+             raise ContractError(f"lane {lane} staged frame {index} changed during encoding")
+ 
+ 
++def _release_staged_lane(scratch: Path, scratch_identity: tuple[int, int, int],
++                         lane: int, lane_identity: tuple[int, int, int],
++                         copied: list[dict], silent_video: Path,
++                         silent_identity: tuple[int, int, int]) -> None:
++    _require_owned_path(scratch, scratch, scratch_identity)
++    lane_dir = scratch / f"lane-{lane}-frames"
++    _require_owned_path(lane_dir, lane_dir, lane_identity)
++    paths = {item["path"] for item in copied}
++    if len(paths) != len(copied) or set(lane_dir.iterdir()) != paths:
++        raise ContractError(f"lane {lane} scratch contains unowned files; leaving it intact")
++    for item in copied:
++        _require_owned_path(item["path"], lane_dir / item["path"].name, item["identity"])
++    _require_owned_path(silent_video, scratch / f"lane-{lane}-silent.mp4", silent_identity)
++    # No recursive deletion: remove only files created and verified by this
++    # call. An unexpected entry prevents even the empty-directory removal.
++    for item in copied:
++        item["path"].unlink()
++    lane_dir.rmdir()
++    silent_video.unlink()
++
++
+ def materialize_videos(capture_dir: Path, lane_artifacts: dict[int, dict], audio_artifact: dict,
+                        *, ffmpeg: str,
+                        lane_events: dict[int, list[dict]] | None = None,
+                        ffprobe: str | None = None, fps: int = 30) -> list[str]:
+     outputs = []
+-    scratch = capture_dir.parent / "media-scratch"
+-    scratch.mkdir(parents=True, exist_ok=True)
++    run_root = capture_dir.absolute().parent.resolve()
++    capture_dir = run_root / capture_dir.name
++    if capture_dir.resolve() != capture_dir:
++        raise ContractError("media capture directory is redirected outside its run")
++    scratch = run_root / "media-scratch"
++    if os.path.lexists(scratch):
++        raise ContractError("media-scratch already exists; preserve the earlier attempt")
++    for lane in range(1, 5):
++        out = capture_dir / f"video_{lane}.mp4"
++        if os.path.lexists(out) or os.path.lexists(out.with_name(out.name + ".muxing.mp4")):
++            raise ContractError(f"lane {lane} media output already exists; preserve the earlier attempt")
++    scratch.mkdir(parents=True)
++    scratch_identity = _file_identity(scratch)
+     audio, audio_seal = _copy_sealed_audio(audio_artifact, scratch)
++    audio_identity = _file_identity(audio)
+     for lane in range(1, 5):
+         artifact = lane_artifacts[lane]
+         video_value = artifact.get("video_path")
+@@ -262,24 +325,38 @@ def materialize_videos(capture_dir: Path, lane_artifacts: dict[int, dict], audio
+                 f"lane {lane} pre-encoded video bypasses per-frame RGB sealing")
+         if lane_events is None or lane not in lane_events:
+             raise ContractError(f"lane {lane} has no sealed frame events for media encoding")
+-        pattern, n_frames, copied = _copy_sealed_frames(
++        _require_owned_path(scratch, scratch, scratch_identity)
++        pattern, n_frames, copied, lane_identity = _copy_sealed_frames(
+             artifact, lane_events[lane], scratch, lane)
++        silent_path = scratch / f"lane-{lane}-silent.mp4"
++        # Reserve this call's output before invoking FFmpeg's existing -y path.
++        with silent_path.open("xb"):
++            pass
++        silent_identity = _file_identity(silent_path)
+         silent_video = encode_frame_sequence(
+-            ffmpeg, pattern, scratch / f"lane-{lane}-silent.mp4",
++            ffmpeg, pattern, silent_path,
+             n_frames=n_frames, fps=fps)
++        _require_owned_path(silent_video, silent_path, silent_identity)
+         _verify_staged_frames(copied, lane)
+         _verify_staged_audio(audio, audio_seal)
+         out = capture_dir / f"video_{lane}.mp4"
+-        # Never let source==destination turn an interrupted mux into a lost source.
+-        if silent_video.resolve() == out.resolve():
+-            copy = scratch / f"lane-{lane}-source.mp4"
+-            shutil.copy2(silent_video, copy)
+-            silent_video = copy
++        if (capture_dir.resolve() != capture_dir or os.path.lexists(out)
++                or os.path.lexists(out.with_name(out.name + ".muxing.mp4"))):
++            raise ContractError(f"lane {lane} media output appeared or was redirected during encoding")
+         mux_master_audio(ffmpeg, silent_video, audio, out,
+                          n_frames=n_frames, fps=fps, ffprobe=ffprobe)
+         _verify_staged_audio(audio, audio_seal)
++        _verify_staged_frames(copied, lane)
+         outputs.append(str(out.resolve()))
+-    # Staged copies are derived and fully re-verified above; keep them only when
+-    # a failure leaves something to diagnose.
+-    shutil.rmtree(scratch, ignore_errors=True)
++        _release_staged_lane(scratch, scratch_identity, lane, lane_identity,
++                             copied, silent_video, silent_identity)
++    # Only the current failed lane is retained on failure. Successful lanes
++    # release their verified copies immediately, bounding PNG scratch to one
++    # lane while all original RAW paths and completed videos remain intact.
++    _require_owned_path(scratch, scratch, scratch_identity)
++    _require_owned_path(audio, scratch / "master-audio.wav", audio_identity)
++    if set(scratch.iterdir()) != {audio}:
++        raise ContractError("media scratch contains unowned files; leaving it intact")
++    audio.unlink()
++    scratch.rmdir()
+     return outputs
+diff --git a/engine-data/gta-capture/gta_capture/preflight.py b/engine-data/gta-capture/gta_capture/preflight.py
+index 03d1fc8e..13d9fe5b 100644
+--- a/engine-data/gta-capture/gta_capture/preflight.py
++++ b/engine-data/gta-capture/gta_capture/preflight.py
+@@ -10,6 +10,7 @@ import platform
+ import re
+ import shutil
+ import subprocess
++import tarfile
+ import zipfile
+ import xml.etree.ElementTree as ET
+ from dataclasses import dataclass
+@@ -19,6 +20,12 @@ from typing import Any
+ from .errors import ContractError
+ from .jsonio import load_json, sha256_file, utc_now
+ from .policy import CapturePolicy, repository_profile_non_trainable, repository_profile_path
++from .controller_receipt import CONTROLLER_DERIVED_SCHEMA, validate_controller_receipt
++from .replus_receipt import (REPLUS_DERIVED_SCHEMA, is_reviewed_replus_patch,
++                             validate_replus_receipt)
++from .controller_replus_receipt import (CONTROLLER_REPLUS_DERIVED_SCHEMA,
++                                        CONTROLLER_REPLUS_KIND,
++                                        validate_controller_replus_receipt)
+ 
+ 
+ MANIFEST_SCHEMA = "dm-gta-dependency-manifest/1"
+@@ -168,6 +175,15 @@ def load_render_profile_binding(manifest: DependencyManifest) -> RenderProfileBi
+                 or sha256_file(path) != expected.lower()):
+             raise ContractError(f"{label} is absent or differs from its manifest pin")
+     receipt = load_json(receipt_path)
++    if isinstance(receipt, dict) and receipt.get("schema") == CONTROLLER_REPLUS_DERIVED_SCHEMA:
++        receipt = validate_controller_replus_receipt(
++            manifest, receipt, validate_parent=_check_capture_build_receipt_v1)
++    if isinstance(receipt, dict) and receipt.get("schema") == REPLUS_DERIVED_SCHEMA:
++        receipt = validate_replus_receipt(
++            manifest, receipt, validate_parent=_check_capture_build_receipt_v1)
++    if isinstance(receipt, dict) and receipt.get("schema") == CONTROLLER_DERIVED_SCHEMA:
++        receipt = validate_controller_receipt(
++            manifest, receipt, validate_parent=_check_capture_build_receipt_v1)
+     if not isinstance(receipt, dict) or receipt.get("schema") != CAPTURE_BUILD_SCHEMA:
+         raise ContractError("capture build receipt schema mismatch")
+     transforms = receipt.get("configuration_transforms")
+@@ -701,6 +717,38 @@ def _check_reshade_receipt(manifest: DependencyManifest, game_path: Path | None)
+ 
+ 
+ def _check_capture_build_receipt(manifest: DependencyManifest) -> Check:
++    path = manifest.component_path("capture_build_receipt")
++    try:
++        receipt = load_json(path) if path is not None else None
++        if isinstance(receipt, dict) and receipt.get("schema") == CONTROLLER_REPLUS_DERIVED_SCHEMA:
++            validate_controller_replus_receipt(
++                manifest, receipt, validate_parent=_check_capture_build_receipt_v1)
++            return Check("dependencies.capture_build_receipt", "PASS",
++                         "controller-only snapshot build and unchanged RE+-v3/v2/v1 parent stack are bound",
++                         {"path": str(path), "kind": CONTROLLER_REPLUS_KIND,
++                          "reviewed_replus_patch_sha256": manifest.raw["source_pins"]["replus_patch_sha256"]})
++        if isinstance(receipt, dict) and receipt.get("schema") == REPLUS_DERIVED_SCHEMA:
++            validate_replus_receipt(
++                manifest, receipt, validate_parent=_check_capture_build_receipt_v1)
++            return Check("dependencies.capture_build_receipt", "PASS",
++                         "RE+-only snapshot build and unchanged controller-v2/v1 parent stack are bound",
++                         {"path": str(path), "kind": "replus_only_derived",
++                          "reviewed_replus_patch_sha256": receipt["source_provenance"]["exact_patch"]["sha256"]})
++        if isinstance(receipt, dict) and receipt.get("schema") == CONTROLLER_DERIVED_SCHEMA:
++            validate_controller_receipt(
++                manifest, receipt, validate_parent=_check_capture_build_receipt_v1)
++            return Check("dependencies.capture_build_receipt", "PASS",
++                         "controller-only snapshot build and unchanged v1 parent stack are bound",
++                         {"path": str(path), "kind": "controller_only_derived"})
++    except (OSError, UnicodeError, ValueError, TypeError, KeyError, ContractError,
++            subprocess.SubprocessError, zipfile.BadZipFile, tarfile.TarError, ET.ParseError) as exc:
++        return Check("dependencies.capture_build_receipt", "FAIL",
++                     "capture build provenance is incomplete or mismatched",
++                     {"path": str(path) if path else None, "problems": [str(exc)]})
++    return _check_capture_build_receipt_v1(manifest)
++
++
++def _check_capture_build_receipt_v1(manifest: DependencyManifest) -> Check:
+     receipt_path = manifest.component_path("capture_build_receipt")
+     problems: list[str] = []
+     try:
+@@ -870,6 +918,10 @@ def run_preflight(manifest: DependencyManifest, *, mode: str) -> PreflightReport
+                         wrong or render))
+ 
+     source_pins = manifest.raw.get("source_pins", {})
++    # A v3-looking JSON or a new hash alone never selects the new source pin.
++    # Reuse this complete result below; the original v1/v2 constants stay fixed.
++    capture_build_check = (_check_capture_build_receipt(manifest)
++                           if real or is_reviewed_replus_patch(source_pins.get("replus_patch_sha256")) else None)
+     expected_source_pins = {
+         "scripthook_runtime_zip_sha256":
+             "b64c97c3353906f14621e7e9511e4aec2a7d436ecc21ed124d3816585e2e6188",
+@@ -884,6 +936,12 @@ def run_preflight(manifest: DependencyManifest, *, mode: str) -> PreflightReport
+         "reshade_setup_sha256": RESHADE_SETUP_SHA256,
+         "reshade_signer_thumbprint": RESHADE_SIGNER,
+     }
++    if (capture_build_check is not None and capture_build_check.status == "PASS"
++            and (capture_build_check.evidence or {}).get("kind") in
++                {"replus_only_derived", CONTROLLER_REPLUS_KIND}):
++        checked_patch = capture_build_check.evidence.get("reviewed_replus_patch_sha256")
++        if is_reviewed_replus_patch(checked_patch):
++            expected_source_pins["replus_patch_sha256"] = checked_patch
+     bad_pins = {key: {"expected": value, "actual": source_pins.get(key)}
+                 for key, value in expected_source_pins.items()
+                 if source_pins.get(key) != value}
+@@ -933,7 +991,7 @@ def run_preflight(manifest: DependencyManifest, *, mode: str) -> PreflightReport
+         for name in required:
+             checks.extend(_check_file(f"component.{name}", manifest,
+                                       manifest.raw["components"].get(name), require_pin=True))
+-        checks.append(_check_capture_build_receipt(manifest))
++        checks.append(capture_build_check)
+         checks.append(_check_reshade_receipt(manifest, game_path))
+         checks.extend(_check_file("calibration.projection_evidence", manifest,
+                                   calibration.get("projection_evidence"), require_pin=True))
+diff --git a/engine-data/gta-capture/gta_capture/scenario.py b/engine-data/gta-capture/gta_capture/scenario.py
+index b6b3d09d..d56e8c0c 100644
+--- a/engine-data/gta-capture/gta_capture/scenario.py
++++ b/engine-data/gta-capture/gta_capture/scenario.py
+@@ -47,6 +47,62 @@ def _vec3(value: Any, label: str) -> None:
+         raise ContractError(f"{label} must be a numeric vec3")
+ 
+ 
++def validate_native_subject_route(route: Any, *, player: dict, anchor: list,
++                                  duration_s: float, n_frames: int) -> None:
++    """Check the legacy authored constant-speed route's internal consistency.
++
++    Route declarations alone cannot bind a camera plan to the Story player: a
++    curved or stationary anchor track could carry the same three scalar fields.
++    Check every emitted world-space waypoint against the authored straight-route
++    assumption. The native task's speed parameter does not guarantee physical
++    metres per second. Actual moving-camera runs use recorded_route instead;
++    this check proves only that the old planned geometry is self-consistent.
++    """
++    if (not isinstance(route, dict)
++            or route.get("schema") != "dm-gta-subject-route/1"
++            or route.get("control") != player["control"]
++            or route.get("route_kind") != player["route_kind"]):
++        raise ContractError("placed subject route requires the implemented native straight task")
++    for key in ("distance_m", "speed_mps", "heading_deg"):
++        item = route.get(key)
++        if (not isinstance(item, (int, float)) or isinstance(item, bool)
++                or not math.isfinite(float(item))
++                or abs(float(item) - float(player[key])) > 1e-9):
++            raise ContractError(f"placed subject route {key} differs from the scenario player")
++    route_duration = route.get("duration_s")
++    if (not isinstance(route_duration, (int, float)) or isinstance(route_duration, bool)
++            or not math.isfinite(float(route_duration))
++            or abs(float(route_duration) - duration_s) > 1e-9):
++        raise ContractError("placed subject route duration differs from the scenario")
++    if (not isinstance(n_frames, int) or isinstance(n_frames, bool) or n_frames <= 0
++            or abs(n_frames - duration_s * 30) > 1e-6):
++        raise ContractError("placed subject route requires an exact 30fps timeline")
++    _vec3(anchor, "placed subject route anchor")
++    waypoints = route.get("waypoints")
++    if not isinstance(waypoints, list) or len(waypoints) != n_frames:
++        raise ContractError("placed subject route must have one waypoint per camera frame")
++    heading = math.radians(float(player["heading_deg"]))
++    forward = (-math.sin(heading), math.cos(heading), 0.0)
++    for frame, waypoint in enumerate(waypoints):
++        if not isinstance(waypoint, dict):
++            raise ContractError(f"placed subject route waypoint {frame} is malformed")
++        t = waypoint.get("t")
++        if (not isinstance(t, (int, float)) or isinstance(t, bool)
++                or not math.isfinite(float(t)) or abs(float(t) - frame / 30) > 1e-8):
++            raise ContractError(f"placed subject route waypoint {frame} has a different timeline")
++        position = waypoint.get("position")
++        _vec3(position, f"placed subject route waypoint {frame} position")
++        travelled = min(float(player["distance_m"]), float(player["speed_mps"]) * frame / 30)
++        expected = [float(anchor[axis]) + forward[axis] * travelled for axis in range(3)]
++        if math.dist(position, expected) > 1e-5:
++            raise ContractError(
++                f"placed subject route waypoint {frame} differs from the native straight route")
++        aim_height = waypoint.get("look_at_height_m")
++        if (not isinstance(aim_height, (int, float)) or isinstance(aim_height, bool)
++                or not math.isfinite(float(aim_height)) or float(aim_height) < 0):
++            raise ContractError(f"placed subject route waypoint {frame} has invalid aim height")
++
++
+ def validate_scenario(value: Any) -> None:
+     if not isinstance(value, dict) or value.get("schema") != SCENARIO_SCHEMA:
+         raise ContractError(f"scenario.schema must equal {SCENARIO_SCHEMA!r}")
+@@ -108,9 +164,11 @@ def validate_scenario(value: Any) -> None:
+         raise ContractError("scenario.replay must be an object")
+     duration = replay.get("duration_s")
+     warmup = replay.get("warmup_s")
+-    if not isinstance(duration, (int, float)) or duration <= 0:
++    if (not isinstance(duration, (int, float)) or isinstance(duration, bool)
++            or not math.isfinite(float(duration)) or duration <= 0):
+         raise ContractError("scenario.replay.duration_s must be positive")
+-    if not isinstance(warmup, (int, float)) or warmup < 0:
++    if (not isinstance(warmup, (int, float)) or isinstance(warmup, bool)
++            or not math.isfinite(float(warmup)) or warmup < 0):
+         raise ContractError("scenario.replay.warmup_s must be non-negative")
+     if replay.get("fps") != 30:
+         raise ContractError("scenario.replay.fps must be 30")
+diff --git a/engine-data/gta-capture/gta_capture/staged.py b/engine-data/gta-capture/gta_capture/staged.py
+index d23b5903..33e7a03b 100644
+--- a/engine-data/gta-capture/gta_capture/staged.py
++++ b/engine-data/gta-capture/gta_capture/staged.py
+@@ -2,6 +2,7 @@
+ 
+ from __future__ import annotations
+ 
++import math
+ import os
+ import uuid
+ from contextlib import contextmanager
+@@ -18,7 +19,9 @@ from .native_tape import write_native_tape
+ from .policy import repository_profile_non_trainable
+ from .preflight import (DependencyManifest, load_render_profile_binding,
+                         PreflightReport, run_preflight)
+-from .scenario import Scenario
++from .scenario import Scenario, validate_native_subject_route
++from .recorded_route import (RECORDED_ROUTE_KIND, RECORDING_ANCHOR_TOLERANCE_M, native_command,
++                             validate_recorded_subject_route)
+ from .qc_bridge import invoke_engine_qc, stage_qc_sidecars
+ from .tape import GTA_COORDINATE_CONVENTION, load_tape
+ from .trajectory import verdict_for_run
+@@ -148,24 +151,138 @@ def _write_preflight(root: Path, manifest: DependencyManifest,
+     return decision
+ 
+ 
+-def _validate_real_inputs(manifest: DependencyManifest, scenario: Scenario,
+-                          tape: dict, root: Path, *,
+-                          allow_internal_calibration_gaps: bool) -> None:
++def _validate_placed_subject_plan(source: dict, route: dict) -> None:
++    """Reopen the sealed trajgen anchors and independently check their placement.
++
++    A straight-looking route inserted into a curved camera plan is still a false
++    binding. Verify the route's source file and every rigidly transformed anchor,
++    including aim height, before accepting its native-task declaration.
++    """
++    source_path = source.get("path")
++    files = source.get("files")
++    if not isinstance(source_path, str) or not isinstance(files, list):
++        raise ContractError("placed subject route is missing its source plan binding")
++    records = [item for item in files
++               if isinstance(item, dict) and item.get("name") == "plan.json"]
++    if len(records) != 1 or route.get("source") != records[0]:
++        raise ContractError("placed subject route is not bound to the camera source plan")
++    plan_path = Path(source_path) / "plan.json"
++    if not plan_path.is_file() or sha256_file(plan_path) != records[0].get("sha256"):
++        raise ContractError("placed subject source plan differs from its sealed sha256")
++    plan = load_json(plan_path)
++    if not isinstance(plan, dict) or plan.get("duration_s") != route["duration_s"]:
++        raise ContractError("placed subject source plan duration differs from the route")
++    anchors = plan.get("anchors")
++    waypoints = route["waypoints"]
++    if not isinstance(anchors, list) or len(anchors) != len(waypoints):
++        raise ContractError("placed subject source plan has a different anchor timeline")
++    placement = source.get("placement")
++    if (not isinstance(placement, dict) or route.get("placement") != placement
++            or placement.get("anchor") != source["anchor"]):
++        raise ContractError("placed subject route and camera tape have different placements")
++    heading = placement.get("heading_deg")
++    ground = placement.get("ground_y")
++    for item in (heading, ground):
++        if (not isinstance(item, (int, float)) or isinstance(item, bool)
++                or not math.isfinite(float(item))):
++            raise ContractError("placed subject route has a malformed placement")
++    if not 0 <= float(heading) < 360:
++        raise ContractError("placed subject route has an invalid placement heading")
++    cos_h, sin_h = math.cos(math.radians(heading)), math.sin(math.radians(heading))
++    origin = None
++    for frame, (authored, placed) in enumerate(zip(anchors, waypoints)):
++        if not isinstance(authored, dict) or authored.get("t") != placed["t"]:
++            raise ContractError(f"placed subject source anchor {frame} has a different timeline")
++        point = authored.get("p")
++        if (not isinstance(point, list) or len(point) != 3
++                or any(not isinstance(value, (int, float)) or isinstance(value, bool)
++                       or not math.isfinite(float(value)) for value in point)):
++            raise ContractError(f"placed subject source anchor {frame} is malformed")
++        if origin is None:
++            origin = point
++        x, y = float(point[0]) - float(origin[0]), float(point[2]) - float(origin[2])
++        recorded = route.get("route_kind") == RECORDED_ROUTE_KIND
++        expected = [source["anchor"][0] + x * cos_h - y * sin_h,
++                    source["anchor"][1] + x * sin_h + y * cos_h,
++                    (source["anchor"][2] + point[1] - ground - placed["look_at_height_m"]
++                     if recorded else source["anchor"][2])]
++        if (math.dist(placed["position"], expected) > 1e-5
++                or (not recorded and
++                    abs(float(placed["look_at_height_m"]) - (point[1] - ground)) > 1e-5)):
++            raise ContractError(
++                f"placed subject route waypoint {frame} differs from its authored source anchor")
++
++
++def _validate_scenario_tape_route(scenario: Scenario, tape: dict, *,
++                                 expected_replay_sha256=None) -> None:
+     if tape.get("coordinate_convention") != GTA_COORDINATE_CONVENTION:
+         raise ContractError("staged real POC requires a GTA-native camera tape")
+     location = [float(value) for value in scenario.raw["location"]]
+-    anchor = tape.get("source", {}).get("anchor")
++    source = tape.get("source")
++    if not isinstance(source, dict):
++        raise ContractError("staged real POC requires a camera tape source")
++    anchor = source.get("anchor")
+     if (not isinstance(anchor, list) or len(anchor) != 3
+-            or location == [0.0, 0.0, 0.0]
+-            or max(abs(location[i] - float(anchor[i])) for i in range(3)) > 0.001):
++            or any(not isinstance(value, (int, float)) or isinstance(value, bool)
++                   or not math.isfinite(float(value)) for value in anchor)
++            or location == [0.0, 0.0, 0.0]):
+         raise ContractError(
+-            "real staged POC requires one explicit scenario location matching the tape anchor")
++            "real staged POC requires an explicit scenario location and finite tape anchor")
+     player = scenario.raw["player"]
+-    source = tape["source"]
+-    if (float(source.get("route_distance_m", -1)) != float(player["distance_m"])
+-            or float(source.get("route_speed_mps", -1)) != float(player["speed_mps"])
+-            or float(source.get("route_heading_deg", -1)) != float(player["heading_deg"])):
+-        raise ContractError("scenario player route differs from the camera tape route")
++    route = source.get("subject_route")
++    recorded = isinstance(route, dict) and route.get("route_kind") == RECORDED_ROUTE_KIND
++    if recorded:
++        if (source.get("kind") != "trajgen_clip_placed"
++                or source.get("native_command") != native_command(player)
++                or any(isinstance(source["native_command"].get(key), bool) for key in
++                       ("distance_m", "speed_mps", "heading_deg"))
++                or any("route_" + key in source for key in ("distance_m", "speed_mps", "heading_deg"))):
++            raise ContractError("recorded route must keep native command parameters separate from motion")
++        validate_recorded_subject_route(
++            route, scenario=scenario, expected_replay_sha256=expected_replay_sha256)
++        # The scenario bytes/command are bound by recorded_route, while camera
++        # placement is bound to the observed entity position after settling.
++        # Requiring the legacy 1mm authored-anchor equality here would reject
++        # recordings that already passed the unchanged 0.25m start boundary.
++        # Keep the observed world coordinates intact; never translate them back
++        # to the requested scenario location to satisfy a configuration check.
++        first_observed = route["waypoints"][0]["position"]
++        if math.dist(anchor, first_observed) > 1e-5:
++            raise ContractError("recorded camera placement differs from the observed first position")
++        if math.dist(anchor, location) > RECORDING_ANCHOR_TOLERANCE_M:
++            raise ContractError("recorded camera placement exceeds the scenario's 0.25m start boundary")
++    else:
++        if max(abs(location[i] - float(anchor[i])) for i in range(3)) > 0.001:
++            raise ContractError(
++                "real staged POC requires one explicit scenario location matching the tape anchor")
++        for key in ("distance_m", "speed_mps", "heading_deg"):
++            item = source.get("route_" + key)
++            if (not isinstance(item, (int, float)) or isinstance(item, bool)
++                    or not math.isfinite(float(item)) or float(item) != float(player[key])):
++                raise ContractError("scenario player route differs from the camera tape route")
++    if source.get("kind") == "trajgen_clip_placed":
++        if recorded:
++            if tape.get("n_frames") != len(route["waypoints"]):
++                raise ContractError("recorded route frame count differs from the camera tape")
++        else:
++            validate_native_subject_route(
++                route, player=player, anchor=anchor, duration_s=scenario.duration_s,
++                n_frames=tape.get("n_frames"))
++        _validate_placed_subject_plan(source, route)
++
++
++def _validate_real_inputs(manifest: DependencyManifest, scenario: Scenario,
++                          tape: dict, root: Path, *,
++                          allow_internal_calibration_gaps: bool) -> None:
++    route = tape.get("source", {}).get("subject_route", {})
++    expected_replay = None
++    if isinstance(route, dict) and route.get("route_kind") == RECORDED_ROUTE_KIND:
++        record_path = root / "evidence" / "native-record-result.json"
++        bound = route.get("observation", {}).get("files", {}).get("record_result", {})
++        if not record_path.is_file() or sha256_file(record_path) != bound.get("sha256"):
++            raise ContractError("recorded camera route is bound to a different run's master recording")
++        expected_replay = load_json(record_path).get("master", {}).get("replay_sha256")
++    _validate_scenario_tape_route(scenario, tape, expected_replay_sha256=expected_replay)
+     preflight = run_preflight(manifest, mode="real")
+     _write_preflight(
+         root, manifest, preflight,
+@@ -193,18 +310,7 @@ def _finalize_staged_poc(*, manifest: DependencyManifest, scenario: Scenario,
+     sealed_tape = load_tape(config / "camera-tape.json",
+                             expected_duration_s=sealed_scenario.duration_s)
+     location = [float(value) for value in sealed_scenario.raw["location"]]
+-    anchor = sealed_tape.get("source", {}).get("anchor")
+-    if (not isinstance(anchor, list) or len(anchor) != 3
+-            or location == [0.0, 0.0, 0.0]
+-            or max(abs(location[i] - float(anchor[i])) for i in range(3)) > 0.001):
+-        raise ContractError(
+-            "real staged POC requires one explicit scenario location matching the tape anchor")
+-    player = sealed_scenario.raw["player"]
+-    source = sealed_tape["source"]
+-    if (float(source.get("route_distance_m", -1)) != float(player["distance_m"])
+-            or float(source.get("route_speed_mps", -1)) != float(player["speed_mps"])
+-            or float(source.get("route_heading_deg", -1)) != float(player["heading_deg"])):
+-        raise ContractError("scenario player route differs from the sealed camera tape route")
++    _validate_scenario_tape_route(sealed_scenario, sealed_tape)
+ 
+     preflight = run_preflight(sealed_manifest, mode="real")
+     preflight_decision = _write_preflight(
+@@ -214,6 +320,8 @@ def _finalize_staged_poc(*, manifest: DependencyManifest, scenario: Scenario,
+     record = load_json(root / "evidence" / "native-record-result.json")
+     master = record.get("master", {})
+     _sealed(master.get("replay_path"), master.get("replay_sha256"), "master replay")
++    _validate_scenario_tape_route(
++        sealed_scenario, sealed_tape, expected_replay_sha256=master["replay_sha256"])
+     record_start = master.get("record_start_position")
+     if (not isinstance(record_start, list) or len(record_start) != 3
+             or max(abs(float(record_start[i]) - location[i]) for i in range(3)) > 0.25):
+diff --git a/engine-data/gta-capture/gta_capture/traj_adapter.py b/engine-data/gta-capture/gta_capture/traj_adapter.py
+index 7df4246f..49e9a7f8 100644
+--- a/engine-data/gta-capture/gta_capture/traj_adapter.py
++++ b/engine-data/gta-capture/gta_capture/traj_adapter.py
+@@ -23,6 +23,7 @@ fail-closed on its own evidence.
+ from __future__ import annotations
+ 
+ import math
++import copy
+ from dataclasses import dataclass
+ from pathlib import Path
+ from typing import Any, Sequence
+@@ -358,4 +359,76 @@ def place_trajgen_clip(clip_dir, *, placement: Placement, filmback_id: str,
+                 "anchor plane and look_at_height_m is the authored aim height above it",
+         "waypoints": route,
+     }
++    motion = plan.get("subject_motion")
++    if isinstance(motion, dict) and motion.get("route_kind") == "recorded_master_telemetry":
++        from .recorded_route import validate_recorded_subject_route
++        from .scenario import Scenario
++
++        recorded = copy.deepcopy(motion.get("recorded_route"))
++        if not isinstance(recorded, dict):
++            raise ContractError("recorded subject motion is missing its sealed observed route")
++        try:
++            scenario_path = recorded["observation"]["files"]["scenario"]["path"]
++        except (KeyError, TypeError) as exc:
++            raise ContractError("recorded subject route is missing its frozen scenario") from exc
++        validate_recorded_subject_route(recorded, scenario=Scenario.load(scenario_path))
++        expected_placement = motion.get("placement")
++        if (not isinstance(expected_placement, dict)
++                or expected_placement.get("anchor") != list(placement.anchor)
++                or expected_placement.get("heading_deg") != placement.heading_deg
++                or expected_placement.get("ground_y") != placement.ground_y
++                or placement.heading_deg != 0.0):
++            raise ContractError("recorded subject plan must use its measured world placement")
++        waypoints = recorded.get("waypoints", [])
++        if len(waypoints) != n_frames or len(anchor_track) != n_frames:
++            raise ContractError("recorded subject route must cover every camera frame")
++        for frame, (anchor_sample, waypoint) in enumerate(zip(anchor_track, waypoints)):
++            placed = transform.point(anchor_sample["p"])
++            expected = list(waypoint["position"])
++            expected[2] += waypoint["look_at_height_m"]
++            if (abs(anchor_sample["t"] - frame / 30.0) > 1e-8
++                    or max(abs(placed[axis] - expected[axis]) for axis in range(3)) > 1e-5):
++                raise ContractError("recorded plan anchor differs from its sealed observed route")
++        recorded.update({"clip_id": tape["clip_id"], "placement": placement.to_dict(),
++                         "source": {"name": "plan.json", "sha256": sha256_file(plan_path)}})
++        tape["source"].update({"subject_route": recorded,
++                               "native_command": copy.deepcopy(recorded["native_command"]),
++                               "observation_semantics": "recording_side_estimate"})
++        return tape, recorded
++    if motion is not None:
++        # Only an explicit, numerically verified native-compatible track may
++        # bind a placed tape to Story Mode's existing forward-route executor.
++        # A generic sparse/meandering trajgen anchor remains unbound.
++        if (not isinstance(motion, dict)
++                or motion.get("control") != "native_task_go_straight"
++                or motion.get("route_kind") != "forward_from_anchor"
++                or motion.get("heading_deg") != 0.0
++                or motion.get("ground_y") != placement.ground_y):
++            raise ContractError("trajgen subject_motion is not a native forward route")
++        distance, speed = motion.get("distance_m"), motion.get("speed_mps")
++        if (not _finite(distance) or not _finite(speed)
++                or not 0 < distance <= 100 or not 0 < speed <= 10
++                or len(route) != n_frames):
++            raise ContractError("native subject route parameters/frame count are invalid")
++        heading = math.radians(placement.heading_deg)
++        direction = [-math.sin(heading), math.cos(heading)]
++        for frame, waypoint in enumerate(route):
++            if abs(waypoint["t"] - frame / 30.0) > 1e-8:
++                raise ContractError("native subject route must sample every camera frame")
++            travel = min(distance, speed * waypoint["t"])
++            expected = [placement.anchor[axis] + direction[axis] * travel
++                        for axis in range(2)]
++            if max(abs(waypoint["position"][axis] - expected[axis])
++                   for axis in range(2)) > 1e-5:
++                raise ContractError("trajgen subject route deviates from native forward motion")
++        subject_route.update({
++            "control": motion["control"], "route_kind": motion["route_kind"],
++            "distance_m": float(distance), "speed_mps": float(speed),
++            "heading_deg": float(placement.heading_deg),
++        })
++        tape["source"].update({
++            "route_distance_m": float(distance), "route_speed_mps": float(speed),
++            "route_heading_deg": float(placement.heading_deg),
++            "subject_route": subject_route,
++        })
+     return tape, subject_route
+diff --git a/engine-data/gta-capture/gta_capture/trajectory.py b/engine-data/gta-capture/gta_capture/trajectory.py
+index 6fcb42a2..bb19bd4b 100644
+--- a/engine-data/gta-capture/gta_capture/trajectory.py
++++ b/engine-data/gta-capture/gta_capture/trajectory.py
+@@ -2,9 +2,10 @@
+ 
+ docs/158 §3.1 requires the GTA lane to reuse the existing trajectory contract
+ rather than re-derive it: ``trajgen`` authors the plan, ``engine_qc`` judges the
+-**actual exported poses**, and this module only translates that judgement into the
+-gate's rule names.  Nothing here re-implements a threshold — a rule is granted
+-only because a named engine_qc rule reported PASS on the materialized clip.
++**actual exported poses**, and this module translates that judgement into the
++gate's rule names. Covisibility is different: engine_qc reads planning curves
++from covis.json and does not independently measure GTA surface visibility.
++Those PASS results remain planning diagnostics and cannot grant covisibility.
+ 
+ Two properties make the translation honest:
+ 
+@@ -23,13 +24,20 @@ concerns and stay outside the per-clip gate (docs/158 §2.5.3 guardrail two).
+ 
+ from __future__ import annotations
+ 
++from pathlib import Path
+ from typing import Any, Iterable
+ 
+ from .errors import ContractError
++from .jsonio import load_json, sha256_file
+ 
+ 
+ TRAJECTORY_VERDICT_SCHEMA = "dm-gta-trajectory-verdict/1"
+ 
++# No implemented verifier currently binds measured GTA surfaces/visibility to
++# the rendered frames. A source JSON boolean (even measured_in_gta=true) cannot
++# replace one. Keep this rule out of both new and previously saved verdicts.
++UNVERIFIED_GEOMETRY_RULES = frozenset({"covisibility"})
++
+ #: Gate rule -> (engine_qc rule prefixes that form the family, rules that must PASS).
+ TRAJECTORY_FAMILIES: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
+     "trajectory_pr405": (
+@@ -82,7 +90,8 @@ def _statuses(rows: Iterable[dict], rule: str) -> list[str]:
+ 
+ 
+ def build_trajectory_verdict(qc_report: Any, *, cam4_mode: str,
+-                             qc_exit_code: int) -> dict:
++                             qc_exit_code: int,
++                             covisibility_provenance: dict | None = None) -> dict:
+     """Decide which trajectory gate rules a QC report actually supports.
+ 
+     ``cam4_mode`` comes from the placed camera tape, not from the QC report, so a
+@@ -97,6 +106,7 @@ def build_trajectory_verdict(qc_report: Any, *, cam4_mode: str,
+     verdict = qc_report.get("verdict") if isinstance(qc_report, dict) else None
+ 
+     granted: list[str] = []
++    planning_passed: list[str] = []
+     detail: dict[str, dict] = {}
+     for gate_rule, (prefixes, required) in TRAJECTORY_FAMILIES.items():
+         if gate_rule == "cam4_reparameterization":
+@@ -108,14 +118,25 @@ def build_trajectory_verdict(qc_report: Any, *, cam4_mode: str,
+                          or any(status != "PASS" for status in statuses))
+         # An empty family means the rules never ran at all — sidecars absent, or
+         # the checker changed its rule ids. Either way it is not evidence.
+-        ok = bool(family) and not failed and not missing and qc_exit_code == 0
++        qc_ok = bool(family) and not failed and not missing and qc_exit_code == 0
++        ok = qc_ok and gate_rule not in UNVERIFIED_GEOMETRY_RULES
+         detail[gate_rule] = {
+             "granted": ok,
++            "qc_family_passed": qc_ok,
+             "family_size": len(family),
+             "failed_rules": failed,
+             "unsatisfied_required_rules": missing,
+             "required_rules": sorted(required),
+         }
++        if gate_rule in UNVERIFIED_GEOMETRY_RULES:
++            detail[gate_rule].update({
++                "scope": "planning-sidecar diagnostic; GTA covisibility unverified",
++                "withheld_reason": "independent GTA rendered-geometry verifier is not implemented",
++                "measured_geometry_verified": False,
++                "source_provenance": covisibility_provenance,
++            })
++        if qc_ok:
++            planning_passed.append(gate_rule)
+         if ok:
+             granted.append(gate_rule)
+ 
+@@ -125,9 +146,11 @@ def build_trajectory_verdict(qc_report: Any, *, cam4_mode: str,
+         "qc_verdict": verdict,
+         "qc_exit_code": qc_exit_code,
+         "granted_rules": sorted(granted),
++        "planning_passed_rules": sorted(planning_passed),
+         "rules": detail,
+-        "note": "granted only from engine_qc PASS on the materialized clip; batch-level "
+-                "docs/69 quotas are out of scope and remain a check-batch concern",
++        "note": "kinematic rules use engine_qc PASS on exported poses; covisibility "
++                "curves remain planning diagnostics, without verified GTA geometry. "
++                "Batch-level docs/69 quotas remain a check-batch concern",
+     }
+ 
+ 
+@@ -149,9 +172,23 @@ def verdict_for_run(run_dir, tape: dict, *, invoke, stage) -> dict | None:
+         return None
+     try:
+         stage(run_dir)
++        covis_path = Path(run_dir) / "capture" / "covis.json"
++        covis_hash = sha256_file(covis_path) if covis_path.is_file() else None
++        covis = load_json(covis_path) if covis_hash else {}
++        if not isinstance(covis, dict):
++            raise ContractError("covis planning sidecar must be an object")
++        provenance = {
++            "sidecar_sha256": covis_hash,
++            "declared_geometry_source": covis.get("geometry_source", "unspecified"),
++            "declared_measured_in_gta": covis.get("measured_in_gta"),
++            "independently_verified": False,
++        }
+         exit_code, report, _ = invoke(run_dir, expect_duration_s=float(tape["duration_s"]))
++        if covis_hash and sha256_file(covis_path) != covis_hash:
++            raise ContractError("covis planning sidecar changed during engine_qc")
+         return build_trajectory_verdict(report, cam4_mode=cam4_mode,
+-                                        qc_exit_code=exit_code)
++                                        qc_exit_code=exit_code,
++                                        covisibility_provenance=provenance)
+     except (ContractError, OSError, KeyError, TypeError, ValueError) as exc:
+         # A checker that will not run is not evidence that the trajectory is good.
+         return {"schema": TRAJECTORY_VERDICT_SCHEMA, "cam4_mode": cam4_mode,
+@@ -169,4 +206,4 @@ def granted_rules(verdict: Any) -> set[str]:
+     if not isinstance(values, list) or not all(isinstance(item, str) for item in values):
+         return set()
+     # Never grant a name this module does not own, whatever the file says.
+-    return set(values) & set(TRAJECTORY_FAMILIES)
++    return (set(values) & set(TRAJECTORY_FAMILIES)) - UNVERIFIED_GEOMETRY_RULES
+diff --git a/engine-data/gta-capture/native/CMakeLists.txt b/engine-data/gta-capture/native/CMakeLists.txt
+index ba14c0e1..ef88b72e 100644
+--- a/engine-data/gta-capture/native/CMakeLists.txt
++++ b/engine-data/gta-capture/native/CMakeLists.txt
+@@ -70,6 +70,15 @@ else()
+ endif()
+ add_test(NAME gta_story_route_contract COMMAND gta_story_route_selftest)
+ 
++add_executable(gta_recording_camera_selftest src/recording_camera_selftest.cpp)
++target_include_directories(gta_recording_camera_selftest PRIVATE include)
++if(MSVC)
++    target_compile_options(gta_recording_camera_selftest PRIVATE /W4 /permissive- /EHsc)
++else()
++    target_compile_options(gta_recording_camera_selftest PRIVATE -Wall -Wextra -Wpedantic)
++endif()
++add_test(NAME gta_recording_camera_contract COMMAND gta_recording_camera_selftest)
++
+ if(WIN32)
+     add_executable(gta_editor_identity_observer_selftest
+         src/editor_identity_observer_selftest.cpp
+@@ -114,6 +123,7 @@ if(DIOGENES_BUILD_SCRIPT_HOOK_V_ASI)
+         src/asi_main.cpp
+         src/pipe_server_win.cpp
+         src/scripthook_game_adapter.cpp
++        src/story_projection.cpp
+         src/fx_capture_observer_win.cpp
+         src/hash_utils_win.cpp
+         src/native_tape.cpp
+diff --git a/engine-data/gta-capture/native/README.md b/engine-data/gta-capture/native/README.md
+index 04fa2b8e..eae11543 100644
+--- a/engine-data/gta-capture/native/README.md
++++ b/engine-data/gta-capture/native/README.md
+@@ -72,7 +72,11 @@ The operator or Computer Use must complete the stock Export → name → confirm
+ Do not directly call `Playback::Open` from the pointer heartbeat: the POC-060 comparison found
+ that this bypassed menu teardown and retained a white pointer in native PNGs, whereas a stock-UI
+ diagnostic first frame was clean. That diagnostic alone does not prove four-lane QC.
+-The existing 20-minute deadline still applies; no timeout or evidence gate is disabled.
++The ARM-to-completion wall-clock budget is 60 minutes, including manual Editor
++project creation/loading, the audio pass and frame rendering. The earlier 20-minute
++budget could expire during manual setup before any PNG was captured. Expiry still
++fails closed with `restart_required`; the separate 30-second failure drain and all
++pixel/pose, replay, profile and identity checks are unchanged.
+ RE+'s final camera writer owns `TRIGGERED -> EXPORTING -> DONE/FAILED`. If ScriptHook
+ discards the original command fiber in Editor, return to Story and retry the identical
+ `export_lane`; it finalizes the retained terminal session rather than creating or claiming a
+diff --git a/engine-data/gta-capture/native/include/fx_capture_observer.hpp b/engine-data/gta-capture/native/include/fx_capture_observer.hpp
+index 6fc854f2..8b1425a7 100644
+--- a/engine-data/gta-capture/native/include/fx_capture_observer.hpp
++++ b/engine-data/gta-capture/native/include/fx_capture_observer.hpp
+@@ -58,6 +58,13 @@ public:
+ 
+     bool open(std::string& error);
+     bool read(FxCaptureSnapshot& snapshot, std::string& error) const;
++    // Exclusive Story-mode caller only: no active Editor/export publisher.
++    // This is an Igcs transport epoch, NOT an Editor final-camera generation.
++    // Does not write the separate EditorIdentityBlock or its replay fields.
++    bool publish_story_request(const std::string& output_path,
++                               std::uint32_t& request_id,
++                               std::uint32_t& transport_generation,
++                               std::string& error);
+     bool release(std::uint32_t request_id, std::string& error);
+     void close();
+ 
+@@ -87,6 +94,7 @@ using EditorIdentityObserverRetryHook = void (*)(void* context);
+ 
+ // Isolate fixtures from a running game and from other self-test processes.
+ std::wstring editor_identity_mapping_name_for_test();
++std::wstring fx_capture_mapping_name_for_test();
+ 
+ // Self-test seam for deterministically completing a seqlock publication after
+ // the observer has rejected an unstable generation. This is not compiled into
+diff --git a/engine-data/gta-capture/native/include/game_adapter.hpp b/engine-data/gta-capture/native/include/game_adapter.hpp
+index 7d09b698..30021cb6 100644
+--- a/engine-data/gta-capture/native/include/game_adapter.hpp
++++ b/engine-data/gta-capture/native/include/game_adapter.hpp
+@@ -27,6 +27,10 @@ public:
+     virtual void set_runtime_generation(std::uint64_t generation) = 0;
+     virtual AdapterResult hello() = 0;
+     virtual AdapterResult probe_state() = 0;
++    // Independent Story calibration diagnostic; never an Editor frame seal.
++    virtual AdapterResult story_projection_sample(const std::string& request_path,
++                                                  const std::string& request_sha256,
++                                                  const std::string& output_path) = 0;
+     virtual AdapterResult apply_scenario(const std::string& scenario_path,
+                                          const std::string& scenario_sha256) = 0;
+     virtual AdapterResult record_master(const std::string& run_dir, double duration_s) = 0;
+diff --git a/engine-data/gta-capture/native/src/controller_core.cpp b/engine-data/gta-capture/native/src/controller_core.cpp
+index d1a9631f..2e681212 100644
+--- a/engine-data/gta-capture/native/src/controller_core.cpp
++++ b/engine-data/gta-capture/native/src/controller_core.cpp
+@@ -157,6 +157,10 @@ std::string ControllerCore::handle_line(const std::string& line) {
+         result = adapter_.hello();
+     } else if (command == "probe_state") {
+         result = adapter_.probe_state();
++    } else if (command == "story_projection_sample") {
++        result = adapter_.story_projection_sample(find_string(line, "request_path"),
++                                                  find_string(line, "request_sha256"),
++                                                  find_string(line, "output_path"));
+     } else if (command == "apply_scenario") {
+         result = adapter_.apply_scenario(find_string(line, "scenario_path"),
+                                          find_string(line, "scenario_sha256"));
+diff --git a/engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp b/engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp
+index b1d21b57..7a289ac6 100644
+--- a/engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp
++++ b/engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp
+@@ -4,7 +4,10 @@
+ #include <cstddef>
+ #include <cstdint>
+ #include <cstring>
++#include <filesystem>
++#include <fstream>
+ #include <iostream>
++#include <limits>
+ #include <string>
+ 
+ #include <windows.h>
+@@ -40,10 +43,24 @@ struct EditorIdentityBlock {
+     std::uint8_t render_profile_sha256[32];
+     char normalized_output_root[512];
+ };
++
++struct FxCaptureBlock {
++    std::uint32_t magic, version, request, ack, status, width, height;
++    std::uint32_t sample_count, sample_index, quality;
++    float highlight_boost;
++    std::uint32_t heartbeat;
++    char output_path[512];
++    std::uint32_t release, ready, source_frame;
++    double replay_time_ms;
++    unsigned char opaque_dof[100];
++    std::uint32_t request_generation, ready_generation;
++};
+ #pragma pack(pop)
+ 
+ static_assert(sizeof(EditorIdentityBlock) == 936);
+ static_assert(offsetof(EditorIdentityBlock, sequence) == 8);
++static_assert(sizeof(FxCaptureBlock) == 688);
++static_assert(offsetof(FxCaptureBlock, request_generation) == 680);
+ 
+ struct HandleCloser {
+     HANDLE value{};
+@@ -78,6 +95,132 @@ void finish_contended_publication(void* opaque) {
+         reinterpret_cast<volatile LONG*>(&publication->block->sequence), 4);
+ }
+ 
++struct TempFixture {
++    std::filesystem::path path;
++    ~TempFixture() {
++        // Only these two fixture paths can have been created. Never recursively
++        // clean a directory that might have been supplied by another process.
++        std::error_code ec;
++        std::filesystem::remove(path / "existing.png",ec);
++        std::filesystem::remove(path,ec);
++    }
++};
++
++int test_story_publisher() {
++    namespace fs=std::filesystem;
++    const auto mapping_name=diogenes::gta::fx_capture_mapping_name_for_test();
++    if (mapping_name.find(L"Selftest-")==std::wstring::npos ||
++        mapping_name==L"Local\\SimpleCameraFxCapture") {
++        return fail("Story test must not access the live game transport mapping");
++    }
++    HandleCloser mapping{CreateFileMappingW(INVALID_HANDLE_VALUE,nullptr,PAGE_READWRITE,
++        0,static_cast<DWORD>(sizeof(FxCaptureBlock)),mapping_name.c_str())};
++    if (mapping.value==nullptr || GetLastError()==ERROR_ALREADY_EXISTS) {
++        return fail("cannot exclusively own the isolated Story transport fixture");
++    }
++    ViewCloser publisher{MapViewOfFile(mapping.value,FILE_MAP_READ|FILE_MAP_WRITE,
++        0,0,sizeof(FxCaptureBlock))};
++    if (!publisher.value) return fail("cannot map the isolated Story publisher fixture");
++    auto* block=static_cast<FxCaptureBlock*>(publisher.value);
++    const auto reset=[&]() {
++        std::memset(block,0,sizeof(*block));
++        block->magic=0x53434658;
++        block->version=18;
++        block->request=block->ack=block->ready=block->release=41;
++        block->request_generation=block->ready_generation=73;
++        block->source_frame=91;
++        block->replay_time_ms=12.5;
++        block->quality=88;
++        block->highlight_boost=2.0f;
++        block->heartbeat=123;
++        std::memset(block->opaque_dof,0xa5,sizeof(block->opaque_dof));
++        strcpy_s(block->output_path,sizeof(block->output_path),"unchanged-old-output");
++        MemoryBarrier();
++    };
++    reset();
++    diogenes::gta::FxCaptureObserver observer;
++    std::string error;
++    if (!observer.open(error)) return fail(error);
++    const auto fixture_path=fs::temp_directory_path()/
++        ("diogenes-story-publisher-selftest-"+std::to_string(GetCurrentProcessId()));
++    if (!fs::create_directory(fixture_path)) {
++        return fail("Story test output directory already exists; refusing to reuse it");
++    }
++    TempFixture fixture{fixture_path};
++    const auto new_path=(fixture.path/"new.png").make_preferred().u8string();
++    const auto existing_path=(fixture.path/"existing.png").make_preferred().u8string();
++    { std::ofstream existing(fs::u8path(existing_path),std::ios::binary); existing << "immutable-test-sentinel"; }
++    const auto reject_unchanged=[&](const std::string& path,const char* label) {
++        const auto previous=*block;
++        std::uint32_t request=999,generation=999;
++        error.clear();
++        if (observer.publish_story_request(path,request,generation,error) ||
++            error.empty() || request!=0 || generation!=0 ||
++            std::memcmp(&previous,block,sizeof(previous))!=0) {
++            std::cerr << "Story publisher rejection mutated the block: " << label << '\n';
++            return false;
++        }
++        return true;
++    };
++    block->ack=40;
++    if (!reject_unchanged(new_path,"busy")) return 1;
++    reset();
++    block->request=block->ack=(std::numeric_limits<std::uint32_t>::max)();
++    if (!reject_unchanged(new_path,"request epoch wrap")) return 1;
++    reset();
++    block->ready_generation=(std::numeric_limits<std::uint32_t>::max)();
++    if (!reject_unchanged(new_path,"generation epoch wrap")) return 1;
++    reset();
++    if (!reject_unchanged(existing_path,"existing output")) return 1;
++    if (!reject_unchanged("relative.png","relative path")) return 1;
++    if (!reject_unchanged(new_path+":alternate","alternate stream")) return 1;
++    const auto invalid_path=(fixture.path/"CON.png").u8string();
++    if (!reject_unchanged(invalid_path,"Windows device name")) return 1;
++    std::ifstream existing(fs::u8path(existing_path),std::ios::binary);
++    std::string sentinel;
++    std::getline(existing,sentinel);
++    existing.close();
++    if (sentinel!="immutable-test-sentinel") return fail("Story publisher modified an existing output");
++    const auto initial=*block;
++    std::uint32_t request=0,generation=0;
++    if (!observer.publish_story_request(new_path,request,generation,error)) return fail(error);
++    if (request!=42 || generation!=74 || block->request!=42 || block->ack!=41 ||
++        block->sample_count!=1 || block->sample_index!=0 || block->status!=0 ||
++        block->ready!=0 || block->release!=0 || block->ready_generation!=0 ||
++        block->request_generation!=74 || std::string(block->output_path)!=new_path ||
++        block->source_frame!=initial.source_frame || block->replay_time_ms!=initial.replay_time_ms ||
++        block->quality!=initial.quality || block->highlight_boost!=initial.highlight_boost ||
++        block->heartbeat!=initial.heartbeat ||
++        std::memcmp(block->opaque_dof,initial.opaque_dof,sizeof(block->opaque_dof))!=0 ||
++        fs::exists(fs::u8path(new_path))) {
++        return fail("Story request publication changed unrelated fields or its epoch/path contract");
++    }
++    const auto published=*block;
++    if (observer.release(request,error) || block->release!=0 ||
++        std::memcmp(&published,block,sizeof(published))!=0) {
++        return fail("Story request released before an add-on pixel-ready observation");
++    }
++    block->ready=request;
++    block->ready_generation=generation;
++    MemoryBarrier();
++    if (observer.release(request+1,error) || block->release!=0) {
++        return fail("Story release accepted another request id");
++    }
++    if (!observer.release(request,error) || block->release!=request || block->ack!=41) {
++        return fail("Story observer release failed or forged the add-on ACK");
++    }
++    block->ack=request;  // The isolated fixture acts as the add-on, not the observer.
++    MemoryBarrier();
++    const auto acknowledged=*block;
++    if (observer.release(request,error) ||
++        std::memcmp(&acknowledged,block,sizeof(acknowledged))!=0) {
++        return fail("Story observer accepted a release after ACK");
++    }
++    observer.close();
++    std::cout << "Story capture publisher rejection/epoch/ready-release-ACK self-test passed\n";
++    return 0;
++}
++
+ }  // namespace
+ 
+ int main() {
+@@ -165,6 +308,16 @@ int main() {
+     if (contended_snapshot.sequence != 4 || contended_snapshot.heartbeat != 12) {
+         return fail("editor identity observer did not seal the post-contention generation");
+     }
++    const auto preserved_editor_block=*block;
++    try {
++        const int story_result=test_story_publisher();
++        if (story_result!=0) return story_result;
++    } catch (const std::exception& exc) {
++        return fail(std::string{"Story capture publisher fixture failed: "}+exc.what());
++    }
++    if (std::memcmp(&preserved_editor_block,block,sizeof(preserved_editor_block))!=0) {
++        return fail("Story publisher changed the separate Editor identity block");
++    }
+     std::cout << "editor identity observer self-test passed\n";
+     return 0;
+ }
+diff --git a/engine-data/gta-capture/native/src/fx_capture_observer_win.cpp b/engine-data/gta-capture/native/src/fx_capture_observer_win.cpp
+index b718452b..deadfa7a 100644
+--- a/engine-data/gta-capture/native/src/fx_capture_observer_win.cpp
++++ b/engine-data/gta-capture/native/src/fx_capture_observer_win.cpp
+@@ -5,6 +5,8 @@
+ #include <chrono>
+ #include <cstddef>
+ #include <cstring>
++#include <filesystem>
++#include <limits>
+ #include <thread>
+ 
+ namespace diogenes::gta {
+@@ -136,6 +138,11 @@ std::wstring editor_identity_mapping_name_for_test() {
+            std::to_wstring(GetCurrentProcessId());
+ }
+ 
++std::wstring fx_capture_mapping_name_for_test() {
++    return L"Local\\DiogenesGtaFxCaptureSelftest-" +
++           std::to_wstring(GetCurrentProcessId());
++}
++
+ void set_editor_identity_observer_retry_hook_for_test(
+     EditorIdentityObserverRetryHook hook, void* context) {
+     g_editor_identity_retry_hook_for_test = hook;
+@@ -147,8 +154,14 @@ FxCaptureObserver::~FxCaptureObserver() { close(); }
+ 
+ bool FxCaptureObserver::open(std::string& error) {
+     close();
++#if defined(DIOGENES_EDITOR_IDENTITY_OBSERVER_TEST_HOOK)
++    const auto mapping_name = fx_capture_mapping_name_for_test();
++    mapping_ = OpenFileMappingW(FILE_MAP_READ | FILE_MAP_WRITE, FALSE,
++                                mapping_name.c_str());
++#else
+     mapping_ = OpenFileMappingW(FILE_MAP_READ | FILE_MAP_WRITE, FALSE,
+                                 L"Local\\SimpleCameraFxCapture");
++#endif
+     if (mapping_ == nullptr) {
+         error = "RE+ capture mapping is unavailable; Win32 error " +
+                 std::to_string(GetLastError());
+@@ -223,6 +236,113 @@ bool FxCaptureObserver::read(FxCaptureSnapshot& snapshot, std::string& error) co
+     return false;
+ }
+ 
++bool FxCaptureObserver::publish_story_request(
++        const std::string& output_path, std::uint32_t& request_id,
++        std::uint32_t& transport_generation, std::string& error) {
++    request_id = transport_generation = 0;
++    if (view_ == nullptr) {
++        error = "Story capture transport is not open";
++        return false;
++    }
++    // The add-on accepts a 512-byte UTF-8 filename. Never truncate it, alias an
++    // alternate data stream/device path, or overwrite an existing image.
++    try {
++        namespace fs = std::filesystem;
++        const auto path = fs::u8path(output_path);
++        const auto native = path.wstring();
++        const auto leaf = path.filename().wstring();
++        auto extension = path.extension().wstring();
++        std::transform(extension.begin(), extension.end(), extension.begin(),
++                       [](wchar_t ch) { return ch >= L'A' && ch <= L'Z'
++                           ? static_cast<wchar_t>(ch + (L'a' - L'A')) : ch; });
++        if (output_path.empty() || output_path.size() >= 512 ||
++            output_path.find('\0') != std::string::npos || !path.is_absolute() ||
++            native.size() < 4 || native[1] != L':' ||
++            (native[2] != L'\\' && native[2] != L'/') ||
++            native.find(L':', 2) != std::wstring::npos ||
++            path.lexically_normal() != path || leaf.empty() ||
++            leaf.back() == L'.' || leaf.back() == L' ' || extension != L".png" ||
++            !fs::is_directory(path.parent_path()) || fs::exists(path) ||
++            fs::is_symlink(path)) {
++            error = "Story PNG needs a new absolute normalized local .png path in an existing directory";
++            return false;
++        }
++        for (const auto& component : path.relative_path()) {
++            auto name = component.wstring();
++            if (name.empty() || name.back() == L'.' || name.back() == L' ' ||
++                std::any_of(name.begin(), name.end(), [](wchar_t ch) {
++                    return ch < 32 || ch == L'<' || ch == L'>' || ch == L'"' ||
++                           ch == L'|' || ch == L'?' || ch == L'*';
++                })) {
++                error = "Story PNG path contains a Windows filename alias or reserved character";
++                return false;
++            }
++            name = name.substr(0, name.find(L'.'));
++            std::transform(name.begin(), name.end(), name.begin(), [](wchar_t ch) {
++                return ch >= L'a' && ch <= L'z' ? static_cast<wchar_t>(ch - (L'a' - L'A')) : ch;
++            });
++            if (name == L"CON" || name == L"PRN" || name == L"AUX" || name == L"NUL" ||
++                (name.size() == 4 && (name.substr(0,3) == L"COM" || name.substr(0,3) == L"LPT") &&
++                 name[3] >= L'1' && name[3] <= L'9')) {
++                error = "Story PNG path names a reserved Windows device";
++                return false;
++            }
++        }
++        if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, output_path.data(),
++                                static_cast<int>(output_path.size()), nullptr, 0) == 0) {
++            error = "Story PNG path is not valid UTF-8";
++            return false;
++        }
++    } catch (const std::exception& exc) {
++        error = std::string{"Story PNG path cannot be validated: "} + exc.what();
++        return false;
++    }
++    auto* block = static_cast<volatile FxCapturePrefix*>(view_);
++    if (block->magic != kMagic || block->version != kPinnedVersion) {
++        error = "Story capture transport magic/version changed";
++        return false;
++    }
++    const auto previous_request = atomic_read(&block->request_id);
++    const auto previous_generation = (std::max)(
++        atomic_read(&block->request_camera_generation),
++        atomic_read(&block->capture_ready_camera_generation));
++    if (atomic_read(&block->ack_id) != previous_request ||
++        previous_request == (std::numeric_limits<std::uint32_t>::max)() ||
++        previous_generation == (std::numeric_limits<std::uint32_t>::max)()) {
++        error = "Story capture requires idle, non-wrapping request/generation epochs";
++        return false;
++    }
++    const auto next_request = previous_request + 1;
++    const auto next_generation = previous_generation + 1;
++    // The caller excludes RE+ publishing throughout this critical section.
++    // Recheck immediately before writing; this API is not a multi-writer lock.
++    MemoryBarrier();
++    if (atomic_read(&block->request_id) != previous_request ||
++        atomic_read(&block->ack_id) != previous_request) {
++        error = "Story capture transport acquired a competing request";
++        return false;
++    }
++    for (std::size_t index = 0; index < 512; ++index) {
++        block->out_path[index] = index < output_path.size() ? output_path[index] : '\0';
++    }
++    block->sample_count = 1;
++    block->sample_index = 0;
++    block->status = 0;
++    block->observer_release_id = 0;
++    block->capture_ready_id = 0;
++    block->request_camera_generation = next_generation;
++    block->capture_ready_camera_generation = 0;
++    // Preserve source_frame/replay_time_ms and the opaque DoF bridge. This
++    // request supplies no Editor replay identity, and never emits frame/1.
++    MemoryBarrier();
++    InterlockedExchange(reinterpret_cast<volatile LONG*>(&block->request_id),
++                        static_cast<LONG>(next_request));
++    request_id = next_request;
++    transport_generation = next_generation;
++    error.clear();
++    return true;
++}
++
+ bool FxCaptureObserver::release(std::uint32_t request_id, std::string& error) {
+     if (view_ == nullptr || request_id == 0) {
+         error = "RE+ capture channel is not open or request id is invalid";
+@@ -231,8 +351,9 @@ bool FxCaptureObserver::release(std::uint32_t request_id, std::string& error) {
+     auto* block = static_cast<volatile FxCapturePrefix*>(view_);
+     MemoryBarrier();
+     if (atomic_read(&block->request_id) != request_id ||
++        atomic_read(&block->capture_ready_id) != request_id ||
+         atomic_read(&block->ack_id) == request_id) {
+-        error = "RE+ request changed or was acknowledged before observer release";
++        error = "RE+ request changed, is not pixel-ready, or was acknowledged before observer release";
+         return false;
+     }
+     InterlockedExchange(reinterpret_cast<volatile LONG*>(&block->observer_release_id),
+diff --git a/engine-data/gta-capture/native/src/mock_game_adapter.cpp b/engine-data/gta-capture/native/src/mock_game_adapter.cpp
+index 267ac54e..89bf235e 100644
+--- a/engine-data/gta-capture/native/src/mock_game_adapter.cpp
++++ b/engine-data/gta-capture/native/src/mock_game_adapter.cpp
+@@ -31,6 +31,12 @@ public:
+             ",\"record_binding_ready\":false,\"master_replay_sha256\":null}");
+     }
+ 
++    AdapterResult story_projection_sample(const std::string&, const std::string&,
++                                          const std::string&) override {
++        return AdapterResult::failure(
++            "native mock cannot measure game-rendered calibration pixels");
++    }
++
+     AdapterResult apply_scenario(const std::string& path,
+                                  const std::string& sha256) override {
+         if (path.empty() || sha256.empty()) {
+diff --git a/engine-data/gta-capture/native/src/mock_main.cpp b/engine-data/gta-capture/native/src/mock_main.cpp
+index 186610b7..699bb14b 100644
+--- a/engine-data/gta-capture/native/src/mock_main.cpp
++++ b/engine-data/gta-capture/native/src/mock_main.cpp
+@@ -53,6 +53,14 @@ int main(int argc, char** argv) {
+             std::cerr << probe;
+             return 1;
+         }
++        const auto calibration = controller.handle_line(
++            "{\"schema\":\"dm-gta-control/1\",\"id\":\"story-calibration-mock\","
++            "\"command\":\"story_projection_sample\",\"payload\":{}}");
++        if (calibration.find("\"ok\":false") == std::string::npos ||
++            calibration.find("native mock cannot measure") == std::string::npos) {
++            std::cerr << calibration;
++            return 1;
++        }
+         return 0;
+     }
+ 
+diff --git a/engine-data/gta-capture/native/src/process_runtime_selftest.cpp b/engine-data/gta-capture/native/src/process_runtime_selftest.cpp
+index b83cc18d..972d8165 100644
+--- a/engine-data/gta-capture/native/src/process_runtime_selftest.cpp
++++ b/engine-data/gta-capture/native/src/process_runtime_selftest.cpp
+@@ -23,6 +23,10 @@ public:
+     }
+ 
+     diogenes::gta::AdapterResult probe_state() override { return hello(); }
++    diogenes::gta::AdapterResult story_projection_sample(
++            const std::string&, const std::string&, const std::string&) override {
++        return diogenes::gta::AdapterResult::failure("no rendered calibration in lifecycle test");
++    }
+     diogenes::gta::AdapterResult apply_scenario(const std::string&,
+                                                  const std::string&) override {
+         return diogenes::gta::AdapterResult::success();
+diff --git a/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp b/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
+index d8740808..71823078 100644
+--- a/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
++++ b/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
+@@ -5,7 +5,9 @@
+ #include "fx_capture_observer.hpp"
+ #include "hash_utils.hpp"
+ #include "native_tape.hpp"
++#include "recording_camera.hpp"
+ #include "story_route.hpp"
++#include "story_projection.hpp"
+ 
+ #include <main.h>
+ #include <natives.h>
+@@ -38,6 +40,9 @@ namespace {
+ 
+ namespace fs = std::filesystem;
+ using Clock = std::chrono::steady_clock;
++// Wall-clock budget from ARM through manual Editor project creation/loading,
++// the audio pass and frame rendering. This does not relax any evidence deadline.
++constexpr auto kEditorSessionWaitBudget = std::chrono::minutes(60);
+ 
+ struct ClipStamp {
+     std::uintmax_t size{};
+@@ -790,7 +795,7 @@ public:
+             return false;
+         }
+         if (!publish_plan(error)) return false;
+-        deadline_ = Clock::now() + std::chrono::minutes(20);
++        deadline_ = Clock::now() + kEditorSessionWaitBudget;
+         last_request_ = baseline_.request_id;
+         last_capture_heartbeat_ = baseline_.addon_heartbeat;
+         last_identity_sequence_ = identity_baseline_.sequence;
+@@ -814,7 +819,7 @@ public:
+             return;
+         }
+         if (Clock::now() >= deadline_) {
+-            fail("restart_required: RE+ export did not finish within 20 minutes");
++            fail("restart_required: RE+ export did not finish within 60 minutes of ARM (Editor setup, audio and render)");
+             return;
+         }
+         std::string error;
+@@ -850,7 +855,7 @@ public:
+             // different Render.ini or observes any other pixel-profile drift.
+             // Diagnose that from a post-arm identity generation before waiting
+             // on start_button_armed, otherwise a real mismatch degrades into a
+-            // misleading 20-minute timeout.
++            // misleading session-budget timeout.
+             const bool fresh_identity =
+                 serial_advanced(identity.sequence, identity_baseline_.sequence) &&
+                 serial_advanced(identity.heartbeat, identity_baseline_.heartbeat);
+@@ -1594,6 +1599,7 @@ public:
+         const auto camera_position = CAM::_GET_GAMEPLAY_CAM_COORDS();
+         const auto camera_rotation = CAM::_GET_GAMEPLAY_CAM_ROT(2);
+         const auto camera_fov = invoke<float>(0x80EC114669DAEFF4);
++        const auto recording_camera = observe_recording_camera();
+         std::ostringstream out;
+         out << std::setprecision(15)
+             << "{\"story_mode\":true,\"online_session\":false,\"mock\":false,"
+@@ -1606,12 +1612,76 @@ public:
+             << camera_position.y << ',' << camera_position.z << "],"
+             << "\"camera_euler_deg\":[" << camera_rotation.x << ','
+             << camera_rotation.y << ',' << camera_rotation.z << "],"
+-            << "\"camera_fov_deg\":" << camera_fov << ',';
++            << "\"camera_fov_deg\":" << camera_fov << ','
++            << "\"follow_ped_camera_active\":"
++            << (recording_camera.follow_ped_active ? "true" : "false") << ','
++            << "\"follow_ped_camera_view_mode\":" << recording_camera.view_mode << ',';
+         append_runtime_probe(out, binding);
+         out << '}';
+         return AdapterResult::success(out.str());
+     }
+ 
++    AdapterResult story_projection_sample(const std::string& request_path,
++                                          const std::string& request_sha256,
++                                          const std::string& output_path) override {
++        if (!guard_story_mode()) {
++            return AdapterResult::failure("Story calibration refuses Online sessions");
++        }
++        {
++            std::lock_guard<std::mutex> lock(export_mutex_);
++            std::string restart_error;
++            if (!editor_export_restart_guard(export_restart_required_, restart_error))
++                return AdapterResult::failure(restart_error);
++            if (active_export_) return AdapterResult::failure(
++                "Story calibration requires every retained Editor export to be collected");
++        }
++        std::string error;
++        EditorIdentityObserver editor;
++        EditorIdentitySnapshot identity;
++        if (!editor.open(error) || !editor.read(identity, error))
++            return AdapterResult::failure("cannot verify Editor is inactive: " + error);
++        if (identity.editor_active || identity.render_active)
++            return AdapterResult::failure("Story calibration cannot run in Rockstar Editor");
++        if (request_path.empty() || request_sha256.size() != 64 || output_path.empty())
++            return AdapterResult::failure("Story calibration request path/hash/output missing");
++        std::string actual_hash;
++        if (!sha256_file(request_path, actual_hash, error) || actual_hash != request_sha256)
++            return AdapterResult::failure("Story calibration request hash mismatch: " + error);
++        const auto json = read_text_file(request_path, error);
++        if (!error.empty()) return AdapterResult::failure(error);
++        if (find_string(json, "schema") != "dm-gta-story-projection-request/1")
++            return AdapterResult::failure("Story calibration request schema mismatch");
++        double position[3], rotation[3], point[3];
++        if (!find_vec3(json, "camera_position", position) ||
++            !find_vec3(json, "camera_euler_deg", rotation) ||
++            !find_vec3(json, "point_world", point))
++            return AdapterResult::failure("Story calibration requires finite camera/point vec3s");
++        StoryProjectionRequest request;
++        request.output_path = output_path;
++        std::copy(std::begin(position), std::end(position), request.camera_position.begin());
++        std::copy(std::begin(rotation), std::end(rotation), request.camera_euler_deg.begin());
++        std::copy(std::begin(point), std::end(point), request.point_world.begin());
++        request.fov_deg = find_number(json, "fov_deg", -1.0);
++        request.nominal_focal_mm = find_number(json, "nominal_focal_mm", -1.0);
++        const auto marker = find_string(json, "marker_mode");
++        if (marker != "world_cross" && marker != "none")
++            return AdapterResult::failure("Story marker_mode must be world_cross or none");
++        request.draw_marker = marker == "world_cross";
++        auto result = capture_story_projection(request);
++        if (result.ok) {
++            // Add the immutable request binding without rewriting the PNG or
++            // claiming that this diagnostic is an Editor capture generation.
++            result.payload_json.pop_back();
++            result.payload_json += ",\"request_path\":\"" + json_escape(request_path) +
++                "\",\"request_sha256\":\"" + request_sha256 +
++                "\",\"controller_generation\":" +
++                std::to_string(runtime_generation_.load(std::memory_order_acquire)) + "}";
++            if (!sha256_file(request_path, actual_hash, error) || actual_hash != request_sha256)
++                return AdapterResult::failure("Story calibration request changed during capture");
++        }
++        return result;
++    }
++
+     AdapterResult apply_scenario(const std::string& path,
+                                  const std::string& expected_sha256) override {
+         if (!guard_story_mode()) {
+@@ -1711,6 +1781,10 @@ public:
+         }
+         ENTITY::SET_ENTITY_HEADING(
+             PLAYER::PLAYER_PED_ID(), static_cast<float>(route_heading_deg_));
++        if (!prepare_third_person_recording_camera(error)) {
++            scenario_applied_ = false;
++            return AdapterResult::failure(error);
++        }
+         scenario_sha256_ = actual_sha256;
+         scenario_applied_ = true;
+         return AdapterResult::success(
+@@ -1727,7 +1801,9 @@ public:
+             ",\"vehicle_density\":" + std::to_string(vehicle_density_) +
+             ",\"random_vehicle_density\":" + std::to_string(random_vehicle_density_) +
+             ",\"parked_vehicle_density\":" + std::to_string(parked_vehicle_density_) +
+-            ",\"radio_off\":true,\"story_mode\":true}");
++            ",\"radio_off\":true,\"story_mode\":true,"
++            "\"recording_camera_prepared\":true,\"follow_ped_camera_view_mode\":" +
++            std::to_string(observe_recording_camera().view_mode) + "}");
+     }
+ 
+     AdapterResult record_master(const std::string& run_dir, double duration_s) override {
+@@ -1770,6 +1846,11 @@ public:
+             return AdapterResult::failure(
+                 "Online/multiplayer session detected during warmup");
+         }
++        // Applying the scenario earlier is not enough: gameplay/camera changes
++        // during warmup must settle again before Rockstar starts its recorder.
++        if (!prepare_third_person_recording_camera(error)) {
++            return AdapterResult::failure(error);
++        }
+         const auto player = PLAYER::PLAYER_PED_ID();
+         const auto start = ENTITY::GET_ENTITY_COORDS(player, TRUE);
+         const std::array<double, 3> settled_start{start.x, start.y, start.z};
+@@ -1786,10 +1867,22 @@ public:
+         }
+         AI::CLEAR_PED_TASKS_IMMEDIATELY(player);
+         ENTITY::SET_ENTITY_HEADING(player, static_cast<float>(route_heading_deg_));
++        if (!recording_camera_matches(observe_recording_camera())) {
++            return AdapterResult::failure(
++                "third-person follow-ped camera changed before recording started");
++        }
++        recording_camera_drifted_ = false;
++        recording_camera_observation_count_ = 0;
++        recording_camera_guard_active_ = true;
++        struct RecordingCameraGuardCleanup {
++            bool& active;
++            ~RecordingCameraGuardCleanup() { active = false; }
++        } recording_camera_guard_cleanup{recording_camera_guard_active_};
+         UNK1::_SET_RECORDING_MODE(1);
+         if (!wait_frame()) {
++            UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+             return AdapterResult::failure(
+-                "Online/multiplayer session detected while starting recording");
++                recording_wait_error("Online/multiplayer session detected while starting recording"));
+         }
+         if (!UNK1::_IS_RECORDING()) {
+             return AdapterResult::failure("Rockstar Editor recording did not start");
+@@ -1817,7 +1910,7 @@ public:
+                     UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                     master_player_samples_.clear();
+                     return AdapterResult::failure(
+-                        "Online/multiplayer session detected during recording; clip discarded");
++                        recording_wait_error("Online/multiplayer session detected during recording; clip discarded"));
+                 }
+             }
+             const auto observed_ns_signed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+@@ -1853,7 +1946,7 @@ public:
+                 UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                 master_player_samples_.clear();
+                 return AdapterResult::failure(
+-                    "Online/multiplayer session detected during recording; clip discarded");
++                    recording_wait_error("Online/multiplayer session detected during recording; clip discarded"));
+             }
+         }
+         // Rockstar commits the replay clip boundary one or more game ticks behind the
+@@ -1869,11 +1962,12 @@ public:
+                 UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                 master_player_samples_.clear();
+                 return AdapterResult::failure(
+-                    "Online/multiplayer session detected during replay boundary commit; clip discarded");
++                    recording_wait_error("Online/multiplayer session detected during replay boundary commit; clip discarded"));
+             }
+         }
+         UNK1::_STOP_RECORDING_AND_SAVE_CLIP();
+         AI::CLEAR_PED_TASKS_IMMEDIATELY(player);
++        recording_camera_guard_active_ = false;
+ 
+         fs::path candidate;
+         std::uintmax_t stable_size = 0;
+@@ -1951,6 +2045,16 @@ public:
+                 hex_u64(master_source_identity_) +
+                 "\",\"source_epoch\":\"" + json_escape(source_epoch_) +
+                 "\",\"mock\":false,\"recording_start_verified\":true,"
++                "\"recording_camera\":{"
++                "\"method\":\"follow_ped_camera_native_game_tick_guard\","
++                "\"requested_view_mode\":" + std::to_string(kRecordingFollowPedViewMode) + ","
++                "\"last_observed_view_mode\":" +
++                std::to_string(recording_camera_last_observation_.view_mode) + ","
++                "\"follow_ped_camera_active\":" +
++                (recording_camera_last_observation_.follow_ped_active ? "true" : "false") + ","
++                "\"game_tick_observation_count\":" +
++                std::to_string(recording_camera_observation_count_) + ","
++                "\"pixel_visibility_verified\":false},"
+                 "\"player_observation_method\":\"" +
+                 std::string{kPlayerObservationMethod} + "\","
+                 "\"player_observation_count\":" +
+@@ -2621,9 +2725,40 @@ private:
+         return !online_detected_;
+     }
+ 
++    RecordingCameraObservation observe_recording_camera() const {
++        return {CAM::IS_FOLLOW_PED_CAM_ACTIVE() != FALSE,
++                CAM::GET_FOLLOW_PED_CAM_VIEW_MODE()};
++    }
++
++    bool prepare_third_person_recording_camera(std::string& error) {
++        if (!guard_story_mode()) {
++            error = "Online/multiplayer session detected before camera preparation";
++            return false;
++        }
++        return prepare_recording_camera(
++            [](int mode) { CAM::SET_FOLLOW_PED_CAM_VIEW_MODE(mode); },
++            [this] { return wait_frame(); },
++            [this] { return observe_recording_camera(); }, error);
++    }
++
++    std::string recording_wait_error(const char* fallback) const {
++        return recording_camera_drifted_
++            ? "third-person follow-ped camera changed during recording; clip discarded"
++            : fallback;
++    }
++
+     bool wait_frame() {
+         WAIT(0);
+-        return apply_frame_policy();
++        if (!apply_frame_policy()) return false;
++        if (recording_camera_guard_active_) {
++            recording_camera_last_observation_ = observe_recording_camera();
++            ++recording_camera_observation_count_;
++            if (!recording_camera_matches(recording_camera_last_observation_)) {
++                recording_camera_drifted_ = true;
++                return false;
++            }
++        }
++        return true;
+     }
+ 
+     bool yield_for(double seconds) {
+@@ -2637,6 +2772,10 @@ private:
+ 
+     bool online_detected_{false};
+     bool scenario_applied_{false};
++    bool recording_camera_guard_active_{false};
++    bool recording_camera_drifted_{false};
++    std::uint64_t recording_camera_observation_count_{};
++    RecordingCameraObservation recording_camera_last_observation_{};
+     double warmup_s_{0.0};
+     double location_[3]{};
+     double route_distance_m_{0.0};
+diff --git a/engine-data/gta-capture/tests/test_calibration.py b/engine-data/gta-capture/tests/test_calibration.py
+index 7c976413..88010ada 100644
+--- a/engine-data/gta-capture/tests/test_calibration.py
++++ b/engine-data/gta-capture/tests/test_calibration.py
+@@ -190,7 +190,7 @@ class EvidenceDocumentTests(unittest.TestCase):
+             document, calibration_id="gta-legacy-3889-v1",
+             filmback_id="gta-poc-36mm-horizontal", metric_scale=1.0)
+         self.assertEqual(evidence["schema"], PROJECTION_SCHEMA)
+-        self.assertEqual(evidence["approval_status"], "approved")
++        self.assertEqual(evidence["approval_status"], "draft")
+         self.assertEqual(evidence["reprojection"]["metric"], "rms_euclidean_px")
+         self.assertEqual(evidence["render"],
+                          {"width": WIDTH, "height": HEIGHT, "graphics_api": "DX11"})
+@@ -215,6 +215,25 @@ class EvidenceDocumentTests(unittest.TestCase):
+             approval_status="draft")
+         self.assertEqual(evidence["approval_status"], "draft")
+ 
++    def test_approved_status_requires_explicit_selection(self):
++        evidence = build_projection_evidence(
++            _samples_document(_synthetic_samples()), calibration_id="c1",
++            filmback_id="f1", metric_scale=1.0, approval_status="approved")
++        self.assertEqual(evidence["approval_status"], "approved")
++
++    def test_cli_default_does_not_approve_a_measurement(self):
++        from gta_capture.cli import build_parser
++        args = build_parser().parse_args([
++            "solve-calibration", "--samples", "samples.json", "--out", "projection.json",
++            "--calibration-id", "c1", "--filmback-id", "f1", "--metric-scale", "1.0"])
++        self.assertEqual(args.approval_status, "draft")
++
++    def test_missing_focal_group_cannot_emit_projection_evidence(self):
++        samples = [row for row in _synthetic_samples() if row["focal_mm"] != 50]
++        with self.assertRaisesRegex(ContractError, "all four focal groups"):
++            build_projection_evidence(_samples_document(samples), calibration_id="c1",
++                                      filmback_id="f1", metric_scale=1.0)
++
+     def test_samples_file_requires_provenance(self):
+         with tempfile.TemporaryDirectory() as tmp:
+             path = Path(tmp) / "samples.json"
+diff --git a/engine-data/gta-capture/tests/test_delivery_coordinates.py b/engine-data/gta-capture/tests/test_delivery_coordinates.py
+index fccb462d..9a4da1a1 100644
+--- a/engine-data/gta-capture/tests/test_delivery_coordinates.py
++++ b/engine-data/gta-capture/tests/test_delivery_coordinates.py
+@@ -50,7 +50,8 @@ class DeliveryCoordinateTests(unittest.TestCase):
+                     # delivery speed must be derived from delivery positions.
+                     "velocity": [99.0, 98.0, 97.0],
+                 },
+-                "input": {},
++                "input": {"source": "native_task_go_straight",
++                          "mouse_dx": 0.0, "mouse_dy": 0.0, "keyCode": []},
+             }
+ 
+         rows = [
+diff --git a/engine-data/gta-capture/tests/test_frame_seal_and_staged.py b/engine-data/gta-capture/tests/test_frame_seal_and_staged.py
+index c72c3f24..454f9278 100644
+--- a/engine-data/gta-capture/tests/test_frame_seal_and_staged.py
++++ b/engine-data/gta-capture/tests/test_frame_seal_and_staged.py
+@@ -551,14 +551,14 @@ class FrameSealTests(unittest.TestCase):
+             events = {lane: [] for lane in range(1, 5)}
+             with self.assertRaisesRegex(ContractError, "byte count differs"):
+                 materialize_videos(
+-                    root / "capture", artifacts, {
++                    root / "bad-size" / "capture", artifacts, {
+                         "audio_path": str(audio),
+                         "audio_sha256": sha256_file(audio),
+                         "audio_bytes": audio.stat().st_size + 1,
+                     }, ffmpeg="ffmpeg", lane_events=events)
+             with self.assertRaisesRegex(ContractError, "sha256 differs"):
+                 materialize_videos(
+-                    root / "capture", artifacts, {
++                    root / "bad-hash" / "capture", artifacts, {
+                         "audio_path": str(audio), "audio_sha256": "0" * 64,
+                         "audio_bytes": audio.stat().st_size,
+                     }, ffmpeg="ffmpeg", lane_events=events)
+diff --git a/engine-data/gta-capture/tests/test_trajectory_gate.py b/engine-data/gta-capture/tests/test_trajectory_gate.py
+index 1b54effb..cf27270e 100644
+--- a/engine-data/gta-capture/tests/test_trajectory_gate.py
++++ b/engine-data/gta-capture/tests/test_trajectory_gate.py
+@@ -1,10 +1,17 @@
++import json
++from pathlib import Path
++import tempfile
+ import unittest
+ 
+ import helpers  # noqa: F401  (puts the module root on sys.path)
+ 
+ from gta_capture.errors import ContractError
+ from gta_capture.trajectory import (CAM4_MODE_RULES, TRAJECTORY_FAMILIES,
+-                                    build_trajectory_verdict, granted_rules)
++                                    build_trajectory_verdict, granted_rules,
++                                    verdict_for_run)
++
++
++VERIFIABLE_TRAJECTORY_RULES = set(TRAJECTORY_FAMILIES) - {"covisibility"}
+ 
+ 
+ #: Every rule engine_qc emits for a passing four-lane mc clip, with the counts a
+@@ -45,16 +52,17 @@ def _report(mode="topdown", *, fail=(), downgrade=()):
+ 
+ 
+ class TrajectoryVerdictTests(unittest.TestCase):
+-    def test_clean_topdown_report_grants_every_trajectory_rule(self):
++    def test_clean_topdown_report_grants_only_verified_trajectory_families(self):
+         verdict = build_trajectory_verdict(_report("topdown"), cam4_mode="topdown",
+                                            qc_exit_code=0)
+-        self.assertEqual(set(verdict["granted_rules"]), set(TRAJECTORY_FAMILIES))
+-        self.assertEqual(granted_rules(verdict), set(TRAJECTORY_FAMILIES))
++        self.assertEqual(set(verdict["granted_rules"]), VERIFIABLE_TRAJECTORY_RULES)
++        self.assertEqual(granted_rules(verdict), VERIFIABLE_TRAJECTORY_RULES)
++        self.assertEqual(set(verdict["planning_passed_rules"]), set(TRAJECTORY_FAMILIES))
+ 
+-    def test_clean_timewarp_report_grants_every_trajectory_rule(self):
++    def test_clean_timewarp_report_grants_only_verified_trajectory_families(self):
+         verdict = build_trajectory_verdict(_report("timewarp"), cam4_mode="timewarp",
+                                            qc_exit_code=0)
+-        self.assertEqual(set(verdict["granted_rules"]), set(TRAJECTORY_FAMILIES))
++        self.assertEqual(set(verdict["granted_rules"]), VERIFIABLE_TRAJECTORY_RULES)
+ 
+     def test_topdown_results_cannot_satisfy_a_declared_timewarp_tape(self):
+         """The tape declares the form; the report may not pick one after the fact."""
+@@ -64,7 +72,8 @@ class TrajectoryVerdictTests(unittest.TestCase):
+         detail = verdict["rules"]["cam4_reparameterization"]
+         self.assertEqual(detail["unsatisfied_required_rules"], sorted(TIMEWARP_ONLY))
+         # The other families are independent and must still be granted.
+-        self.assertIn("covisibility", verdict["granted_rules"])
++        self.assertIn("motion_limits", verdict["granted_rules"])
++        self.assertIn("covisibility", verdict["planning_passed_rules"])
+ 
+     def test_one_failing_rule_withdraws_only_its_own_family(self):
+         verdict = build_trajectory_verdict(_report("topdown", fail=("covis.ratio",)),
+@@ -80,7 +89,8 @@ class TrajectoryVerdictTests(unittest.TestCase):
+         self.assertNotIn("motion_limits", verdict["granted_rules"])
+         self.assertEqual(verdict["rules"]["motion_limits"]["failed_rules"],
+                          ["phys.speed_low"])
+-        self.assertIn("covisibility", verdict["granted_rules"])
++        self.assertIn("trajectory_pr405", verdict["granted_rules"])
++        self.assertIn("covisibility", verdict["planning_passed_rules"])
+ 
+     def test_skipped_required_rule_is_not_a_pass(self):
+         verdict = build_trajectory_verdict(
+@@ -132,10 +142,37 @@ class GrantedRulesTrustTests(unittest.TestCase):
+                                            qc_exit_code=0)
+         verdict["granted_rules"] = verdict["granted_rules"] + [
+             "commercial_rights", "human_review", "projection_calibration"]
+-        self.assertEqual(granted_rules(verdict), set(TRAJECTORY_FAMILIES))
++        self.assertEqual(granted_rules(verdict), VERIFIABLE_TRAJECTORY_RULES)
++
++    def test_old_verdict_cannot_grant_unverified_geometry(self):
++        old_verdict = {"schema": "dm-gta-trajectory-verdict/1", "qc_exit_code": 0,
++                       "granted_rules": ["covisibility"],
++                       "measured_in_gta": True}
++        self.assertEqual(granted_rules(old_verdict), set())
+ 
+ 
+ class GateIntegrationTests(unittest.TestCase):
++    def test_planar_proxy_and_self_declared_measured_geometry_never_grant_covisibility(self):
++        for source, claimed_measured in (("synthetic_planar_proxy", False),
++                                         ("gta_native", True)):
++            with self.subTest(source=source), tempfile.TemporaryDirectory() as temp:
++                root = Path(temp)
++                (root / "capture").mkdir()
++                (root / "capture" / "covis.json").write_text(json.dumps({
++                    "geometry_source": source, "measured_in_gta": claimed_measured,
++                }), encoding="utf-8")
++                tape = {"duration_s": 60.0, "source": {
++                    "kind": "trajgen_clip_placed", "cam4_mode": "topdown"}}
++                verdict = verdict_for_run(
++                    root, tape, stage=lambda _: None,
++                    invoke=lambda *args, **kwargs: (0, _report(), ""))
++                self.assertNotIn("covisibility", verdict["granted_rules"])
++                self.assertIn("covisibility", verdict["planning_passed_rules"])
++                detail = verdict["rules"]["covisibility"]
++                self.assertFalse(detail["measured_geometry_verified"])
++                self.assertEqual(detail["source_provenance"]["declared_geometry_source"], source)
++                self.assertEqual(len(detail["source_provenance"]["sidecar_sha256"]), 64)
++
+     def test_every_family_name_is_a_real_gate_rule(self):
+         from gta_capture.gate import REQUIRED_RULES
+         self.assertLessEqual(set(TRAJECTORY_FAMILIES), REQUIRED_RULES)

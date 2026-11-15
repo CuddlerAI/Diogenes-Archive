@@ -1,0 +1,39 @@
+--- previous-installed/native/src/scripthook_game_adapter.cpp
++++ candidate/native/src/scripthook_game_adapter.cpp
+@@ -40,6 +40,9 @@
+ 
+ namespace fs = std::filesystem;
+ using Clock = std::chrono::steady_clock;
++// Wall-clock budget from ARM through manual Editor project creation/loading,
++// the audio pass and frame rendering. This does not relax any evidence deadline.
++constexpr auto kEditorSessionWaitBudget = std::chrono::minutes(60);
+ 
+ struct ClipStamp {
+     std::uintmax_t size{};
+@@ -792,7 +795,7 @@
+             return false;
+         }
+         if (!publish_plan(error)) return false;
+-        deadline_ = Clock::now() + std::chrono::minutes(20);
++        deadline_ = Clock::now() + kEditorSessionWaitBudget;
+         last_request_ = baseline_.request_id;
+         last_capture_heartbeat_ = baseline_.addon_heartbeat;
+         last_identity_sequence_ = identity_baseline_.sequence;
+@@ -816,7 +819,7 @@
+             return;
+         }
+         if (Clock::now() >= deadline_) {
+-            fail("restart_required: RE+ export did not finish within 20 minutes");
++            fail("restart_required: RE+ export did not finish within 60 minutes of ARM (Editor setup, audio and render)");
+             return;
+         }
+         std::string error;
+@@ -852,7 +855,7 @@
+             // different Render.ini or observes any other pixel-profile drift.
+             // Diagnose that from a post-arm identity generation before waiting
+             // on start_button_armed, otherwise a real mismatch degrades into a
+-            // misleading 20-minute timeout.
++            // misleading session-budget timeout.
+             const bool fresh_identity =
+                 serial_advanced(identity.sequence, identity_baseline_.sequence) &&
+                 serial_advanced(identity.heartbeat, identity_baseline_.heartbeat);

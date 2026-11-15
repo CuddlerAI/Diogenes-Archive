@@ -1,0 +1,1426 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 96355a3..92a1ba0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -320,7 +320,7 @@ if(ENABLE_LOGS)
+ endif()
+ 
+ target_link_directories(RockstarEditorPlus PUBLIC "${CMAKE_BINARY_DIR}/LIB")
+-target_link_libraries(RockstarEditorPlus version.lib shell32.lib debug minhook.x64d.lib optimized minhook.x64.lib)
++target_link_libraries(RockstarEditorPlus version.lib shell32.lib bcrypt.lib debug minhook.x64d.lib optimized minhook.x64.lib)
+ 
+ # =============================================================================
+ #  Preset Maker - a small GUI for authoring encoder presets
+diff --git a/src/capture/diogenesbridge.cpp b/src/capture/diogenesbridge.cpp
+new file mode 100644
+index 0000000..ca22623
+--- /dev/null
++++ b/src/capture/diogenesbridge.cpp
+@@ -0,0 +1,733 @@
++#include "main.h"
++
++#include "capture/diogenesbridge.h"
++#include "capture/fxcapture.h"
++#include "capture/render.h"
++#include "game/game.h"
++#include "replay/freecam.h"
++#include "replay/marker.h"
++#include "replay/quat.h"
++#include "ui/exportmenu.h"
++
++#include <bcrypt.h>
++
++#include <array>
++#include <atomic>
++#include <cmath>
++#include <cstring>
++#include <cwchar>
++#include <limits>
++#include <mutex>
++#include <string>
++#include <vector>
++
++namespace diogenesbridge
++{
++	namespace
++	{
++		constexpr const char* kPlanMappingName = "Local\\DiogenesGtaExportPlan";
++		constexpr uint32_t kPlanMagic = 0x44474550; // 'DGEP'
++		constexpr uint32_t kPlanVersion = 2;
++		constexpr uint32_t kMaxFrames = 30u * 60u * 60u; // one hour at 30 fps
++		constexpr uint32_t kNoPendingFrame =
++			(std::numeric_limits<uint32_t>::max)();
++
++		HANDLE s_planMap = nullptr;
++		uint8_t* s_planView = nullptr;
++		size_t s_planCapacity = 0;
++		bool s_ownedExport = false;
++		uint32_t s_lastPlannedFrame = 0;
++		uint32_t s_pendingPlannedFrame = kNoPendingFrame;
++		uint32_t s_finalCameraGeneration = 0;
++		uint32_t s_lastMenuAddonHeartbeat = 0;
++		uint32_t s_lastAutoOpenSequence = 0;
++		std::atomic<DWORD> s_editorThreadId{0};
++		DiogenesEditorRuntimeEvidence s_lastPlanEvidence{};
++		std::mutex s_lastPlanEvidenceMutex;
++
++		bool finite(const double* p, size_t n)
++		{
++			for (size_t i = 0; i < n; ++i)
++				if (!std::isfinite(p[i])) return false;
++			return true;
++		}
++
++		bool nonzeroHash(const uint8_t* digest)
++		{
++			uint8_t any = 0;
++			for (size_t i = 0; i < 32; ++i) any |= digest[i];
++			return any != 0;
++		}
++
++		bool sha256File(const std::string& path, std::array<uint8_t, 32>& digest)
++		{
++			if (path.empty()) return false;
++			HANDLE file = CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_READ,
++			                          nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN,
++			                          nullptr);
++			if (file == INVALID_HANDLE_VALUE) return false;
++			BCRYPT_ALG_HANDLE algorithm = nullptr;
++			BCRYPT_HASH_HANDLE hash = nullptr;
++			DWORD objectBytes = 0;
++			DWORD digestBytes = 0;
++			DWORD resultBytes = 0;
++			std::vector<UCHAR> object;
++			std::vector<UCHAR> chunk(64 * 1024);
++			bool ok = false;
++
++			if (!BCRYPT_SUCCESS(BCryptOpenAlgorithmProvider(
++			        &algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0))) goto done;
++			if (!BCRYPT_SUCCESS(BCryptGetProperty(
++			        algorithm, BCRYPT_OBJECT_LENGTH,
++			        reinterpret_cast<PUCHAR>(&objectBytes), sizeof(objectBytes),
++			        &resultBytes, 0)) || resultBytes != sizeof(objectBytes) ||
++			    objectBytes == 0) goto done;
++			if (!BCRYPT_SUCCESS(BCryptGetProperty(
++			        algorithm, BCRYPT_HASH_LENGTH,
++			        reinterpret_cast<PUCHAR>(&digestBytes), sizeof(digestBytes),
++			        &resultBytes, 0)) || resultBytes != sizeof(digestBytes) ||
++			    digestBytes != digest.size()) goto done;
++
++			object.resize(objectBytes);
++			if (!BCRYPT_SUCCESS(BCryptCreateHash(
++			        algorithm, &hash, object.data(), objectBytes, nullptr, 0, 0))) goto done;
++			for (;;)
++			{
++				DWORD count = 0;
++				if (!ReadFile(file, chunk.data(), static_cast<DWORD>(chunk.size()),
++				              &count, nullptr)) goto done;
++				if (count == 0) break;
++				if (!BCRYPT_SUCCESS(BCryptHashData(hash, chunk.data(), count, 0))) goto done;
++			}
++			if (!BCRYPT_SUCCESS(BCryptFinishHash(
++			        hash, digest.data(), static_cast<ULONG>(digest.size()), 0))) goto done;
++			ok = true;
++
++		done:
++			if (hash) BCryptDestroyHash(hash);
++			if (algorithm) BCryptCloseAlgorithmProvider(algorithm, 0);
++			CloseHandle(file);
++			return ok;
++		}
++
++		bool fixedString(const char* value, size_t capacity, std::string& out)
++		{
++			const void* terminator = memchr(value, '\0', capacity);
++			if (!terminator) return false;
++			const size_t length = static_cast<const char*>(terminator) - value;
++			if (length == 0) return false;
++			for (size_t i = length + 1; i < capacity; ++i)
++				if (value[i] != '\0') return false;
++			out.assign(value, length);
++			return true;
++		}
++
++		bool normalizeOutputRoot(const std::string& utf8, std::string& normalized,
++		                         std::wstring& normalizedWide)
++		{
++			if (utf8.empty()) return false;
++			const int wideCount = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
++			                                          utf8.c_str(), -1, nullptr, 0);
++			if (wideCount <= 1) return false;
++			std::vector<wchar_t> wide(static_cast<size_t>(wideCount));
++			if (!MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8.c_str(), -1,
++			                         wide.data(), wideCount)) return false;
++			const DWORD needed = GetFullPathNameW(wide.data(), 0, nullptr, nullptr);
++			if (needed == 0) return false;
++			std::vector<wchar_t> full(static_cast<size_t>(needed) + 1u);
++			if (GetFullPathNameW(wide.data(), static_cast<DWORD>(full.size()),
++			                     full.data(), nullptr) == 0) return false;
++			normalizedWide.assign(full.data());
++			if (normalizedWide.size() < 3 || normalizedWide[1] != L':' ||
++			    (normalizedWide[2] != L'\\' && normalizedWide[2] != L'/')) return false;
++			for (auto& ch : normalizedWide) if (ch == L'/') ch = L'\\';
++			while (normalizedWide.size() > 3 && normalizedWide.back() == L'\\')
++				normalizedWide.pop_back();
++			const int byteCount = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS,
++			                                          normalizedWide.c_str(), -1,
++			                                          nullptr, 0, nullptr, nullptr);
++			if (byteCount <= 1 || static_cast<size_t>(byteCount) > 512u) return false;
++			std::vector<char> bytes(static_cast<size_t>(byteCount));
++			if (!WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS,
++			                         normalizedWide.c_str(), -1, bytes.data(), byteCount,
++			                         nullptr, nullptr)) return false;
++			normalized.assign(bytes.data());
++			return true;
++		}
++
++		void openPlan()
++		{
++			if (s_planView) return;
++			s_planMap = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, kPlanMappingName);
++			if (!s_planMap) return;
++			s_planView = static_cast<uint8_t*>(
++				MapViewOfFile(s_planMap, FILE_MAP_ALL_ACCESS, 0, 0, 0));
++			if (!s_planView)
++			{
++				CloseHandle(s_planMap);
++				s_planMap = nullptr;
++				return;
++			}
++			MEMORY_BASIC_INFORMATION info{};
++			if (VirtualQuery(s_planView, &info, sizeof(info)) == sizeof(info))
++				s_planCapacity = info.RegionSize;
++		}
++
++		bool snapshotHeader(DiogenesExportPlanHeader& out)
++		{
++			if (!s_planView || s_planCapacity < sizeof(out)) return false;
++			auto* live = reinterpret_cast<volatile DiogenesExportPlanHeader*>(s_planView);
++			for (int attempt = 0; attempt < 4; ++attempt)
++			{
++				const uint32_t before = live->sequence;
++				if (before & 1u) continue;
++				std::atomic_thread_fence(std::memory_order_acquire);
++				memcpy(&out, s_planView, sizeof(out));
++				std::atomic_thread_fence(std::memory_order_acquire);
++				const uint32_t after = live->sequence;
++				if (before == after && !(after & 1u)) return true;
++			}
++			return false;
++		}
++
++		bool validHeader(const DiogenesExportPlanHeader& h)
++		{
++			if (h.magic != kPlanMagic || h.version != kPlanVersion ||
++			    h.headerSize != sizeof(DiogenesExportPlanHeader) ||
++			    h.sampleStride != sizeof(DiogenesExportPlanSample) ||
++			    h.publisherPid != GetCurrentProcessId() || h.lane < 1 || h.lane > 4 ||
++			    h.frameCount == 0 || h.frameCount > kMaxFrames ||
++			    h.fpsNum != 30 || h.fpsDen != 1 || h.width == 0 || h.height == 0 ||
++			    h.state > PLAN_FAILED || !nonzeroHash(h.tapeSha256) ||
++			    !nonzeroHash(h.renderProfileSha256)) return false;
++			std::string outputRoot;
++			if (!fixedString(h.expectedOutputRootUtf8,
++			                 sizeof(h.expectedOutputRootUtf8), outputRoot)) return false;
++
++			const uint64_t expected = sizeof(DiogenesExportPlanHeader) +
++				static_cast<uint64_t>(h.frameCount) * sizeof(DiogenesExportPlanSample);
++			if (expected != h.mappingSize || expected > s_planCapacity) return false;
++			for (uint8_t byte : h.reserved) if (byte != 0) return false;
++			return true;
++		}
++
++		bool configValid(const DiogenesExportPlanHeader& h,
++		                 DiogenesEditorRuntimeEvidence& evidence)
++		{
++			const Config& c = Config::get();
++			std::array<uint8_t, 32> actualProfileDigest{};
++			std::string expectedRoot;
++			std::string configuredRoot;
++			std::wstring expectedWide;
++			std::wstring configuredWide;
++			if (!sha256File(c.renderIniPath, actualProfileDigest)) return false;
++			memcpy(evidence.renderProfileSha256, actualProfileDigest.data(),
++			       sizeof(evidence.renderProfileSha256));
++			if (memcmp(actualProfileDigest.data(), h.renderProfileSha256,
++			           actualProfileDigest.size()) != 0 ||
++			    !fixedString(h.expectedOutputRootUtf8,
++			                 sizeof(h.expectedOutputRootUtf8), expectedRoot) ||
++			    !normalizeOutputRoot(expectedRoot, expectedRoot, expectedWide) ||
++			    !normalizeOutputRoot(c.renderOutputFolder, configuredRoot, configuredWide) ||
++			    _wcsicmp(expectedWide.c_str(), configuredWide.c_str()) != 0) return false;
++			const bool valid =
++			       c.enableRenderer && c.renderMode == Config::RenderMode::Frames &&
++			       c.renderCaptureMode == 0 && !c.renderDof &&
++			       !c.renderJpeg && std::fabs(c.renderFps - 30.0f) < 0.0001f &&
++			       c.renderSamples == 1 && c.renderSettleFrames == 3 &&
++			       c.renderSettleSubFrames == 1 && c.renderKeepFrames &&
++			       c.renderAudio && c.renderMarkerSpeed && c.renderHideHud &&
++			       std::fabs(c.renderHighlight - 0.9f) < 0.0001f &&
++				       c.exportCloseWhenDone;
++			if (!valid) return false;
++			memset(evidence.normalizedOutputRoot, 0,
++			       sizeof(evidence.normalizedOutputRoot));
++			memcpy(evidence.normalizedOutputRoot, configuredRoot.data(),
++			       configuredRoot.size());
++			return true;
++		}
++
++		bool renderCoverageValid(const DiogenesExportPlanHeader& h, int renderFrames,
++		                         bool& known)
++		{
++			known = false;
++			const int clips = game::clipCount();
++			if (clips <= 0) return false;
++			known = true;
++			if (clips != 1 || renderFrames < static_cast<int>(h.frameCount)) return false;
++			float lo = 0.0f;
++			float hi = 0.0f;
++			if (!game::clipRange(lo, hi) || !std::isfinite(lo) || !std::isfinite(hi) ||
++			    hi <= lo) return false;
++			const double frameMs = 1000.0 * static_cast<double>(h.fpsDen) /
++			                       static_cast<double>(h.fpsNum);
++			const double durationMs = static_cast<double>(hi) - static_cast<double>(lo);
++			const double lastPlannedMs =
++				static_cast<double>(h.frameCount - 1u) * frameMs;
++			// Keep the renderer-bound check on exactly the same duration source and
++			// float arithmetic as render::begin(). clipRange() is the non-dilated
++			// replay span used for coverage; the renderer counts output frames from
++			// totalDilatedMs() when RenderMarkerSpeed=1. Recomputing the bound from
++			// the former can reject a valid project even at 100% marker speed because
++			// the engine exposes the two endpoints with slightly different rounding.
++			const float renderDurationMs = game::totalDilatedMs();
++			const float renderFrameMs = 1000.0f * static_cast<float>(h.fpsDen) /
++			                            static_cast<float>(h.fpsNum);
++			if (!std::isfinite(renderDurationMs) || renderDurationMs <= 1.0f ||
++			    !std::isfinite(renderFrameMs) || renderFrameMs <= 0.0f) return false;
++			const int expectedBound =
++				static_cast<int>(renderDurationMs / renderFrameMs + 0.5f) + 2;
++			const bool valid = durationMs + 0.5 >= lastPlannedMs &&
++			                   renderFrames == expectedBound;
++			if (!valid)
++			{
++				logger::write("info",
++					"diogenes: render coverage mismatch clip=%.3f..%.3f span=%.3f last=%.3f output=%.3f frameMs=%.6f renderFrames=%d expected=%d",
++					(double)lo, (double)hi, durationMs, lastPlannedMs,
++					(double)renderDurationMs, (double)renderFrameMs,
++					renderFrames, expectedBound);
++			}
++			return valid;
++		}
++
++		bool clipMatches(uint64_t wanted)
++		{
++			std::vector<uint64_t> ids;
++			const int at = game::clipIndex();
++			return wanted != 0 && game::clipIdentities(ids) && at >= 0 &&
++			       at < static_cast<int>(ids.size()) && ids[static_cast<size_t>(at)] == wanted;
++		}
++
++		bool snapshotSample(const DiogenesExportPlanHeader& h, uint32_t frame,
++		                    DiogenesExportPlanSample& out)
++		{
++			if (frame >= h.frameCount) return false;
++			auto* live = reinterpret_cast<volatile DiogenesExportPlanHeader*>(s_planView);
++			const uint32_t before = live->sequence;
++			if (before != h.sequence || (before & 1u)) return false;
++			const size_t offset = h.headerSize + static_cast<size_t>(frame) * h.sampleStride;
++			memcpy(&out, s_planView + offset, sizeof(out));
++			std::atomic_thread_fence(std::memory_order_acquire);
++			if (live->sequence != before) return false;
++
++			const double q2 = out.quaternion[0] * out.quaternion[0] +
++			                  out.quaternion[1] * out.quaternion[1] +
++			                  out.quaternion[2] * out.quaternion[2] +
++			                  out.quaternion[3] * out.quaternion[3];
++			const uint64_t expectedT = (static_cast<uint64_t>(frame) * 1000000000ull + 15ull) / 30ull;
++			if (out.frame != frame || out.reserved != 0 || out.source_t_ns != expectedT ||
++			    !finite(out.position, 3) || !finite(out.quaternion, 4) ||
++			    !finite(out.euler_deg, 3) || !finite(out.intrinsics, 4) ||
++			    std::fabs(q2 - 1.0) > 0.002 || out.intrinsics[0] <= 0.0 ||
++			    out.intrinsics[1] <= 0.0 ||
++			    std::fabs(out.intrinsics[0] - out.intrinsics[1]) > 0.0001)
++				return false;
++
++			for (double value : out.position)
++				if (std::fabs(value) > static_cast<double>((std::numeric_limits<float>::max)()))
++					return false;
++
++			constexpr double kPi = 3.14159265358979323846;
++			rfreecam::Mat34 eulerBasis{};
++			lookat::basisFromHeadingPitchRoll(
++				static_cast<float>(out.euler_deg[2] * kPi / 180.0),
++				static_cast<float>(out.euler_deg[0] * kPi / 180.0),
++				static_cast<float>(out.euler_deg[1] * kPi / 180.0), eulerBasis);
++			const rquat::Quat eq = rquat::fromBasis(eulerBasis.a, eulerBasis.b, eulerBasis.c);
++			const double agreement = std::fabs(eq.x * out.quaternion[0] +
++			                                   eq.y * out.quaternion[1] +
++			                                   eq.z * out.quaternion[2] +
++			                                   eq.w * out.quaternion[3]);
++			return agreement >= 0.999999;
++		}
++
++		bool validateAllSamples(const DiogenesExportPlanHeader& h)
++		{
++			DiogenesExportPlanSample sample{};
++			for (uint32_t frame = 0; frame < h.frameCount; ++frame)
++				if (!snapshotSample(h, frame, sample)) return false;
++			return true;
++		}
++
++		bool transitionState(uint32_t expected, uint32_t state)
++		{
++			if (!s_planView) return false;
++			auto* h = reinterpret_cast<volatile DiogenesExportPlanHeader*>(s_planView);
++			for (int attempt = 0; attempt < 16; ++attempt)
++			{
++				const LONG sequence = InterlockedCompareExchange(
++					reinterpret_cast<volatile LONG*>(&h->sequence), 0, 0);
++				if (sequence & 1) continue;
++				if (InterlockedCompareExchange(
++						reinterpret_cast<volatile LONG*>(&h->sequence), sequence + 1,
++						sequence) != sequence) continue;
++				std::atomic_thread_fence(std::memory_order_acquire);
++				const bool changed = h->state == expected;
++				if (changed) h->state = state;
++				std::atomic_thread_fence(std::memory_order_release);
++				InterlockedExchange(reinterpret_cast<volatile LONG*>(&h->sequence),
++				                    sequence + 2);
++				return changed;
++			}
++			return false;
++		}
++
++		bool readFinalPose(void* director, DiogenesEditorRuntimeEvidence& e)
++		{
++			if (!director) return false;
++			const auto* b = static_cast<const uint8_t*>(director);
++			const spline::Vec3 a(reinterpret_cast<const float*>(b + rdirector::OFF_FrameMatrixA));
++			const spline::Vec3 f(reinterpret_cast<const float*>(b + rdirector::OFF_FrameMatrixB));
++			const spline::Vec3 u(reinterpret_cast<const float*>(b + rdirector::OFF_FrameMatrixC));
++			const spline::Vec3 p(reinterpret_cast<const float*>(b + rdirector::OFF_FramePosition));
++			const float fov = *reinterpret_cast<const float*>(b + rdirector::OFF_FrameFov);
++			const rquat::Quat q = rquat::fromBasis(a, f, u);
++			const double pose[] = {p.x, p.y, p.z, q.x, q.y, q.z, q.w, fov};
++			if (!finite(pose, sizeof(pose) / sizeof(pose[0])) || fov < 1.0f || fov > 130.0f)
++				return false;
++			e.finalPosition[0] = p.x; e.finalPosition[1] = p.y; e.finalPosition[2] = p.z;
++			e.finalQuaternion[0] = q.x; e.finalQuaternion[1] = q.y;
++			e.finalQuaternion[2] = q.z; e.finalQuaternion[3] = q.w;
++			e.finalFovDeg = fov;
++			return true;
++		}
++
++		bool applySample(void* director, const DiogenesExportPlanHeader& h,
++		                 const DiogenesExportPlanSample& s,
++		                 DiogenesEditorRuntimeEvidence& evidence,
++		                 bool advanceGeneration)
++		{
++			if (!director) return false;
++			auto* b = static_cast<uint8_t*>(director);
++			float* a = reinterpret_cast<float*>(b + rdirector::OFF_FrameMatrixA);
++			float* f = reinterpret_cast<float*>(b + rdirector::OFF_FrameMatrixB);
++			float* u = reinterpret_cast<float*>(b + rdirector::OFF_FrameMatrixC);
++			float* p = reinterpret_cast<float*>(b + rdirector::OFF_FramePosition);
++			const rquat::Quat wanted(static_cast<float>(s.quaternion[0]),
++			                          static_cast<float>(s.quaternion[1]),
++			                          static_cast<float>(s.quaternion[2]),
++			                          static_cast<float>(s.quaternion[3]));
++			rquat::toMatrixRows(wanted, a, f, u);
++			p[0] = static_cast<float>(s.position[0]);
++			p[1] = static_cast<float>(s.position[1]);
++			p[2] = static_cast<float>(s.position[2]);
++			constexpr double kPi = 3.14159265358979323846;
++			const double fov = 2.0 * std::atan(static_cast<double>(h.height) /
++			                                   (2.0 * s.intrinsics[1])) * 180.0 / kPi;
++			if (!std::isfinite(fov) || fov < 1.0 || fov > 130.0) return false;
++			*reinterpret_cast<float*>(b + rdirector::OFF_FrameFov) = static_cast<float>(fov);
++
++			if (!readFinalPose(director, evidence)) return false;
++			const double dx = evidence.finalPosition[0] - s.position[0];
++			const double dy = evidence.finalPosition[1] - s.position[1];
++			const double dz = evidence.finalPosition[2] - s.position[2];
++			const double dot = std::fabs(evidence.finalQuaternion[0] * s.quaternion[0] +
++			                             evidence.finalQuaternion[1] * s.quaternion[1] +
++			                             evidence.finalQuaternion[2] * s.quaternion[2] +
++			                             evidence.finalQuaternion[3] * s.quaternion[3]);
++			const bool matched = std::sqrt(dx * dx + dy * dy + dz * dz) <= 0.0005 &&
++			                     dot >= 0.999999999 &&
++			                     std::fabs(evidence.finalFovDeg - fov) <= 0.0002;
++			if (matched && advanceGeneration)
++				evidence.finalCameraGeneration = ++s_finalCameraGeneration;
++			return matched;
++		}
++
++		void storeLastPlanEvidence(const DiogenesEditorRuntimeEvidence& evidence)
++		{
++			std::lock_guard<std::mutex> lock(s_lastPlanEvidenceMutex);
++			s_lastPlanEvidence = evidence;
++		}
++
++		DiogenesEditorRuntimeEvidence loadLastPlanEvidence()
++		{
++			std::lock_guard<std::mutex> lock(s_lastPlanEvidenceMutex);
++			return s_lastPlanEvidence;
++		}
++	}
++
++	bool snapshotCaptureEvidence(uint32_t sourceFrame,
++	                             DiogenesEditorRuntimeEvidence& evidence,
++	                             bool& required)
++	{
++		required = false;
++		openPlan();
++		DiogenesExportPlanHeader h{};
++		if (!snapshotHeader(h) || !validHeader(h))
++		{
++			// Once this process has joined a plan mapping, an unstable/corrupt
++			// snapshot is never an ordinary unowned export. Publishing a generic
++			// zero-generation request here creates an impossible request that the
++			// native observer can neither accept nor drain.
++			required = s_planView != nullptr;
++			if (required)
++				logger::write("info",
++					"diogenes: capture evidence snapshot unavailable for frame %u - request withheld",
++					sourceFrame);
++			return !required;
++		}
++		if (h.state == PLAN_FAILED)
++		{
++			required = true;
++			return false;
++		}
++		required = h.state == PLAN_TRIGGERED || h.state == PLAN_EXPORTING;
++		if (!required) return true;
++
++		std::lock_guard<std::mutex> lock(s_lastPlanEvidenceMutex);
++		if (s_lastPlanEvidence.plannedFrame != sourceFrame + 1u ||
++		    s_lastPlanEvidence.finalCameraGeneration == 0)
++			return false;
++		evidence = s_lastPlanEvidence;
++		return true;
++	}
++
++	void tickFinalCamera(void* director)
++	{
++		const DWORD currentThread = GetCurrentThreadId();
++		DWORD expectedThread = 0;
++		if (!s_editorThreadId.compare_exchange_strong(
++		        expectedThread, currentThread, std::memory_order_acq_rel) &&
++		    expectedThread != currentThread) return;
++
++		DiogenesEditorRuntimeEvidence evidence{};
++		evidence.editorActive = game::replayMode() >= 0;
++		evidence.editMenuActive = exportmenu::exportSettingsActive();
++		evidence.renderActive = render::active();
++		readFinalPose(director, evidence);
++
++		openPlan();
++		DiogenesExportPlanHeader h{};
++		const bool headerOk = snapshotHeader(h) && validHeader(h);
++		evidence.exportConfigValid = headerOk && configValid(h, evidence);
++		evidence.startButtonArmed = evidence.editMenuActive &&
++		                              exportmenu::startExportFocused() &&
++		                              evidence.exportConfigValid;
++
++		const bool framePass = render::framePassActive();
++		if (headerOk && s_ownedExport && h.state == PLAN_FAILED)
++		{
++			// Native rejected a request-bound pose/pixel fact. Stop producing new
++			// frames. Any already-published request remains stable until the native
++			// failure drainer observes pixel-ready, releases it, and sees add-on ack.
++			render::cancel();
++			s_ownedExport = false;
++		}
++		else if (headerOk && s_ownedExport && h.state == PLAN_EXPORTING && !framePass)
++		{
++			if (s_lastPlannedFrame != h.frameCount || !evidence.exportConfigValid)
++				logger::write("info",
++					"diogenes: frame pass ended before the plan (planned=%u expected=%u config=%d)",
++					s_lastPlannedFrame, h.frameCount, (int)evidence.exportConfigValid);
++			transitionState(PLAN_EXPORTING,
++			                s_lastPlannedFrame == h.frameCount && evidence.exportConfigValid
++			                    ? PLAN_DONE : PLAN_FAILED);
++			s_ownedExport = false;
++		}
++		else if (headerOk && framePass &&
++		         (h.state == PLAN_TRIGGERED || (s_ownedExport && h.state == PLAN_EXPORTING)))
++		{
++			const int frame = render::frameDone();
++			const int renderFrames = render::frameCount();
++			if (h.state == PLAN_TRIGGERED)
++			{
++				s_lastPlannedFrame = 0;
++				storeLastPlanEvidence({});
++			}
++			bool renderCoverageKnown = false;
++			const bool renderCoverageReady =
++				renderCoverageValid(h, renderFrames, renderCoverageKnown);
++			const bool terminalBoundSlack =
++				h.state == PLAN_EXPORTING && renderCoverageReady &&
++				renderFrames > static_cast<int>(h.frameCount) && frame >= 0 &&
++				static_cast<uint32_t>(frame) == h.frameCount &&
++				s_lastPlannedFrame == h.frameCount;
++			if (terminalBoundSlack)
++			{
++				// All sealed requests have already crossed the final-camera and pixel
++				// ACK fences. End before RE+ can consume its non-semantic bound slack;
++				// no frame is duplicated, held, or assigned an invented replay clock.
++				if (!evidence.exportConfigValid ||
++				    !transitionState(PLAN_EXPORTING, PLAN_DONE))
++				{
++					transitionState(PLAN_EXPORTING, PLAN_FAILED);
++					render::cancel();
++					s_ownedExport = false;
++					fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++					return;
++				}
++				logger::write("info",
++					"diogenes: renderer bound slack elided after %u acknowledged frames (bound=%d)",
++					h.frameCount, renderFrames);
++				render::cancel();
++				s_ownedExport = false;
++				fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++				return;
++			}
++			const bool alreadyApplied = h.state == PLAN_EXPORTING && frame >= 0 &&
++				                         s_lastPlannedFrame == static_cast<uint32_t>(frame) + 1;
++			if (alreadyApplied)
++			{
++				if (!evidence.exportConfigValid)
++				{
++					transitionState(PLAN_EXPORTING, PLAN_FAILED);
++					render::cancel();
++					s_ownedExport = false;
++					fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++					return;
++				}
++				// The stock director rebuilds its output on every UpdateSmoothing,
++				// including the settle/request wait. Restore the same planned sample as
++				// absolute last writer on every tick, while preserving the single
++				// generation allocated when this source frame was first accepted.
++				evidence = loadLastPlanEvidence();
++				DiogenesExportPlanSample repeat{};
++				if (!snapshotSample(h, static_cast<uint32_t>(frame), repeat) ||
++				    !applySample(director, h, repeat, evidence, false) ||
++				    evidence.finalCameraGeneration == 0)
++				{
++					logger::write("info",
++						"diogenes: accepted camera could not be restored at frame %d",
++						frame);
++					transitionState(PLAN_EXPORTING, PLAN_FAILED);
++					render::cancel();
++					s_ownedExport = false;
++					fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++					return;
++				}
++				storeLastPlanEvidence(evidence);
++				fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++				return;
++			}
++			const bool firstFrame = h.state != PLAN_TRIGGERED || frame == 0;
++			const bool wholePlanValid = h.state != PLAN_TRIGGERED || validateAllSamples(h);
++			const bool structuralBase =
++				firstFrame && wholePlanValid && evidence.exportConfigValid && frame >= 0 &&
++				static_cast<uint32_t>(frame) < h.frameCount &&
++				s_lastPlannedFrame == static_cast<uint32_t>(frame);
++			if (structuralBase && !renderCoverageKnown)
++			{
++				// The playback controller can briefly hide its clip table while
++				// rewinding from the audio pass. Wait for a coherent range; the native
++				// trigger/watchdog still fails closed if it never becomes readable.
++				fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++				return;
++			}
++			const bool structuralReady = structuralBase && renderCoverageReady;
++			const bool clipReady = structuralReady && clipMatches(h.masterClipIdentity);
++			if (clipReady && s_pendingPlannedFrame != static_cast<uint32_t>(frame))
++			{
++				// render::pump() advances Ack -> seekAndSettle() earlier in the same
++				// UpdateSmoothing hook. Applying the next camera immediately here races
++				// the editor's new playhead/clip state. Observe the new frame once, then
++				// wait for one complete origUpdateSmoothing() before validating and
++				// writing it. The renderer is still in its three-tick settle window.
++				s_pendingPlannedFrame = static_cast<uint32_t>(frame);
++				fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++				return;
++			}
++			if (structuralReady && !clipReady)
++			{
++				// A seek can temporarily expose no current clip. Treat that as a wait,
++				// not a rejected plan. If it does not settle before capture, the request
++				// evidence fence still aborts the renderer fail-closed.
++				s_pendingPlannedFrame = kNoPendingFrame;
++				fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++				return;
++			}
++			DiogenesExportPlanSample sample{};
++			const bool sampleValid = structuralReady && clipReady && frame >= 0 &&
++				snapshotSample(h, static_cast<uint32_t>(frame), sample);
++			const bool sampleApplied = sampleValid &&
++				applySample(director, h, sample, evidence, true);
++			if (sampleApplied)
++			{
++				if (h.state == PLAN_TRIGGERED)
++				{
++					if (!transitionState(PLAN_TRIGGERED, PLAN_EXPORTING))
++					{
++						render::cancel();
++						return;
++					}
++					s_ownedExport = true;
++				}
++				evidence.plannedFrame = static_cast<uint32_t>(frame) + 1;
++				s_lastPlannedFrame = evidence.plannedFrame;
++				storeLastPlanEvidence(evidence);
++			}
++			else
++			{
++				logger::write("info",
++					"diogenes: camera plan rejected at frame %d (state=%u structural=%d sample=%d applied=%d last=%u count=%u config=%d clip=%d renderFrames=%d pending=%u)",
++					frame, h.state, (int)structuralReady, (int)sampleValid, (int)sampleApplied,
++					s_lastPlannedFrame, h.frameCount, (int)evidence.exportConfigValid,
++					(int)clipMatches(h.masterClipIdentity), render::frameCount(),
++					s_pendingPlannedFrame);
++				transitionState(h.state, PLAN_FAILED);
++				if (s_ownedExport) render::cancel();
++				s_ownedExport = false;
++			}
++		}
++		else if (s_ownedExport && (!headerOk || !evidence.exportConfigValid))
++		{
++			// Only write through a still-recognisable mapping. A corrupt magic or
++			// truncated view is untrusted memory and remains untouched.
++			if (s_planView && h.magic == kPlanMagic && h.version == kPlanVersion)
++				transitionState(h.state, PLAN_FAILED);
++			render::cancel();
++			s_ownedExport = false;
++		}
++
++		fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++	}
++
++	void tickMenuIdentity()
++	{
++		// MousePointerUpdate is the editor UI's per-frame heartbeat. Collapse any
++		// duplicate calls to one publication per actual Present generation, so the
++		// native observer can prove both producers are live without manufacturing
++		// extra identity generations inside one frame.
++		const DWORD editorThread = s_editorThreadId.load(std::memory_order_acquire);
++		if (editorThread == 0 || editorThread != GetCurrentThreadId()) return;
++		if (!exportmenu::exportSettingsActive())
++		{
++			s_lastMenuAddonHeartbeat = 0;
++			return;
++		}
++		const uint32_t addonHeartbeat = fxcapture::heartbeat();
++		if (addonHeartbeat == 0 || addonHeartbeat == s_lastMenuAddonHeartbeat) return;
++
++		openPlan();
++		DiogenesExportPlanHeader h{};
++		if (!snapshotHeader(h) || !validHeader(h) ||
++		    (h.state != PLAN_ARMED && h.state != PLAN_TRIGGERED)) return;
++
++		DiogenesEditorRuntimeEvidence evidence{};
++		evidence.editorActive = game::replayMode() >= 0;
++		evidence.editMenuActive = true;
++		evidence.renderActive = render::active();
++		evidence.exportConfigValid = configValid(h, evidence);
++		evidence.startButtonArmed = !evidence.renderActive &&
++		                              exportmenu::startExportFocused() &&
++		                              evidence.exportConfigValid;
++		fxcapture::publishEditorIdentity(fxcapture::requestId(), evidence);
++		s_lastMenuAddonHeartbeat = addonHeartbeat;
++
++		// ScriptHook fibers are suspended inside Rockstar Editor, so the native
++		// controller cannot safely deliver a frontend PAD edge after it publishes
++		// TRIGGERED. MousePointerUpdate is the editor's own main-thread heartbeat;
++		// once the exact real Start Export row and sealed config are still live,
++		// enter the same Playback::Open hook used by a physical Export press.
++		if (h.state != PLAN_TRIGGERED || !evidence.startButtonArmed ||
++		    h.publisherPid != GetCurrentProcessId() ||
++		    h.sequence == s_lastAutoOpenSequence) return;
++		DWORD foregroundPid = 0;
++		GetWindowThreadProcessId(GetForegroundWindow(), &foregroundPid);
++		if (foregroundPid != GetCurrentProcessId()) return;
++		s_lastAutoOpenSequence = h.sequence;
++		logger::write("info",
++		              "diogenes: authorized plan lane %u opening Export on editor main thread",
++		              h.lane);
++		game::openPlayback(gsig::PLAYBACK_TYPE_BAKE);
++	}
++}
+diff --git a/src/capture/diogenesbridge.h b/src/capture/diogenesbridge.h
+new file mode 100644
+index 0000000..29f1ed1
+--- /dev/null
++++ b/src/capture/diogenesbridge.h
+@@ -0,0 +1,106 @@
++// Diogenes deterministic Rockstar Editor export bridge.
++#pragma once
++
++#include <cstddef>
++#include <cstdint>
++
++struct DiogenesEditorRuntimeEvidence;
++
++#pragma pack(push, 4)
++struct DiogenesExportPlanHeader
++{
++	uint32_t magic;
++	uint32_t version;
++	uint32_t sequence;
++	uint32_t headerSize;
++	uint32_t mappingSize;
++	uint32_t state;
++	uint32_t publisherPid;
++	uint32_t lane;
++	uint32_t frameCount;
++	uint32_t fpsNum;
++	uint32_t fpsDen;
++	uint32_t width;
++	uint32_t height;
++	uint32_t sampleStride;
++	uint64_t masterClipIdentity;
++	uint8_t  tapeSha256[32];
++	uint8_t  renderProfileSha256[32];
++	char     expectedOutputRootUtf8[512];
++	uint8_t  reserved[32];
++};
++
++struct DiogenesExportPlanSample
++{
++	uint32_t frame;
++	uint32_t reserved;
++	uint64_t source_t_ns;
++	double   position[3];
++	double   quaternion[4];
++	double   euler_deg[3];
++	double   intrinsics[4];
++};
++#pragma pack(pop)
++
++static_assert(offsetof(DiogenesExportPlanHeader, magic) == 0);
++static_assert(offsetof(DiogenesExportPlanHeader, version) == 4);
++static_assert(offsetof(DiogenesExportPlanHeader, sequence) == 8);
++static_assert(offsetof(DiogenesExportPlanHeader, headerSize) == 12);
++static_assert(offsetof(DiogenesExportPlanHeader, mappingSize) == 16);
++static_assert(offsetof(DiogenesExportPlanHeader, state) == 20);
++static_assert(offsetof(DiogenesExportPlanHeader, publisherPid) == 24);
++static_assert(offsetof(DiogenesExportPlanHeader, lane) == 28);
++static_assert(offsetof(DiogenesExportPlanHeader, frameCount) == 32);
++static_assert(offsetof(DiogenesExportPlanHeader, fpsNum) == 36);
++static_assert(offsetof(DiogenesExportPlanHeader, fpsDen) == 40);
++static_assert(offsetof(DiogenesExportPlanHeader, width) == 44);
++static_assert(offsetof(DiogenesExportPlanHeader, height) == 48);
++static_assert(offsetof(DiogenesExportPlanHeader, sampleStride) == 52);
++static_assert(offsetof(DiogenesExportPlanHeader, masterClipIdentity) == 56);
++static_assert(offsetof(DiogenesExportPlanHeader, tapeSha256) == 64);
++static_assert(offsetof(DiogenesExportPlanHeader, renderProfileSha256) == 96);
++static_assert(offsetof(DiogenesExportPlanHeader, expectedOutputRootUtf8) == 128);
++static_assert(offsetof(DiogenesExportPlanHeader, reserved) == 640);
++static_assert(sizeof(DiogenesExportPlanHeader) == 672);
++static_assert(offsetof(DiogenesExportPlanSample, frame) == 0);
++static_assert(offsetof(DiogenesExportPlanSample, reserved) == 4);
++static_assert(offsetof(DiogenesExportPlanSample, source_t_ns) == 8);
++static_assert(offsetof(DiogenesExportPlanSample, position) == 16);
++static_assert(offsetof(DiogenesExportPlanSample, quaternion) == 40);
++static_assert(offsetof(DiogenesExportPlanSample, euler_deg) == 72);
++static_assert(offsetof(DiogenesExportPlanSample, intrinsics) == 96);
++static_assert(sizeof(DiogenesExportPlanSample) == 128);
++
++namespace diogenesbridge
++{
++	enum PlanState : uint32_t
++	{
++		PLAN_EMPTY = 0,
++		PLAN_ARMED = 1,
++		PLAN_TRIGGERED = 2,
++		PLAN_EXPORTING = 3,
++		PLAN_DONE = 4,
++		PLAN_FAILED = 5,
++	};
++
++	// Capture runs on a different pump from the final camera writer. Return a
++	// locked copy of the exact planned-frame evidence, and distinguish an
++	// ordinary unowned export from a Diogenes plan whose evidence is not ready.
++	bool snapshotCaptureEvidence(uint32_t sourceFrame,
++	                             DiogenesEditorRuntimeEvidence& evidence,
++	                             bool& required);
++
++	// Called once, at the final camera-writer boundary in UpdateSmoothing.
++	// It applies at most the sample for render::frameDone(), verifies the values
++	// by reading the director frame back, owns EXPORTING -> DONE/FAILED, and
++	// publishes the request-bound identity-v4 generation/pose snapshot from this
++	// same final-writer main thread.
++	void tickFinalCamera(void* director);
++
++	// Called from the editor frontend's per-frame window heartbeat. While the real
++	// Export Settings page is open, publishes the menu/config/project evidence
++	// required to authorize Start Export. Once the controller publishes
++	// TRIGGERED, it may enter Playback::Open once from this editor-main-thread
++	// boundary; it never synthesizes input, advances a frame, or writes camera.
++	void tickMenuIdentity();
++}
+diff --git a/src/capture/fxcapture.cpp b/src/capture/fxcapture.cpp
+index e2c0c7a..ab22589 100644
+--- a/src/capture/fxcapture.cpp
++++ b/src/capture/fxcapture.cpp
+@@ -7,8 +7,11 @@
+ 
+ #include "main.h"
+ #include "utils/paths.h"
++#include "capture/diogenesbridge.h"
++#include "game/game.h"
+ 
+ #include <string>
++#include <mutex>
+ #include "capture/fxcapture.h"
+ 
+ #include <cstdio>
+@@ -28,12 +31,14 @@ namespace fxcapture
+ 		// channel, whichever ASI is rendering drives it. They are never
+ 		// rendering at the same time: one runs in free roam, one in the editor.
+ 		const char* kMappingName = "Local\\SimpleCameraFxCapture";
++		const char* kIdentityMappingName = "Local\\DiogenesGtaEditorIdentity";
+ 		constexpr uint32_t kMagic   = 0x53434658; // 'SCFX'
++		constexpr uint32_t kIdentityMagic = 0x44475049; // 'DGPI'
+ 		// 7 added the autofocus fields. Nothing reads this to gate behaviour -
+ 		// the fields are appended, so an older add-on simply never looks at them
+ 		// and the capture protocol is unchanged. It is here to be seen in a log
+ 		// when a pair does turn out to be mismatched.
+-		constexpr uint32_t kVersion = 15;
++		constexpr uint32_t kVersion = 18;
+ 
+ 		// Last dofCopyRequest we acted on. See init() for why it is seeded.
+ 		uint32_t s_copySeen = 0;
+@@ -45,6 +50,10 @@ namespace fxcapture
+ 
+ 		HANDLE          s_map   = nullptr;
+ 		FxCaptureBlock* s_block = nullptr;
++		HANDLE          s_identityMap = nullptr;
++		DiogenesEditorIdentityBlock* s_identity = nullptr;
++		DiogenesEditorRuntimeEvidence s_lastEvidence{};
++		std::mutex s_identityWriteMutex;
+ 
+ 		// CreateDirectory only makes the leaf, so a configured path several
+ 		// levels deep would fail on the first missing parent. Walk it.
+@@ -255,6 +264,37 @@ namespace fxcapture
+ 		s_block->version = kVersion;
+ 		if (s_block->quality == 0) s_block->quality = 90;
+ 
++		SetLastError(0);
++		s_identityMap = CreateFileMappingA(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,
++		                                 0, sizeof(DiogenesEditorIdentityBlock),
++		                                 kIdentityMappingName);
++		if (s_identityMap)
++		{
++			const bool identityExisted = GetLastError() == ERROR_ALREADY_EXISTS;
++			s_identity = static_cast<DiogenesEditorIdentityBlock*>(
++				MapViewOfFile(s_identityMap, FILE_MAP_ALL_ACCESS, 0, 0,
++				              sizeof(DiogenesEditorIdentityBlock)));
++			if (s_identity && !identityExisted)
++			{
++				memset(s_identity, 0, sizeof(*s_identity));
++				s_identity->magic = kIdentityMagic;
++				s_identity->version = 4;
++				s_identity->clipIndex = -1;
++				s_identity->publisherPid = GetCurrentProcessId();
++			}
++			else if (s_identity &&
++			         (s_identity->magic != kIdentityMagic || s_identity->version != 4 ||
++			          s_identity->publisherPid != GetCurrentProcessId()))
++			{
++				// RE+ is the sole writer. Never reinterpret an older, smaller or
++				// foreign block under the v4 layout.
++				UnmapViewOfFile(s_identity);
++				s_identity = nullptr;
++				CloseHandle(s_identityMap);
++				s_identityMap = nullptr;
++			}
++		}
++
+ 		logger::write("info", "capture: channel mapped (%s), addon=%s",
+ 			existed ? "joined" : "created",
+ 			s_block->addonHeartbeat ? "present" : "not seen yet");
+@@ -326,15 +366,98 @@ namespace fxcapture
+ 	bool lastDone()     { return !s_block || vread(s_block->ackId) == vread(s_block->requestId); }
+ 
+ 	uint32_t heartbeat() { return s_block ? vread(s_block->addonHeartbeat) : 0; }
++	uint32_t requestId() { return s_block ? vread(s_block->requestId) : 0; }
+ 
+-	bool requestSample(const char* fullPath, int sampleCount, int sampleIndex)
++	void publishEditorIdentity(uint32_t captureRequestId,
++	                           const DiogenesEditorRuntimeEvidence& evidence)
++	{
++		if (!s_identity) return;
++		std::lock_guard<std::mutex> lock(s_identityWriteMutex);
++		s_lastEvidence = evidence;
++		const char* project = game::projectName();
++		std::vector<uint64_t> identities;
++		const int clip = game::clipIndex();
++		const bool haveIdentities = game::clipIdentities(identities);
++		InterlockedIncrement(reinterpret_cast<volatile LONG*>(&s_identity->sequence));
++		s_identity->magic = kIdentityMagic;
++		s_identity->version = 4;
++		s_identity->captureRequestId = captureRequestId;
++		s_identity->clipCount = 0;
++		s_identity->clipIndex = -1;
++		s_identity->currentClipIdentity = 0;
++		s_identity->projectName[0] = '\0';
++		s_identity->publisherPid = GetCurrentProcessId();
++
++		if (project && *project && haveIdentities)
++		{
++			strncpy_s(s_identity->projectName, sizeof(s_identity->projectName),
++			          project, _TRUNCATE);
++			s_identity->clipCount = static_cast<uint32_t>(identities.size());
++			if (clip >= 0 && clip < static_cast<int>(identities.size()))
++			{
++				s_identity->clipIndex = clip;
++				s_identity->currentClipIdentity = identities[static_cast<size_t>(clip)];
++			}
++			else if (identities.size() == 1)
++			{
++				// Export Settings has no playback clip selected and reports -1.
++				// A one-clip montage is still unambiguous; multi-clip projects
++				// deliberately keep the unresolved index and fail closed.
++				s_identity->clipIndex = 0;
++				s_identity->currentClipIdentity = identities[0];
++			}
++		}
++
++		s_identity->editorActive = evidence.editorActive ? 1u : 0u;
++		s_identity->editMenuActive = evidence.editMenuActive ? 1u : 0u;
++		s_identity->startButtonArmed = evidence.startButtonArmed ? 1u : 0u;
++		s_identity->exportConfigValid = evidence.exportConfigValid ? 1u : 0u;
++		s_identity->renderActive = evidence.renderActive ? 1u : 0u;
++		s_identity->plannedFrame = evidence.plannedFrame;
++		memcpy(s_identity->finalPosition, evidence.finalPosition,
++		       sizeof(s_identity->finalPosition));
++		memcpy(s_identity->finalQuaternion, evidence.finalQuaternion,
++		       sizeof(s_identity->finalQuaternion));
++		s_identity->finalFovDeg = evidence.finalFovDeg;
++		s_identity->finalCameraGeneration = evidence.finalCameraGeneration;
++		s_identity->reserved = 0;
++		memcpy(s_identity->renderProfileSha256, evidence.renderProfileSha256,
++		       sizeof(s_identity->renderProfileSha256));
++		memcpy(s_identity->normalizedOutputRoot, evidence.normalizedOutputRoot,
++		       sizeof(s_identity->normalizedOutputRoot));
++		++s_identity->heartbeat;
++		std::atomic_thread_fence(std::memory_order_release);
++		InterlockedIncrement(reinterpret_cast<volatile LONG*>(&s_identity->sequence));
++	}
++
++	void bindIdentityRequest(uint32_t captureRequestId)
++	{
++		publishEditorIdentity(captureRequestId, s_lastEvidence);
++	}
++
++	bool requestSample(const char* fullPath, int sampleCount, int sampleIndex,
++	                   uint32_t sourceFrame, double replayTimeMs)
+ 	{
+ 		if (!s_block || !fullPath) return false;
++		const uint32_t nextRequest = s_block->requestId + 1;
++		DiogenesEditorRuntimeEvidence requestEvidence{};
++		bool evidenceRequired = false;
++		if (!diogenesbridge::snapshotCaptureEvidence(
++		        sourceFrame, requestEvidence, evidenceRequired))
++			return false;
++		if (!evidenceRequired) requestEvidence = s_lastEvidence;
++		publishEditorIdentity(nextRequest, requestEvidence);
+ 
+ 		strncpy_s(s_block->outPath, sizeof(s_block->outPath), fullPath, _TRUNCATE);
+ 		s_block->sampleCount = sampleCount < 1 ? 1u : (uint32_t)sampleCount;
+ 		s_block->sampleIndex = (uint32_t)sampleIndex;
+ 		s_block->status      = 0;
++		s_block->observerReleaseId = 0;
++		s_block->captureReadyId = 0;
++		s_block->requestCameraGeneration = requestEvidence.finalCameraGeneration;
++		s_block->captureReadyCameraGeneration = 0;
++		s_block->sourceFrame = sourceFrame;
++		s_block->replayTimeMs = replayTimeMs;
+ 
+ 		// The ordering below is the entire handshake, so it needs a barrier
+ 		// rather than a comment.
+@@ -349,7 +472,9 @@ namespace fxcapture
+ 
+ 		// Bumped LAST, so every field is in place before the addon can see the
+ 		// request. Same ordering rule as Simple Camera's writer.
+-		*(volatile uint32_t*)&s_block->requestId = s_block->requestId + 1;
++		InterlockedExchange(
++			reinterpret_cast<volatile LONG*>(&s_block->requestId),
++			static_cast<LONG>(nextRequest));
+ 		return true;
+ 	}
+ 
+diff --git a/src/capture/fxcapture.h b/src/capture/fxcapture.h
+index d023f23..49d886c 100644
+--- a/src/capture/fxcapture.h
++++ b/src/capture/fxcapture.h
+@@ -6,6 +6,7 @@
+ // Software Foundation. See the LICENSE file for details.
+ 
+ #pragma once
++#include <cstddef>
+ #include <cstdint>
+ #include <string>
+ 
+@@ -61,7 +62,13 @@ struct FxCaptureBlock
+ 	// version. The add-on copies the back buffer itself now and takes the order
+ 	// from the resource description, which cannot disagree with itself, so there
+ 	// is no longer anything to choose. Written by nobody, read by nobody.
+-	uint32_t reserved_wasChannelOrder;
++	// Diogenes v18 pixel-ready/pose/release evidence fence. The addon publishes
++	// captureReadyId only after readback and file close. The observer samples
++	// GTA state after that publication, then releases the request.
++	uint32_t observerReleaseId;
++	uint32_t captureReadyId;
++	uint32_t sourceFrame;
++	double   replayTimeMs;
+ 
+ 	// --- autofocus for the depth-of-field session (v7) --------------------
+ 	//
+@@ -193,8 +200,105 @@ struct FxCaptureBlock
+ 	// A COUNTER, not a flag: a second press is never swallowed, and neither side
+ 	// has to clear a write the other one made.
+ 	uint32_t dofCopyRequest;
++
++	// v18: request-bound final camera generation. The add-on copies request to
++	// ready only after readback and file close; the observer requires equality.
++	uint32_t requestCameraGeneration;
++	uint32_t captureReadyCameraGeneration;
++};
++#pragma pack(pop)
++static_assert(offsetof(FxCaptureBlock, magic) == 0);
++static_assert(offsetof(FxCaptureBlock, version) == 4);
++static_assert(offsetof(FxCaptureBlock, requestId) == 8);
++static_assert(offsetof(FxCaptureBlock, ackId) == 12);
++static_assert(offsetof(FxCaptureBlock, status) == 16);
++static_assert(offsetof(FxCaptureBlock, width) == 20);
++static_assert(offsetof(FxCaptureBlock, height) == 24);
++static_assert(offsetof(FxCaptureBlock, sampleCount) == 28);
++static_assert(offsetof(FxCaptureBlock, sampleIndex) == 32);
++static_assert(offsetof(FxCaptureBlock, quality) == 36);
++static_assert(offsetof(FxCaptureBlock, highlightBoost) == 40);
++static_assert(offsetof(FxCaptureBlock, addonHeartbeat) == 44);
++static_assert(offsetof(FxCaptureBlock, outPath) == 48);
++static_assert(offsetof(FxCaptureBlock, observerReleaseId) == 560);
++static_assert(offsetof(FxCaptureBlock, captureReadyId) == 564);
++static_assert(offsetof(FxCaptureBlock, sourceFrame) == 568);
++static_assert(offsetof(FxCaptureBlock, replayTimeMs) == 572);
++static_assert(offsetof(FxCaptureBlock, dofCopyRequest) == 676);
++static_assert(offsetof(FxCaptureBlock, requestCameraGeneration) == 680);
++static_assert(offsetof(FxCaptureBlock, captureReadyCameraGeneration) == 684);
++static_assert(sizeof(FxCaptureBlock) == 688);
++
++// Diogenes-only Rockstar Editor identity/evidence channel. Version 4 appends
++// runtime truth to the byte-identical 296-byte v1 prefix.
++#pragma pack(push, 4)
++struct DiogenesEditorIdentityBlock
++{
++	uint32_t magic;
++	uint32_t version;
++	uint32_t sequence;
++	uint32_t captureRequestId;
++	uint32_t clipCount;
++	int32_t  clipIndex;
++	uint64_t currentClipIdentity;
++	char     projectName[256];
++	uint32_t publisherPid;
++	uint32_t heartbeat;
++	uint32_t editorActive;
++	uint32_t editMenuActive;
++	uint32_t startButtonArmed;
++	uint32_t exportConfigValid;
++	uint32_t renderActive;
++	uint32_t plannedFrame;
++	double   finalPosition[3];
++	double   finalQuaternion[4];
++	double   finalFovDeg;
++	uint32_t finalCameraGeneration;
++	uint32_t reserved;
++	uint8_t  renderProfileSha256[32];
++	char     normalizedOutputRoot[512];
+ };
+ #pragma pack(pop)
++static_assert(offsetof(DiogenesEditorIdentityBlock, magic) == 0);
++static_assert(offsetof(DiogenesEditorIdentityBlock, version) == 4);
++static_assert(offsetof(DiogenesEditorIdentityBlock, sequence) == 8);
++static_assert(offsetof(DiogenesEditorIdentityBlock, captureRequestId) == 12);
++static_assert(offsetof(DiogenesEditorIdentityBlock, clipCount) == 16);
++static_assert(offsetof(DiogenesEditorIdentityBlock, clipIndex) == 20);
++static_assert(offsetof(DiogenesEditorIdentityBlock, currentClipIdentity) == 24);
++static_assert(offsetof(DiogenesEditorIdentityBlock, projectName) == 32);
++static_assert(offsetof(DiogenesEditorIdentityBlock, publisherPid) == 288);
++static_assert(offsetof(DiogenesEditorIdentityBlock, heartbeat) == 292);
++static_assert(offsetof(DiogenesEditorIdentityBlock, editorActive) == 296);
++static_assert(offsetof(DiogenesEditorIdentityBlock, editMenuActive) == 300);
++static_assert(offsetof(DiogenesEditorIdentityBlock, startButtonArmed) == 304);
++static_assert(offsetof(DiogenesEditorIdentityBlock, exportConfigValid) == 308);
++static_assert(offsetof(DiogenesEditorIdentityBlock, renderActive) == 312);
++static_assert(offsetof(DiogenesEditorIdentityBlock, plannedFrame) == 316);
++static_assert(offsetof(DiogenesEditorIdentityBlock, finalPosition) == 320);
++static_assert(offsetof(DiogenesEditorIdentityBlock, finalQuaternion) == 344);
++static_assert(offsetof(DiogenesEditorIdentityBlock, finalFovDeg) == 376);
++static_assert(offsetof(DiogenesEditorIdentityBlock, finalCameraGeneration) == 384);
++static_assert(offsetof(DiogenesEditorIdentityBlock, reserved) == 388);
++static_assert(offsetof(DiogenesEditorIdentityBlock, renderProfileSha256) == 392);
++static_assert(offsetof(DiogenesEditorIdentityBlock, normalizedOutputRoot) == 424);
++static_assert(sizeof(DiogenesEditorIdentityBlock) == 936);
++
++struct DiogenesEditorRuntimeEvidence
++{
++	bool editorActive = false;
++	bool editMenuActive = false;
++	bool startButtonArmed = false;
++	bool exportConfigValid = false;
++	bool renderActive = false;
++	uint32_t plannedFrame = 0;
++	double finalPosition[3]{};
++	double finalQuaternion[4]{};
++	double finalFovDeg = 0.0;
++	uint32_t finalCameraGeneration = 0;
++	uint8_t renderProfileSha256[32]{};
++	char normalizedOutputRoot[512]{};
++};
+ 
+ namespace fxcapture
+ {
+@@ -228,11 +332,20 @@ namespace fxcapture
+ 	// clock: we have no ScriptHookV and therefore no WAIT(0), so "a frame went
+ 	// out" is exactly "this number changed".
+ 	uint32_t heartbeat();
++	uint32_t requestId();
++
++	// Publish a seqlock-stable identity-v4 snapshot. bindIdentityRequest is used
++	// immediately before the Fx request counter is published, so both mappings
++	// name the same request without resampling camera state on another thread.
++	void publishEditorIdentity(uint32_t captureRequestId,
++	                           const DiogenesEditorRuntimeEvidence& evidence);
++	void bindIdentityRequest(uint32_t captureRequestId);
+ 
+ 	// Request one motion-blur sub-sample. The addon resets its accumulator on
+ 	// sampleIndex 0, adds each sample, and on the last one averages and writes.
+ 	// sampleCount of 1 is a plain single-frame capture.
+-	bool requestSample(const char* fullPath, int sampleCount, int sampleIndex);
++	bool requestSample(const char* fullPath, int sampleCount, int sampleIndex,
++	                   uint32_t sourceFrame, double replayTimeMs);
+ 
+ 	void setQuality(int quality);         // JPEG only, 1..100
+ 	void setHighlightBoost(float boost);  // 0..~1
+diff --git a/src/capture/render.cpp b/src/capture/render.cpp
+index 5fc031d..cf5c2af 100644
+--- a/src/capture/render.cpp
++++ b/src/capture/render.cpp
+@@ -7,6 +7,7 @@
+ 
+ #include "main.h"
+ #include "capture/render.h"
++#include "capture/diogenesbridge.h"
+ #include "capture/fxcapture.h"
+ #include "game/worldprobe.h"
+ #include "capture/exporthook.h"
+@@ -479,6 +480,11 @@ namespace render
+ 				}
+ 			}
+ 			origPointer();
++			// MousePointerUpdate is the editor frontend's per-frame window-thread
++			// heartbeat, including a motionless Export Settings page. Publish only
++			// read-only authorization evidence here; camera/plan ownership remains
++			// exclusively at UpdateSmoothing's final-writer boundary.
++			diogenesbridge::tickMenuIdentity();
+ 
+ 			// Clear it AFTER Update as well.
+ 			//
+@@ -1473,6 +1479,10 @@ namespace render
+ 	}
+ 
+ 	bool active()      { return s_step != Step::Idle; }
++	bool framePassActive()
++	{
++		return s_step != Step::Idle && s_step != Step::Audio && s_step != Step::Rewind;
++	}
+ 	bool drivingDofPass() { return s_step != Step::Idle && s_cfg.dof; }
+ 	int  frameCount()  { return s_frames; }
+ 	int  frameDone()   { return s_frame; }
+@@ -3360,7 +3370,8 @@ namespace render
+ 
+ 			char path[MAX_PATH];
+ 			buildPath(path, sizeof(path));
+-			fxcapture::requestSample(path, want, s_slideSample);
++			fxcapture::requestSample(path, want, s_slideSample,
++			                         (uint32_t)s_frame, (double)clockNow());
+ 
+ 			if (++s_slideSample >= want) s_slideFlush = true;
+ 			return;
+@@ -3508,7 +3519,8 @@ namespace render
+ 
+ 			char path[MAX_PATH];
+ 			buildPath(path, sizeof(path));
+-			if (!fxcapture::requestSample(path, s_cfg.samples, s_sample))
++			if (!fxcapture::requestSample(path, s_cfg.samples, s_sample,
++			                              (uint32_t)s_frame, (double)clockNow()))
+ 			{
+ 				finish("aborted - capture channel lost", false);
+ 				return;
+@@ -3649,7 +3661,8 @@ namespace render
+ 			// already happened, on the aperture.
+ 			char path[MAX_PATH];
+ 			buildPath(path, sizeof(path));
+-			if (!fxcapture::requestSample(path, 1, 0))
++			if (!fxcapture::requestSample(path, 1, 0,
++			                              (uint32_t)s_frame, (double)clockNow()))
+ 			{
+ 				finish("aborted - capture channel lost", false);
+ 				return;
+diff --git a/src/capture/render.h b/src/capture/render.h
+index d66df8e..59eba52 100644
+--- a/src/capture/render.h
++++ b/src/capture/render.h
+@@ -79,6 +79,9 @@ namespace render
+ 	void cancel();
+ 
+ 	bool  active();
++	// True only for the image frame pass. An optional audio pre-pass also makes
++	// active() true, but must never consume or advance a Diogenes camera plan.
++	bool  framePassActive();
+ 
+ 	// The render is in depth-of-field mode, i.e. it is itself driving the
+ 	// sessions. The two mutual-exclusion guards between the renderer and a
+diff --git a/src/game/game.cpp b/src/game/game.cpp
+index f8f4704..876622f 100644
+--- a/src/game/game.cpp
++++ b/src/game/game.cpp
+@@ -188,10 +188,21 @@ namespace game
+ 		{
+ 			__try
+ 			{
+-				void* ctrl = controller();
+-				if (!ctrl) return -1;
+-
+-				uint8_t* montage = *(uint8_t**)((uint8_t*)ctrl + gsig::PBC_MONTAGE);
++				// Playback owns the montage while a clip is running. The editor's
++				// project object owns the same montage while its static Export Settings
++				// page is open, after playback has deliberately released its pointer.
++				// Prefer the playback pointer, then use the independently validated
++				// project pointer. Both paths land on the documented CMontage layout
++				// below; neither retains data across projects or UI transitions.
++				uint8_t* montage = nullptr;
++				if (void* ctrl = controller())
++					montage = *(uint8_t**)((uint8_t*)ctrl + gsig::PBC_MONTAGE);
++				if (!montage && addr_g_Project)
++				{
++					uint8_t* project = *(uint8_t**)addr_g_Project;
++					if (project)
++						montage = *(uint8_t**)(project + gsig::PROJECT_MONTAGE_OFF);
++				}
+ 				if (!montage) return -1;
+ 
+ 				const int n = (int)*(uint16_t*)(montage + gsig::MONTAGE_COUNT);
+diff --git a/src/replay/smoothblend.cpp b/src/replay/smoothblend.cpp
+index 079b3e4..ad3bc3c 100644
+--- a/src/replay/smoothblend.cpp
++++ b/src/replay/smoothblend.cpp
+@@ -20,6 +20,7 @@
+ #include "replay/shake.h"
+ #include "capture/render.h"
+ #include "capture/dofsession.h"
++#include "capture/diogenesbridge.h"
+ 
+ using spline::Vec3;
+ 
+@@ -1702,7 +1703,11 @@ namespace smoothblend
+ 		// this removes is not a spline feature.
+ 		precache::tick();
+ 
+-		if (!Config::get().enabled) return;
++		if (!Config::get().enabled)
++		{
++			diogenesbridge::tickFinalCamera(self);
++			return;
++		}
+ 
+ 		// The replay camera runs on the render/sim path; a throw escaping here
+ 		// would take the game down mid-playback. Anything unexpected just means
+@@ -1736,6 +1741,11 @@ namespace smoothblend
+ 			traceFrame(self);
+ 		}
+ 		__except (EXCEPTION_EXECUTE_HANDLER) {}
++
++		// Absolute last writer and the publisher of the pose read back from that
++		// write. This never drives input: a plan is consumed only after the game's
++		// real Export action has made render::active() true.
++		diogenesbridge::tickFinalCamera(self);
+ 	}
+ 
+ 	void install()
+diff --git a/src/ui/exportmenu.cpp b/src/ui/exportmenu.cpp
+index 3baa5d8..64f9421 100644
+--- a/src/ui/exportmenu.cpp
++++ b/src/ui/exportmenu.cpp
+@@ -293,6 +293,32 @@ namespace exportmenu
+ 			return FOCUS_OTHER;
+ 		}
+ 
++		bool liveExportFocus(bool* startAction)
++		{
++			if (startAction) *startAction = false;
++			unsigned char* item = exportItem();
++			if (!item || !game::addr_g_VECurrentColumn ||
++			    !game::addr_g_VEMenuIdForColumn || !game::addr_g_VECurrentItem)
++				return false;
++
++			const int col = *(const int*)game::addr_g_VECurrentColumn;
++			if (col < 0 || col >= 3) return false;
++			const int menu = ((const int*)game::addr_g_VEMenuIdForColumn)[col];
++			if (menu != g_inj.menuIndex) return false;
++
++			const int index = ((const int*)game::addr_g_VECurrentItem)[col];
++			unsigned char* option = optionAt(item, index);
++			if (!option) return false;
++
++			// The stock Start Export row is the action on EXPORT_SETTINGS. Our
++			// injected rows explicitly clear TriggerAction, so they can never arm
++			// this evidence bit. This is live cursor/menu data, not a key poll.
++			if (startAction)
++				*startAction = *(unsigned*)(option + gsig::VEMO_TRIGGERACTION) != 0 &&
++				               *(unsigned*)(option + gsig::VEMO_TOGGLEVALUE) == 0;
++			return true;
++		}
++
+ 		// --- labels, values and descriptions ----------------------------------
+ 		//
+ 		// UNPREFIXED, so the block reads as part of the same list rather than as
+@@ -1441,6 +1467,17 @@ namespace exportmenu
+ 		}
+ 	}
+ 
++	bool exportSettingsActive()
++	{
++		return liveExportFocus(nullptr);
++	}
++
++	bool startExportFocused()
++	{
++		bool focused = false;
++		return liveExportFocus(&focused) && focused;
++	}
++
+ 	void install()
+ 	{
+ 		if (!game::exportMenuReady())
+diff --git a/src/ui/exportmenu.h b/src/ui/exportmenu.h
+index 89f7f6b..253d42f 100644
+--- a/src/ui/exportmenu.h
++++ b/src/ui/exportmenu.h
+@@ -16,4 +16,9 @@ namespace exportmenu
+ 	// export screen stays exactly as R* shipped it, with the renderer still
+ 	// driven from Render.ini as before.
+ 	void install();
++
++	// Live state from the game's own export menu data and cursor. These are
++	// evidence queries only: they never synthesize input or infer from a timer.
++	bool exportSettingsActive();
++	bool startExportFocused();
+ }

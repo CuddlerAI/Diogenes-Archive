@@ -69,3 +69,7 @@ game assets, third-party software, trademarks, or private material. Each retains
 Owner-authored code is licensed under Apache-2.0 in `LICENSE`. Existing third-party copyrights,
 licenses, and NOTICE files take precedence for their respective components and must be preserved.
 See `THIRD-PARTY-NOTICES.md` and `NOTICE` before redistribution.
+
+## Historical capture source
+
+[Historical capture snapshots](historical-capture-source/README.md) preserve additional GTA controller and REPlus variants, experiment patches, and the owner-authored ETS2 telemetry recorder. Third-party GPL, BSD and MIT notices remain attached to their components; the root Apache-2.0 grant applies only to owner-authored material. These are historical experiments, including superseded and failed attempts.

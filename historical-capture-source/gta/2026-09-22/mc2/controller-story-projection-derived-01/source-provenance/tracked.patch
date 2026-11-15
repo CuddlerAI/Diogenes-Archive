@@ -1,0 +1,750 @@
+diff --git a/engine-data/gta-capture/native/CMakeLists.txt b/engine-data/gta-capture/native/CMakeLists.txt
+index ba14c0e1dc535e1bb05a7e41dfa55112fe7dbac5..ef88b72ea278ffc993f3366a3c1fa3021747e350 100644
+--- a/engine-data/gta-capture/native/CMakeLists.txt
++++ b/engine-data/gta-capture/native/CMakeLists.txt
+@@ -70,6 +70,15 @@ else()
+ endif()
+ add_test(NAME gta_story_route_contract COMMAND gta_story_route_selftest)
+ 
++add_executable(gta_recording_camera_selftest src/recording_camera_selftest.cpp)
++target_include_directories(gta_recording_camera_selftest PRIVATE include)
++if(MSVC)
++    target_compile_options(gta_recording_camera_selftest PRIVATE /W4 /permissive- /EHsc)
++else()
++    target_compile_options(gta_recording_camera_selftest PRIVATE -Wall -Wextra -Wpedantic)
++endif()
++add_test(NAME gta_recording_camera_contract COMMAND gta_recording_camera_selftest)
++
+ if(WIN32)
+     add_executable(gta_editor_identity_observer_selftest
+         src/editor_identity_observer_selftest.cpp
+@@ -114,6 +123,7 @@ if(DIOGENES_BUILD_SCRIPT_HOOK_V_ASI)
+         src/asi_main.cpp
+         src/pipe_server_win.cpp
+         src/scripthook_game_adapter.cpp
++        src/story_projection.cpp
+         src/fx_capture_observer_win.cpp
+         src/hash_utils_win.cpp
+         src/native_tape.cpp
+diff --git a/engine-data/gta-capture/native/include/fx_capture_observer.hpp b/engine-data/gta-capture/native/include/fx_capture_observer.hpp
+index 6fc854f2faf8390bc9b069c611f31aa64f88bbe7..8b1425a711d062db3fe983b0f2d32e6c7eb642b6 100644
+--- a/engine-data/gta-capture/native/include/fx_capture_observer.hpp
++++ b/engine-data/gta-capture/native/include/fx_capture_observer.hpp
+@@ -58,6 +58,13 @@ public:
+ 
+     bool open(std::string& error);
+     bool read(FxCaptureSnapshot& snapshot, std::string& error) const;
++    // Exclusive Story-mode caller only: no active Editor/export publisher.
++    // This is an Igcs transport epoch, NOT an Editor final-camera generation.
++    // Does not write the separate EditorIdentityBlock or its replay fields.
++    bool publish_story_request(const std::string& output_path,
++                               std::uint32_t& request_id,
++                               std::uint32_t& transport_generation,
++                               std::string& error);
+     bool release(std::uint32_t request_id, std::string& error);
+     void close();
+ 
+@@ -87,6 +94,7 @@ using EditorIdentityObserverRetryHook = void (*)(void* context);
+ 
+ // Isolate fixtures from a running game and from other self-test processes.
+ std::wstring editor_identity_mapping_name_for_test();
++std::wstring fx_capture_mapping_name_for_test();
+ 
+ // Self-test seam for deterministically completing a seqlock publication after
+ // the observer has rejected an unstable generation. This is not compiled into
+diff --git a/engine-data/gta-capture/native/include/game_adapter.hpp b/engine-data/gta-capture/native/include/game_adapter.hpp
+index 7d09b6980ad51b2b2760ac7163d67b776bb717cd..30021cb6cd911d406d35cd3e84d90bec63d97d05 100644
+--- a/engine-data/gta-capture/native/include/game_adapter.hpp
++++ b/engine-data/gta-capture/native/include/game_adapter.hpp
+@@ -27,6 +27,10 @@ public:
+     virtual void set_runtime_generation(std::uint64_t generation) = 0;
+     virtual AdapterResult hello() = 0;
+     virtual AdapterResult probe_state() = 0;
++    // Independent Story calibration diagnostic; never an Editor frame seal.
++    virtual AdapterResult story_projection_sample(const std::string& request_path,
++                                                  const std::string& request_sha256,
++                                                  const std::string& output_path) = 0;
+     virtual AdapterResult apply_scenario(const std::string& scenario_path,
+                                          const std::string& scenario_sha256) = 0;
+     virtual AdapterResult record_master(const std::string& run_dir, double duration_s) = 0;
+diff --git a/engine-data/gta-capture/native/src/controller_core.cpp b/engine-data/gta-capture/native/src/controller_core.cpp
+index d1a9631f7e0c70af341235ce593be4c262afb8bc..2e681212ce3c98db4eb50cef23a903ac23b9f32e 100644
+--- a/engine-data/gta-capture/native/src/controller_core.cpp
++++ b/engine-data/gta-capture/native/src/controller_core.cpp
+@@ -157,6 +157,10 @@ std::string ControllerCore::handle_line(const std::string& line) {
+         result = adapter_.hello();
+     } else if (command == "probe_state") {
+         result = adapter_.probe_state();
++    } else if (command == "story_projection_sample") {
++        result = adapter_.story_projection_sample(find_string(line, "request_path"),
++                                                  find_string(line, "request_sha256"),
++                                                  find_string(line, "output_path"));
+     } else if (command == "apply_scenario") {
+         result = adapter_.apply_scenario(find_string(line, "scenario_path"),
+                                          find_string(line, "scenario_sha256"));
+diff --git a/engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp b/engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp
+index b1d21b571c36d01b897e211cd9932a53e93eacd1..7a289ac6673b37cce7573563b6e0e3118d93a096 100644
+--- a/engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp
++++ b/engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp
+@@ -4,7 +4,10 @@
+ #include <cstddef>
+ #include <cstdint>
+ #include <cstring>
++#include <filesystem>
++#include <fstream>
+ #include <iostream>
++#include <limits>
+ #include <string>
+ 
+ #include <windows.h>
+@@ -40,10 +43,24 @@ struct EditorIdentityBlock {
+     std::uint8_t render_profile_sha256[32];
+     char normalized_output_root[512];
+ };
++
++struct FxCaptureBlock {
++    std::uint32_t magic, version, request, ack, status, width, height;
++    std::uint32_t sample_count, sample_index, quality;
++    float highlight_boost;
++    std::uint32_t heartbeat;
++    char output_path[512];
++    std::uint32_t release, ready, source_frame;
++    double replay_time_ms;
++    unsigned char opaque_dof[100];
++    std::uint32_t request_generation, ready_generation;
++};
+ #pragma pack(pop)
+ 
+ static_assert(sizeof(EditorIdentityBlock) == 936);
+ static_assert(offsetof(EditorIdentityBlock, sequence) == 8);
++static_assert(sizeof(FxCaptureBlock) == 688);
++static_assert(offsetof(FxCaptureBlock, request_generation) == 680);
+ 
+ struct HandleCloser {
+     HANDLE value{};
+@@ -78,6 +95,132 @@ void finish_contended_publication(void* opaque) {
+         reinterpret_cast<volatile LONG*>(&publication->block->sequence), 4);
+ }
+ 
++struct TempFixture {
++    std::filesystem::path path;
++    ~TempFixture() {
++        // Only these two fixture paths can have been created. Never recursively
++        // clean a directory that might have been supplied by another process.
++        std::error_code ec;
++        std::filesystem::remove(path / "existing.png",ec);
++        std::filesystem::remove(path,ec);
++    }
++};
++
++int test_story_publisher() {
++    namespace fs=std::filesystem;
++    const auto mapping_name=diogenes::gta::fx_capture_mapping_name_for_test();
++    if (mapping_name.find(L"Selftest-")==std::wstring::npos ||
++        mapping_name==L"Local\\SimpleCameraFxCapture") {
++        return fail("Story test must not access the live game transport mapping");
++    }
++    HandleCloser mapping{CreateFileMappingW(INVALID_HANDLE_VALUE,nullptr,PAGE_READWRITE,
++        0,static_cast<DWORD>(sizeof(FxCaptureBlock)),mapping_name.c_str())};
++    if (mapping.value==nullptr || GetLastError()==ERROR_ALREADY_EXISTS) {
++        return fail("cannot exclusively own the isolated Story transport fixture");
++    }
++    ViewCloser publisher{MapViewOfFile(mapping.value,FILE_MAP_READ|FILE_MAP_WRITE,
++        0,0,sizeof(FxCaptureBlock))};
++    if (!publisher.value) return fail("cannot map the isolated Story publisher fixture");
++    auto* block=static_cast<FxCaptureBlock*>(publisher.value);
++    const auto reset=[&]() {
++        std::memset(block,0,sizeof(*block));
++        block->magic=0x53434658;
++        block->version=18;
++        block->request=block->ack=block->ready=block->release=41;
++        block->request_generation=block->ready_generation=73;
++        block->source_frame=91;
++        block->replay_time_ms=12.5;
++        block->quality=88;
++        block->highlight_boost=2.0f;
++        block->heartbeat=123;
++        std::memset(block->opaque_dof,0xa5,sizeof(block->opaque_dof));
++        strcpy_s(block->output_path,sizeof(block->output_path),"unchanged-old-output");
++        MemoryBarrier();
++    };
++    reset();
++    diogenes::gta::FxCaptureObserver observer;
++    std::string error;
++    if (!observer.open(error)) return fail(error);
++    const auto fixture_path=fs::temp_directory_path()/
++        ("diogenes-story-publisher-selftest-"+std::to_string(GetCurrentProcessId()));
++    if (!fs::create_directory(fixture_path)) {
++        return fail("Story test output directory already exists; refusing to reuse it");
++    }
++    TempFixture fixture{fixture_path};
++    const auto new_path=(fixture.path/"new.png").make_preferred().u8string();
++    const auto existing_path=(fixture.path/"existing.png").make_preferred().u8string();
++    { std::ofstream existing(fs::u8path(existing_path),std::ios::binary); existing << "immutable-test-sentinel"; }
++    const auto reject_unchanged=[&](const std::string& path,const char* label) {
++        const auto previous=*block;
++        std::uint32_t request=999,generation=999;
++        error.clear();
++        if (observer.publish_story_request(path,request,generation,error) ||
++            error.empty() || request!=0 || generation!=0 ||
++            std::memcmp(&previous,block,sizeof(previous))!=0) {
++            std::cerr << "Story publisher rejection mutated the block: " << label << '\n';
++            return false;
++        }
++        return true;
++    };
++    block->ack=40;
++    if (!reject_unchanged(new_path,"busy")) return 1;
++    reset();
++    block->request=block->ack=(std::numeric_limits<std::uint32_t>::max)();
++    if (!reject_unchanged(new_path,"request epoch wrap")) return 1;
++    reset();
++    block->ready_generation=(std::numeric_limits<std::uint32_t>::max)();
++    if (!reject_unchanged(new_path,"generation epoch wrap")) return 1;
++    reset();
++    if (!reject_unchanged(existing_path,"existing output")) return 1;
++    if (!reject_unchanged("relative.png","relative path")) return 1;
++    if (!reject_unchanged(new_path+":alternate","alternate stream")) return 1;
++    const auto invalid_path=(fixture.path/"CON.png").u8string();
++    if (!reject_unchanged(invalid_path,"Windows device name")) return 1;
++    std::ifstream existing(fs::u8path(existing_path),std::ios::binary);
++    std::string sentinel;
++    std::getline(existing,sentinel);
++    existing.close();
++    if (sentinel!="immutable-test-sentinel") return fail("Story publisher modified an existing output");
++    const auto initial=*block;
++    std::uint32_t request=0,generation=0;
++    if (!observer.publish_story_request(new_path,request,generation,error)) return fail(error);
++    if (request!=42 || generation!=74 || block->request!=42 || block->ack!=41 ||
++        block->sample_count!=1 || block->sample_index!=0 || block->status!=0 ||
++        block->ready!=0 || block->release!=0 || block->ready_generation!=0 ||
++        block->request_generation!=74 || std::string(block->output_path)!=new_path ||
++        block->source_frame!=initial.source_frame || block->replay_time_ms!=initial.replay_time_ms ||
++        block->quality!=initial.quality || block->highlight_boost!=initial.highlight_boost ||
++        block->heartbeat!=initial.heartbeat ||
++        std::memcmp(block->opaque_dof,initial.opaque_dof,sizeof(block->opaque_dof))!=0 ||
++        fs::exists(fs::u8path(new_path))) {
++        return fail("Story request publication changed unrelated fields or its epoch/path contract");
++    }
++    const auto published=*block;
++    if (observer.release(request,error) || block->release!=0 ||
++        std::memcmp(&published,block,sizeof(published))!=0) {
++        return fail("Story request released before an add-on pixel-ready observation");
++    }
++    block->ready=request;
++    block->ready_generation=generation;
++    MemoryBarrier();
++    if (observer.release(request+1,error) || block->release!=0) {
++        return fail("Story release accepted another request id");
++    }
++    if (!observer.release(request,error) || block->release!=request || block->ack!=41) {
++        return fail("Story observer release failed or forged the add-on ACK");
++    }
++    block->ack=request;  // The isolated fixture acts as the add-on, not the observer.
++    MemoryBarrier();
++    const auto acknowledged=*block;
++    if (observer.release(request,error) ||
++        std::memcmp(&acknowledged,block,sizeof(acknowledged))!=0) {
++        return fail("Story observer accepted a release after ACK");
++    }
++    observer.close();
++    std::cout << "Story capture publisher rejection/epoch/ready-release-ACK self-test passed\n";
++    return 0;
++}
++
+ }  // namespace
+ 
+ int main() {
+@@ -165,6 +308,16 @@ int main() {
+     if (contended_snapshot.sequence != 4 || contended_snapshot.heartbeat != 12) {
+         return fail("editor identity observer did not seal the post-contention generation");
+     }
++    const auto preserved_editor_block=*block;
++    try {
++        const int story_result=test_story_publisher();
++        if (story_result!=0) return story_result;
++    } catch (const std::exception& exc) {
++        return fail(std::string{"Story capture publisher fixture failed: "}+exc.what());
++    }
++    if (std::memcmp(&preserved_editor_block,block,sizeof(preserved_editor_block))!=0) {
++        return fail("Story publisher changed the separate Editor identity block");
++    }
+     std::cout << "editor identity observer self-test passed\n";
+     return 0;
+ }
+diff --git a/engine-data/gta-capture/native/src/fx_capture_observer_win.cpp b/engine-data/gta-capture/native/src/fx_capture_observer_win.cpp
+index b718452b995a4c44da3a166cd304945b24c08922..deadfa7a7a30b638c7c9dba376e7589920d1c4ef 100644
+--- a/engine-data/gta-capture/native/src/fx_capture_observer_win.cpp
++++ b/engine-data/gta-capture/native/src/fx_capture_observer_win.cpp
+@@ -5,6 +5,8 @@
+ #include <chrono>
+ #include <cstddef>
+ #include <cstring>
++#include <filesystem>
++#include <limits>
+ #include <thread>
+ 
+ namespace diogenes::gta {
+@@ -136,6 +138,11 @@ std::wstring editor_identity_mapping_name_for_test() {
+            std::to_wstring(GetCurrentProcessId());
+ }
+ 
++std::wstring fx_capture_mapping_name_for_test() {
++    return L"Local\\DiogenesGtaFxCaptureSelftest-" +
++           std::to_wstring(GetCurrentProcessId());
++}
++
+ void set_editor_identity_observer_retry_hook_for_test(
+     EditorIdentityObserverRetryHook hook, void* context) {
+     g_editor_identity_retry_hook_for_test = hook;
+@@ -147,8 +154,14 @@ FxCaptureObserver::~FxCaptureObserver() { close(); }
+ 
+ bool FxCaptureObserver::open(std::string& error) {
+     close();
++#if defined(DIOGENES_EDITOR_IDENTITY_OBSERVER_TEST_HOOK)
++    const auto mapping_name = fx_capture_mapping_name_for_test();
++    mapping_ = OpenFileMappingW(FILE_MAP_READ | FILE_MAP_WRITE, FALSE,
++                                mapping_name.c_str());
++#else
+     mapping_ = OpenFileMappingW(FILE_MAP_READ | FILE_MAP_WRITE, FALSE,
+                                 L"Local\\SimpleCameraFxCapture");
++#endif
+     if (mapping_ == nullptr) {
+         error = "RE+ capture mapping is unavailable; Win32 error " +
+                 std::to_string(GetLastError());
+@@ -223,6 +236,113 @@ bool FxCaptureObserver::read(FxCaptureSnapshot& snapshot, std::string& error) co
+     return false;
+ }
+ 
++bool FxCaptureObserver::publish_story_request(
++        const std::string& output_path, std::uint32_t& request_id,
++        std::uint32_t& transport_generation, std::string& error) {
++    request_id = transport_generation = 0;
++    if (view_ == nullptr) {
++        error = "Story capture transport is not open";
++        return false;
++    }
++    // The add-on accepts a 512-byte UTF-8 filename. Never truncate it, alias an
++    // alternate data stream/device path, or overwrite an existing image.
++    try {
++        namespace fs = std::filesystem;
++        const auto path = fs::u8path(output_path);
++        const auto native = path.wstring();
++        const auto leaf = path.filename().wstring();
++        auto extension = path.extension().wstring();
++        std::transform(extension.begin(), extension.end(), extension.begin(),
++                       [](wchar_t ch) { return ch >= L'A' && ch <= L'Z'
++                           ? static_cast<wchar_t>(ch + (L'a' - L'A')) : ch; });
++        if (output_path.empty() || output_path.size() >= 512 ||
++            output_path.find('\0') != std::string::npos || !path.is_absolute() ||
++            native.size() < 4 || native[1] != L':' ||
++            (native[2] != L'\\' && native[2] != L'/') ||
++            native.find(L':', 2) != std::wstring::npos ||
++            path.lexically_normal() != path || leaf.empty() ||
++            leaf.back() == L'.' || leaf.back() == L' ' || extension != L".png" ||
++            !fs::is_directory(path.parent_path()) || fs::exists(path) ||
++            fs::is_symlink(path)) {
++            error = "Story PNG needs a new absolute normalized local .png path in an existing directory";
++            return false;
++        }
++        for (const auto& component : path.relative_path()) {
++            auto name = component.wstring();
++            if (name.empty() || name.back() == L'.' || name.back() == L' ' ||
++                std::any_of(name.begin(), name.end(), [](wchar_t ch) {
++                    return ch < 32 || ch == L'<' || ch == L'>' || ch == L'"' ||
++                           ch == L'|' || ch == L'?' || ch == L'*';
++                })) {
++                error = "Story PNG path contains a Windows filename alias or reserved character";
++                return false;
++            }
++            name = name.substr(0, name.find(L'.'));
++            std::transform(name.begin(), name.end(), name.begin(), [](wchar_t ch) {
++                return ch >= L'a' && ch <= L'z' ? static_cast<wchar_t>(ch - (L'a' - L'A')) : ch;
++            });
++            if (name == L"CON" || name == L"PRN" || name == L"AUX" || name == L"NUL" ||
++                (name.size() == 4 && (name.substr(0,3) == L"COM" || name.substr(0,3) == L"LPT") &&
++                 name[3] >= L'1' && name[3] <= L'9')) {
++                error = "Story PNG path names a reserved Windows device";
++                return false;
++            }
++        }
++        if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, output_path.data(),
++                                static_cast<int>(output_path.size()), nullptr, 0) == 0) {
++            error = "Story PNG path is not valid UTF-8";
++            return false;
++        }
++    } catch (const std::exception& exc) {
++        error = std::string{"Story PNG path cannot be validated: "} + exc.what();
++        return false;
++    }
++    auto* block = static_cast<volatile FxCapturePrefix*>(view_);
++    if (block->magic != kMagic || block->version != kPinnedVersion) {
++        error = "Story capture transport magic/version changed";
++        return false;
++    }
++    const auto previous_request = atomic_read(&block->request_id);
++    const auto previous_generation = (std::max)(
++        atomic_read(&block->request_camera_generation),
++        atomic_read(&block->capture_ready_camera_generation));
++    if (atomic_read(&block->ack_id) != previous_request ||
++        previous_request == (std::numeric_limits<std::uint32_t>::max)() ||
++        previous_generation == (std::numeric_limits<std::uint32_t>::max)()) {
++        error = "Story capture requires idle, non-wrapping request/generation epochs";
++        return false;
++    }
++    const auto next_request = previous_request + 1;
++    const auto next_generation = previous_generation + 1;
++    // The caller excludes RE+ publishing throughout this critical section.
++    // Recheck immediately before writing; this API is not a multi-writer lock.
++    MemoryBarrier();
++    if (atomic_read(&block->request_id) != previous_request ||
++        atomic_read(&block->ack_id) != previous_request) {
++        error = "Story capture transport acquired a competing request";
++        return false;
++    }
++    for (std::size_t index = 0; index < 512; ++index) {
++        block->out_path[index] = index < output_path.size() ? output_path[index] : '\0';
++    }
++    block->sample_count = 1;
++    block->sample_index = 0;
++    block->status = 0;
++    block->observer_release_id = 0;
++    block->capture_ready_id = 0;
++    block->request_camera_generation = next_generation;
++    block->capture_ready_camera_generation = 0;
++    // Preserve source_frame/replay_time_ms and the opaque DoF bridge. This
++    // request supplies no Editor replay identity, and never emits frame/1.
++    MemoryBarrier();
++    InterlockedExchange(reinterpret_cast<volatile LONG*>(&block->request_id),
++                        static_cast<LONG>(next_request));
++    request_id = next_request;
++    transport_generation = next_generation;
++    error.clear();
++    return true;
++}
++
+ bool FxCaptureObserver::release(std::uint32_t request_id, std::string& error) {
+     if (view_ == nullptr || request_id == 0) {
+         error = "RE+ capture channel is not open or request id is invalid";
+@@ -231,8 +351,9 @@ bool FxCaptureObserver::release(std::uint32_t request_id, std::string& error) {
+     auto* block = static_cast<volatile FxCapturePrefix*>(view_);
+     MemoryBarrier();
+     if (atomic_read(&block->request_id) != request_id ||
++        atomic_read(&block->capture_ready_id) != request_id ||
+         atomic_read(&block->ack_id) == request_id) {
+-        error = "RE+ request changed or was acknowledged before observer release";
++        error = "RE+ request changed, is not pixel-ready, or was acknowledged before observer release";
+         return false;
+     }
+     InterlockedExchange(reinterpret_cast<volatile LONG*>(&block->observer_release_id),
+diff --git a/engine-data/gta-capture/native/src/mock_game_adapter.cpp b/engine-data/gta-capture/native/src/mock_game_adapter.cpp
+index 267ac54eec81e8d4b6d5173f67be4b5719ee9832..89bf235eb3b8b22e2640d2a007d4a8db01611612 100644
+--- a/engine-data/gta-capture/native/src/mock_game_adapter.cpp
++++ b/engine-data/gta-capture/native/src/mock_game_adapter.cpp
+@@ -31,6 +31,12 @@ public:
+             ",\"record_binding_ready\":false,\"master_replay_sha256\":null}");
+     }
+ 
++    AdapterResult story_projection_sample(const std::string&, const std::string&,
++                                          const std::string&) override {
++        return AdapterResult::failure(
++            "native mock cannot measure game-rendered calibration pixels");
++    }
++
+     AdapterResult apply_scenario(const std::string& path,
+                                  const std::string& sha256) override {
+         if (path.empty() || sha256.empty()) {
+diff --git a/engine-data/gta-capture/native/src/mock_main.cpp b/engine-data/gta-capture/native/src/mock_main.cpp
+index 186610b707f1b810e7a5203ddef91bf96a2a684c..699bb14b56b5f44681c0c4da2e3b70442b6c069e 100644
+--- a/engine-data/gta-capture/native/src/mock_main.cpp
++++ b/engine-data/gta-capture/native/src/mock_main.cpp
+@@ -53,6 +53,14 @@ int main(int argc, char** argv) {
+             std::cerr << probe;
+             return 1;
+         }
++        const auto calibration = controller.handle_line(
++            "{\"schema\":\"dm-gta-control/1\",\"id\":\"story-calibration-mock\","
++            "\"command\":\"story_projection_sample\",\"payload\":{}}");
++        if (calibration.find("\"ok\":false") == std::string::npos ||
++            calibration.find("native mock cannot measure") == std::string::npos) {
++            std::cerr << calibration;
++            return 1;
++        }
+         return 0;
+     }
+ 
+diff --git a/engine-data/gta-capture/native/src/process_runtime_selftest.cpp b/engine-data/gta-capture/native/src/process_runtime_selftest.cpp
+index b83cc18d9d1e93f0fdba3bcc1c733373f47086f6..972d81651fbf3496bed2a8eef6e235ef703678a4 100644
+--- a/engine-data/gta-capture/native/src/process_runtime_selftest.cpp
++++ b/engine-data/gta-capture/native/src/process_runtime_selftest.cpp
+@@ -23,6 +23,10 @@ public:
+     }
+ 
+     diogenes::gta::AdapterResult probe_state() override { return hello(); }
++    diogenes::gta::AdapterResult story_projection_sample(
++            const std::string&, const std::string&, const std::string&) override {
++        return diogenes::gta::AdapterResult::failure("no rendered calibration in lifecycle test");
++    }
+     diogenes::gta::AdapterResult apply_scenario(const std::string&,
+                                                  const std::string&) override {
+         return diogenes::gta::AdapterResult::success();
+diff --git a/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp b/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
+index d87408082e7c0cd5f5d0e9b5648b7b01db3dd5c6..03d96524ad79457914ffec20476f3768c33594fc 100644
+--- a/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
++++ b/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
+@@ -5,7 +5,9 @@
+ #include "fx_capture_observer.hpp"
+ #include "hash_utils.hpp"
+ #include "native_tape.hpp"
++#include "recording_camera.hpp"
+ #include "story_route.hpp"
++#include "story_projection.hpp"
+ 
+ #include <main.h>
+ #include <natives.h>
+@@ -1594,6 +1596,7 @@ public:
+         const auto camera_position = CAM::_GET_GAMEPLAY_CAM_COORDS();
+         const auto camera_rotation = CAM::_GET_GAMEPLAY_CAM_ROT(2);
+         const auto camera_fov = invoke<float>(0x80EC114669DAEFF4);
++        const auto recording_camera = observe_recording_camera();
+         std::ostringstream out;
+         out << std::setprecision(15)
+             << "{\"story_mode\":true,\"online_session\":false,\"mock\":false,"
+@@ -1606,12 +1609,76 @@ public:
+             << camera_position.y << ',' << camera_position.z << "],"
+             << "\"camera_euler_deg\":[" << camera_rotation.x << ','
+             << camera_rotation.y << ',' << camera_rotation.z << "],"
+-            << "\"camera_fov_deg\":" << camera_fov << ',';
++            << "\"camera_fov_deg\":" << camera_fov << ','
++            << "\"follow_ped_camera_active\":"
++            << (recording_camera.follow_ped_active ? "true" : "false") << ','
++            << "\"follow_ped_camera_view_mode\":" << recording_camera.view_mode << ',';
+         append_runtime_probe(out, binding);
+         out << '}';
+         return AdapterResult::success(out.str());
+     }
+ 
++    AdapterResult story_projection_sample(const std::string& request_path,
++                                          const std::string& request_sha256,
++                                          const std::string& output_path) override {
++        if (!guard_story_mode()) {
++            return AdapterResult::failure("Story calibration refuses Online sessions");
++        }
++        {
++            std::lock_guard<std::mutex> lock(export_mutex_);
++            std::string restart_error;
++            if (!editor_export_restart_guard(export_restart_required_, restart_error))
++                return AdapterResult::failure(restart_error);
++            if (active_export_) return AdapterResult::failure(
++                "Story calibration requires every retained Editor export to be collected");
++        }
++        std::string error;
++        EditorIdentityObserver editor;
++        EditorIdentitySnapshot identity;
++        if (!editor.open(error) || !editor.read(identity, error))
++            return AdapterResult::failure("cannot verify Editor is inactive: " + error);
++        if (identity.editor_active || identity.render_active)
++            return AdapterResult::failure("Story calibration cannot run in Rockstar Editor");
++        if (request_path.empty() || request_sha256.size() != 64 || output_path.empty())
++            return AdapterResult::failure("Story calibration request path/hash/output missing");
++        std::string actual_hash;
++        if (!sha256_file(request_path, actual_hash, error) || actual_hash != request_sha256)
++            return AdapterResult::failure("Story calibration request hash mismatch: " + error);
++        const auto json = read_text_file(request_path, error);
++        if (!error.empty()) return AdapterResult::failure(error);
++        if (find_string(json, "schema") != "dm-gta-story-projection-request/1")
++            return AdapterResult::failure("Story calibration request schema mismatch");
++        double position[3], rotation[3], point[3];
++        if (!find_vec3(json, "camera_position", position) ||
++            !find_vec3(json, "camera_euler_deg", rotation) ||
++            !find_vec3(json, "point_world", point))
++            return AdapterResult::failure("Story calibration requires finite camera/point vec3s");
++        StoryProjectionRequest request;
++        request.output_path = output_path;
++        std::copy(std::begin(position), std::end(position), request.camera_position.begin());
++        std::copy(std::begin(rotation), std::end(rotation), request.camera_euler_deg.begin());
++        std::copy(std::begin(point), std::end(point), request.point_world.begin());
++        request.fov_deg = find_number(json, "fov_deg", -1.0);
++        request.nominal_focal_mm = find_number(json, "nominal_focal_mm", -1.0);
++        const auto marker = find_string(json, "marker_mode");
++        if (marker != "world_cross" && marker != "none")
++            return AdapterResult::failure("Story marker_mode must be world_cross or none");
++        request.draw_marker = marker == "world_cross";
++        auto result = capture_story_projection(request);
++        if (result.ok) {
++            // Add the immutable request binding without rewriting the PNG or
++            // claiming that this diagnostic is an Editor capture generation.
++            result.payload_json.pop_back();
++            result.payload_json += ",\"request_path\":\"" + json_escape(request_path) +
++                "\",\"request_sha256\":\"" + request_sha256 +
++                "\",\"controller_generation\":" +
++                std::to_string(runtime_generation_.load(std::memory_order_acquire)) + "}";
++            if (!sha256_file(request_path, actual_hash, error) || actual_hash != request_sha256)
++                return AdapterResult::failure("Story calibration request changed during capture");
++        }
++        return result;
++    }
++
+     AdapterResult apply_scenario(const std::string& path,
+                                  const std::string& expected_sha256) override {
+         if (!guard_story_mode()) {
+@@ -1711,6 +1778,10 @@ public:
+         }
+         ENTITY::SET_ENTITY_HEADING(
+             PLAYER::PLAYER_PED_ID(), static_cast<float>(route_heading_deg_));
++        if (!prepare_third_person_recording_camera(error)) {
++            scenario_applied_ = false;
++            return AdapterResult::failure(error);
++        }
+         scenario_sha256_ = actual_sha256;
+         scenario_applied_ = true;
+         return AdapterResult::success(
+@@ -1727,7 +1798,9 @@ public:
+             ",\"vehicle_density\":" + std::to_string(vehicle_density_) +
+             ",\"random_vehicle_density\":" + std::to_string(random_vehicle_density_) +
+             ",\"parked_vehicle_density\":" + std::to_string(parked_vehicle_density_) +
+-            ",\"radio_off\":true,\"story_mode\":true}");
++            ",\"radio_off\":true,\"story_mode\":true,"
++            "\"recording_camera_prepared\":true,\"follow_ped_camera_view_mode\":" +
++            std::to_string(observe_recording_camera().view_mode) + "}");
+     }
+ 
+     AdapterResult record_master(const std::string& run_dir, double duration_s) override {
+@@ -1770,6 +1843,11 @@ public:
+             return AdapterResult::failure(
+                 "Online/multiplayer session detected during warmup");
+         }
++        // Applying the scenario earlier is not enough: gameplay/camera changes
++        // during warmup must settle again before Rockstar starts its recorder.
++        if (!prepare_third_person_recording_camera(error)) {
++            return AdapterResult::failure(error);
++        }
+         const auto player = PLAYER::PLAYER_PED_ID();
+         const auto start = ENTITY::GET_ENTITY_COORDS(player, TRUE);
+         const std::array<double, 3> settled_start{start.x, start.y, start.z};
+@@ -1786,10 +1864,22 @@ public:
+         }
+         AI::CLEAR_PED_TASKS_IMMEDIATELY(player);
+         ENTITY::SET_ENTITY_HEADING(player, static_cast<float>(route_heading_deg_));
++        if (!recording_camera_matches(observe_recording_camera())) {
++            return AdapterResult::failure(
++                "third-person follow-ped camera changed before recording started");
++        }
++        recording_camera_drifted_ = false;
++        recording_camera_observation_count_ = 0;
++        recording_camera_guard_active_ = true;
++        struct RecordingCameraGuardCleanup {
++            bool& active;
++            ~RecordingCameraGuardCleanup() { active = false; }
++        } recording_camera_guard_cleanup{recording_camera_guard_active_};
+         UNK1::_SET_RECORDING_MODE(1);
+         if (!wait_frame()) {
++            UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+             return AdapterResult::failure(
+-                "Online/multiplayer session detected while starting recording");
++                recording_wait_error("Online/multiplayer session detected while starting recording"));
+         }
+         if (!UNK1::_IS_RECORDING()) {
+             return AdapterResult::failure("Rockstar Editor recording did not start");
+@@ -1817,7 +1907,7 @@ public:
+                     UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                     master_player_samples_.clear();
+                     return AdapterResult::failure(
+-                        "Online/multiplayer session detected during recording; clip discarded");
++                        recording_wait_error("Online/multiplayer session detected during recording; clip discarded"));
+                 }
+             }
+             const auto observed_ns_signed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+@@ -1853,7 +1943,7 @@ public:
+                 UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                 master_player_samples_.clear();
+                 return AdapterResult::failure(
+-                    "Online/multiplayer session detected during recording; clip discarded");
++                    recording_wait_error("Online/multiplayer session detected during recording; clip discarded"));
+             }
+         }
+         // Rockstar commits the replay clip boundary one or more game ticks behind the
+@@ -1869,11 +1959,12 @@ public:
+                 UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                 master_player_samples_.clear();
+                 return AdapterResult::failure(
+-                    "Online/multiplayer session detected during replay boundary commit; clip discarded");
++                    recording_wait_error("Online/multiplayer session detected during replay boundary commit; clip discarded"));
+             }
+         }
+         UNK1::_STOP_RECORDING_AND_SAVE_CLIP();
+         AI::CLEAR_PED_TASKS_IMMEDIATELY(player);
++        recording_camera_guard_active_ = false;
+ 
+         fs::path candidate;
+         std::uintmax_t stable_size = 0;
+@@ -1951,6 +2042,16 @@ public:
+                 hex_u64(master_source_identity_) +
+                 "\",\"source_epoch\":\"" + json_escape(source_epoch_) +
+                 "\",\"mock\":false,\"recording_start_verified\":true,"
++                "\"recording_camera\":{"
++                "\"method\":\"follow_ped_camera_native_game_tick_guard\","
++                "\"requested_view_mode\":" + std::to_string(kRecordingFollowPedViewMode) + ","
++                "\"last_observed_view_mode\":" +
++                std::to_string(recording_camera_last_observation_.view_mode) + ","
++                "\"follow_ped_camera_active\":" +
++                (recording_camera_last_observation_.follow_ped_active ? "true" : "false") + ","
++                "\"game_tick_observation_count\":" +
++                std::to_string(recording_camera_observation_count_) + ","
++                "\"pixel_visibility_verified\":false},"
+                 "\"player_observation_method\":\"" +
+                 std::string{kPlayerObservationMethod} + "\","
+                 "\"player_observation_count\":" +
+@@ -2621,9 +2722,40 @@ private:
+         return !online_detected_;
+     }
+ 
++    RecordingCameraObservation observe_recording_camera() const {
++        return {CAM::IS_FOLLOW_PED_CAM_ACTIVE() != FALSE,
++                CAM::GET_FOLLOW_PED_CAM_VIEW_MODE()};
++    }
++
++    bool prepare_third_person_recording_camera(std::string& error) {
++        if (!guard_story_mode()) {
++            error = "Online/multiplayer session detected before camera preparation";
++            return false;
++        }
++        return prepare_recording_camera(
++            [](int mode) { CAM::SET_FOLLOW_PED_CAM_VIEW_MODE(mode); },
++            [this] { return wait_frame(); },
++            [this] { return observe_recording_camera(); }, error);
++    }
++
++    std::string recording_wait_error(const char* fallback) const {
++        return recording_camera_drifted_
++            ? "third-person follow-ped camera changed during recording; clip discarded"
++            : fallback;
++    }
++
+     bool wait_frame() {
+         WAIT(0);
+-        return apply_frame_policy();
++        if (!apply_frame_policy()) return false;
++        if (recording_camera_guard_active_) {
++            recording_camera_last_observation_ = observe_recording_camera();
++            ++recording_camera_observation_count_;
++            if (!recording_camera_matches(recording_camera_last_observation_)) {
++                recording_camera_drifted_ = true;
++                return false;
++            }
++        }
++        return true;
+     }
+ 
+     bool yield_for(double seconds) {
+@@ -2637,6 +2769,10 @@ private:
+ 
+     bool online_detected_{false};
+     bool scenario_applied_{false};
++    bool recording_camera_guard_active_{false};
++    bool recording_camera_drifted_{false};
++    std::uint64_t recording_camera_observation_count_{};
++    RecordingCameraObservation recording_camera_last_observation_{};
+     double warmup_s_{0.0};
+     double location_[3]{};
+     double route_distance_m_{0.0};

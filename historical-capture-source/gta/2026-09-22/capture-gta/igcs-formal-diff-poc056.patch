@@ -1,0 +1,255 @@
+diff --git a/external/IgcsConnector-main/src/Main.cpp b/external/IgcsConnector-main/src/Main.cpp
+index 6728e2e..e7acd1e 100644
+--- a/external/IgcsConnector-main/src/Main.cpp
++++ b/external/IgcsConnector-main/src/Main.cpp
+@@ -102,7 +102,10 @@ struct SC_FxCaptureBlock
+ 	// version. The add-on copies the back buffer itself now and takes the order
+ 	// from the resource description, which cannot disagree with itself, so there
+ 	// is no longer anything to choose. Written by nobody, read by nobody.
+-	uint32_t reserved_wasChannelOrder;
++	uint32_t observerReleaseId;
++	uint32_t captureReadyId;
++	uint32_t sourceFrame;
++	double   replayTimeMs;
+ 
+ 	// --- autofocus for the depth-of-field session (v7) --------------------
+ 	// Appended for the same reason. We publish what we want focused; the ASI
+@@ -189,14 +192,54 @@ struct SC_FxCaptureBlock
+ 	// A COUNTER, not a flag: a second press is never swallowed, and neither side
+ 	// has to clear a write the other one made.
+ 	uint32_t dofCopyRequest;
++	uint32_t requestCameraGeneration;
++	uint32_t captureReadyCameraGeneration;
+ };
+ #pragma pack(pop)
++static_assert(offsetof(SC_FxCaptureBlock, observerReleaseId) == 560);
++static_assert(offsetof(SC_FxCaptureBlock, captureReadyId) == 564);
++static_assert(offsetof(SC_FxCaptureBlock, sourceFrame) == 568);
++static_assert(offsetof(SC_FxCaptureBlock, replayTimeMs) == 572);
++static_assert(offsetof(SC_FxCaptureBlock, requestCameraGeneration) == 680);
++static_assert(offsetof(SC_FxCaptureBlock, captureReadyCameraGeneration) == 684);
++static_assert(sizeof(SC_FxCaptureBlock) == 688);
+ 
+ static HANDLE g_scFxMapHandle = nullptr;
+ static SC_FxCaptureBlock* g_scFxBlock = nullptr;
++static uint32_t g_scFxPendingAck = 0;
++static bool g_scFxNotifyAfterAck = false;
+ static uint32_t g_scFxLastSeen = 0;
+ static bool g_scFxFpngInit = false;
+ 
++using SC_FxObserverCallback = void(__stdcall*)();
++static PVOID volatile g_scFxObserverCallback = nullptr;
++
++static uint32_t sc_fxAtomicRead(const uint32_t* value)
++{
++	return static_cast<uint32_t>(InterlockedCompareExchange(
++		reinterpret_cast<volatile LONG*>(const_cast<uint32_t*>(value)), 0, 0));
++}
++
++static void sc_fxAtomicWrite(uint32_t* value, uint32_t next)
++{
++	InterlockedExchange(reinterpret_cast<volatile LONG*>(value),
++	                    static_cast<LONG>(next));
++}
++
++static void sc_fxMarkCaptureReady(uint32_t request)
++{
++	const uint32_t generation = sc_fxAtomicRead(&g_scFxBlock->requestCameraGeneration);
++	MemoryBarrier();
++	sc_fxAtomicWrite(&g_scFxBlock->captureReadyCameraGeneration, generation);
++	sc_fxAtomicWrite(&g_scFxBlock->captureReadyId, request);
++	g_scFxPendingAck = request;
++	// Pixel readback runs before ReShade composes its overlay, while all observer
++	// notification and ACK ownership stays in reshade_present. That callback is
++	// later in the same render frame, so it can publish/retry the ready request
++	// without letting overlay pixels leak into the captured resource.
++	MemoryBarrier();
++}
++
+ // Where the depth-of-field bridge is in its cycle. At file scope, rather than
+ // inside sc_fxDofTick where it used to live, because the capture path has to
+ // see it: a finished pass is read out of the accumulator it was built in, not
+@@ -766,7 +809,11 @@ static bool sc_fxReadResource(effect_runtime* runtime,
+ 	return true;
+ }
+ 
+-static void sc_fxCaptureTick(effect_runtime* runtime)
++// Protocol ownership deliberately remains in reshade_present. Besides keeping
++// heartbeat cadence unchanged, this means an observer release is ACKed after
++// the pre-overlay readback in the same render frame, and terminal notification
++// cannot run until the following Present after the main camera tick consumed it.
++static void sc_fxProtocolTick(effect_runtime* runtime)
+ {
+ 	// Lazily map the shared block (the ASI may map it first, or we do).
+ 	if (g_scFxBlock == nullptr)
+@@ -784,18 +831,51 @@ static void sc_fxCaptureTick(effect_runtime* runtime)
+ 			return;
+ 		}
+ 		// Don't fire a stale request that predates us mapping in.
+-		g_scFxLastSeen = g_scFxBlock->requestId;
++		g_scFxLastSeen = sc_fxAtomicRead(&g_scFxBlock->requestId);
+ 	}
+ 
+-	if (g_scFxBlock->magic != 0x53434658u)
++	if (g_scFxBlock->magic != 0x53434658u || g_scFxBlock->version != 18u)
+ 	{
+ 		return; // ASI side hasn't stamped the header yet
+ 	}
+ 
+ 	// Heartbeat so the ASI can tell this addon is loaded (gates rendering).
+ 	g_scFxBlock->addonHeartbeat++;
++	if (g_scFxPendingAck != 0)
++	{
++		// The controller serializes ordinary Present work with the final-frame
++		// observer. If the first notification lands while it is sealing the
++		// previous frame, that callback deliberately returns busy. Re-notify on
++		// every Present until the exact request is released; the request and its
++		// pixel-ready facts remain immutable throughout this retry window.
++		if (sc_fxAtomicRead(&g_scFxBlock->observerReleaseId) != g_scFxPendingAck)
++		{
++			const auto callback = reinterpret_cast<SC_FxObserverCallback>(
++				InterlockedCompareExchangePointer(&g_scFxObserverCallback, nullptr, nullptr));
++			if (callback != nullptr) callback();
++		}
++		if (sc_fxAtomicRead(&g_scFxBlock->observerReleaseId) == g_scFxPendingAck)
++		{
++			sc_fxAtomicWrite(&g_scFxBlock->ackId, g_scFxPendingAck);
++			g_scFxPendingAck = 0;
++			g_scFxNotifyAfterAck = true;
++		}
++		return;
++	}
++	if (g_scFxNotifyAfterAck)
++	{
++		// The renderer consumes the ACK on the next main-thread camera tick and
++		// only then publishes its terminal plan state. Notify the controller once
++		// more on the following Present so it can seal DONE/FAILED after the final
++		// frame without inventing another capture request or polling a timer.
++		g_scFxNotifyAfterAck = false;
++		const auto callback = reinterpret_cast<SC_FxObserverCallback>(
++			InterlockedCompareExchangePointer(&g_scFxObserverCallback, nullptr, nullptr));
++		if (callback != nullptr) callback();
++	}
+ 
+-	const uint32_t req = g_scFxBlock->requestId;
++	const uint32_t req = sc_fxAtomicRead(&g_scFxBlock->requestId);
++	MemoryBarrier();
+ 
+ 	// Hand the readback texture back once nothing is capturing. It is sized by
+ 	// whatever it last read, and the depth-of-field accumulator is sixteen bytes
+@@ -813,6 +893,28 @@ static void sc_fxCaptureTick(effect_runtime* runtime)
+ 		return; // nothing requested
+ 	}
+ 	s_idlePresents = 0;
++	// A new request is consumed by sc_fxCaptureTick earlier in the next
++	// pre-overlay callback. Do not advance g_scFxLastSeen here: doing so would
++	// make the pixel stage mistake the request for one already captured.
++}
++
++// Read only the finished game/effect image. reshade_overlay calls this between
++// ImGui::NewFrame and ImGui::EndFrame, before ReShade or this add-on submit any
++// overlay draw data (including the software mouse cursor) to the back buffer.
++static void sc_fxCaptureTick(effect_runtime* runtime)
++{
++	if (g_scFxBlock == nullptr ||
++		g_scFxBlock->magic != 0x53434658u ||
++		g_scFxBlock->version != 18u ||
++		g_scFxPendingAck != 0)
++	{
++		return;
++	}
++
++	const uint32_t req = sc_fxAtomicRead(&g_scFxBlock->requestId);
++	MemoryBarrier();
++	if (req == g_scFxLastSeen) return;
++
+ 	g_scFxLastSeen = req;
+ 
+ 	const uint32_t sampleCount = (g_scFxBlock->sampleCount < 1) ? 1 : g_scFxBlock->sampleCount;
+@@ -823,7 +925,7 @@ static void sc_fxCaptureTick(effect_runtime* runtime)
+ 	if (width == 0 || height == 0)
+ 	{
+ 		g_scFxBlock->status = 1;
+-		g_scFxBlock->ackId = req;
++		sc_fxMarkCaptureReady(req);
+ 		return;
+ 	}
+ 
+@@ -851,7 +953,7 @@ static void sc_fxCaptureTick(effect_runtime* runtime)
+ 	if (src == 0)
+ 	{
+ 		g_scFxBlock->status = 1;
+-		g_scFxBlock->ackId  = req;
++		sc_fxMarkCaptureReady(req);
+ 		return;
+ 	}
+ 
+@@ -877,7 +979,7 @@ static void sc_fxCaptureTick(effect_runtime* runtime)
+ 		if (!recovered)
+ 		{
+ 			g_scFxBlock->status = 1;
+-			g_scFxBlock->ackId  = req;
++			sc_fxMarkCaptureReady(req);
+ 			return;
+ 		}
+ 	}
+@@ -905,7 +1007,7 @@ static void sc_fxCaptureTick(effect_runtime* runtime)
+ 		if (g_scFxAccum.size() != count || frame.linear.size() != count)
+ 		{
+ 			g_scFxBlock->status = 1;
+-			g_scFxBlock->ackId  = req;
++			sc_fxMarkCaptureReady(req);
+ 			return;
+ 		}
+ 
+@@ -956,12 +1058,18 @@ static void sc_fxCaptureTick(effect_runtime* runtime)
+ 	g_scFxBlock->width = width;
+ 	g_scFxBlock->height = height;
+ 	g_scFxBlock->status = status;
+-	g_scFxBlock->ackId = req;
++	sc_fxMarkCaptureReady(req);
+ }
+ 
+ // externs for reshade
+ extern "C" __declspec(dllexport) const char *NAME = "IGCS Connector";
+ extern "C" __declspec(dllexport) const char *DESCRIPTION = "Add-on which allows you to connect Reshade with IGCS built camera tools to exchange data and issue commands.";
++extern "C" __declspec(dllexport) void registerDiogenesFxCaptureObserver(
++	SC_FxObserverCallback callback)
++{
++	InterlockedExchangePointer(
++		&g_scFxObserverCallback, reinterpret_cast<PVOID>(callback));
++}
+ 
+ // externs for IGCS
+ extern "C" __declspec(dllexport) bool connectFromCameraTools();
+@@ -1571,8 +1679,10 @@ static void onReshadePresent(effect_runtime* runtime)
+ {
+ 	g_screenshotController.presentCalled();
+ 
+-	// Simple Camera frame-capture requests.
+-	sc_fxCaptureTick(runtime);
++	// Keep liveness, observer release, ACK and terminal notification on Present.
++	// Pixel readback happens earlier in onReshadeOverlay, before overlay draw data
++	// (especially ReShade's software mouse cursor) reaches the back buffer.
++	sc_fxProtocolTick(runtime);
+ 	sc_fxAutofocusTick(runtime);
+ 	sc_fxDofTick(runtime);
+ 
+@@ -1583,10 +1693,16 @@ static void onReshadePresent(effect_runtime* runtime)
+ 
+ static void onReshadeOverlay(effect_runtime* runtime)
+ {
++	// First of all: capture the finished effects image before ReShade and our
++	// own ImGui overlays are submitted. Moving only this pixel stage keeps the
++	// established Present-side protocol and final-frame ordering intact.
++	sc_fxCaptureTick(runtime);
++
+ 	// first let the screenshot controller grab screenshots
+ 	g_screenshotController.reshadeEffectsRendered(runtime);
+ 
+-	// then we'll render our own overlays if needed
++	// Keep every overlay renderer below the capture call above. This ordering is
++	// the native guarantee that UI and software-cursor pixels never enter a frame.
+ 	OverlayControl::renderOverlay();
+ 	g_depthOfFieldController.renderOverlay();		// if it has something to display it can do that here
+ }

@@ -1,0 +1,457 @@
+[
+  {
+    "path": "historical-capture-source/gta/2026-09-22/capture-gta/igcs-formal-diff-poc056.patch",
+    "targets": [
+      "external/IgcsConnector-main/src/Main.cpp"
+    ],
+    "original_sha256": "5acb2d375748a0ee91ee7fc0c5f0f38e349139dfff0e78963c4ace89f524d4f5",
+    "sha256": "5acb2d375748a0ee91ee7fc0c5f0f38e349139dfff0e78963c4ace89f524d4f5",
+    "license_scope": "MIT (IGCS Connector derivative patch)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/capture-gta/replus-poc020-actual.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "cd84e059be424067b4f3d3f9212a2024d24f16e6e4d477b9572a515a079b934f",
+    "sha256": "cd84e059be424067b4f3d3f9212a2024d24f16e6e4d477b9572a515a079b934f",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/capture-gta/replus-poc022-actual.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "7920be0156b5b9beaffe5e2fc8012c1fd717776b73ddb2aeff31e1695d90bdc8",
+    "sha256": "7920be0156b5b9beaffe5e2fc8012c1fd717776b73ddb2aeff31e1695d90bdc8",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/capture-gta/replus-poc022f-actual.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "7920be0156b5b9beaffe5e2fc8012c1fd717776b73ddb2aeff31e1695d90bdc8",
+    "sha256": "7920be0156b5b9beaffe5e2fc8012c1fd717776b73ddb2aeff31e1695d90bdc8",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/capture-gta/replus-poc023-actual.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "ac6a06bbc6d6d0582bc527ac50da6b15849bfd6854e4e64685331c9e38cd4243",
+    "sha256": "ac6a06bbc6d6d0582bc527ac50da6b15849bfd6854e4e64685331c9e38cd4243",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/capture-gta/replus-poc026-actual.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "99700f5e8d44a7e0dc4674600a44e0155b625df573bd239429899013e2efcb0d",
+    "sha256": "99700f5e8d44a7e0dc4674600a44e0155b625df573bd239429899013e2efcb0d",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/controller-editor-wait-60min-derived-01/source-provenance/tracked.patch",
+    "targets": [
+      "engine-data/gta-capture/native/CMakeLists.txt",
+      "engine-data/gta-capture/native/include/fx_capture_observer.hpp",
+      "engine-data/gta-capture/native/include/game_adapter.hpp",
+      "engine-data/gta-capture/native/src/controller_core.cpp",
+      "engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp",
+      "engine-data/gta-capture/native/src/fx_capture_observer_win.cpp",
+      "engine-data/gta-capture/native/src/mock_game_adapter.cpp",
+      "engine-data/gta-capture/native/src/mock_main.cpp",
+      "engine-data/gta-capture/native/src/process_runtime_selftest.cpp",
+      "engine-data/gta-capture/native/src/scripthook_game_adapter.cpp"
+    ],
+    "original_sha256": "5277e06a4c714ee1668dc28a14c107249b96c886af63a796dc2b4ed402fb817e",
+    "sha256": "5277e06a4c714ee1668dc28a14c107249b96c886af63a796dc2b4ed402fb817e",
+    "license_scope": "Apache-2.0 (owner-authored controller/integration patch)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-cursor-refresh-candidate-01/source.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "03019ec4b8624d021d43c2bce5d30890c9f3073869a796fa329b72372dc84ae0",
+    "sha256": "03019ec4b8624d021d43c2bce5d30890c9f3073869a796fa329b72372dc84ae0",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-cursor-refresh-candidate-02/source.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "03019ec4b8624d021d43c2bce5d30890c9f3073869a796fa329b72372dc84ae0",
+    "sha256": "03019ec4b8624d021d43c2bce5d30890c9f3073869a796fa329b72372dc84ae0",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-cursor-refresh-candidate-03/source.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "c6b9e866a7ce3f6dc08159f63210fd6cdcf1fdd60c8fdef1eafbef63fd9c006a",
+    "sha256": "c6b9e866a7ce3f6dc08159f63210fd6cdcf1fdd60c8fdef1eafbef63fd9c006a",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-cursor-refresh-derived-01/source-provenance/replus-v18-cursor-refresh.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "c6b9e866a7ce3f6dc08159f63210fd6cdcf1fdd60c8fdef1eafbef63fd9c006a",
+    "sha256": "c6b9e866a7ce3f6dc08159f63210fd6cdcf1fdd60c8fdef1eafbef63fd9c006a",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-cursor-refresh-derived-02/source-provenance/replus-v18-cursor-refresh.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "c6b9e866a7ce3f6dc08159f63210fd6cdcf1fdd60c8fdef1eafbef63fd9c006a",
+    "sha256": "c6b9e866a7ce3f6dc08159f63210fd6cdcf1fdd60c8fdef1eafbef63fd9c006a",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-draw-guard-candidate-01/draw-guard-only.patch",
+    "targets": [],
+    "original_sha256": "c4672264bd1861bb8b6ad26ce47e3bf7054bcb7b481316f517d19232682d4704",
+    "sha256": "c4672264bd1861bb8b6ad26ce47e3bf7054bcb7b481316f517d19232682d4704",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-draw-guard-candidate-01/pre-review-01/draw-guard-only.patch",
+    "targets": [],
+    "original_sha256": "e4dfeef00a912eb5b30b443ee96cb917a69203da132a9be64f0d5066499ffa4a",
+    "sha256": "e4dfeef00a912eb5b30b443ee96cb917a69203da132a9be64f0d5066499ffa4a",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-draw-guard-candidate-01/pre-review-01/source.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "d326fe900d5f675bd551ecfc924ae9cbe329a75d40e2f29d8fd2c2e3064c723a",
+    "sha256": "d326fe900d5f675bd551ecfc924ae9cbe329a75d40e2f29d8fd2c2e3064c723a",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-draw-guard-candidate-01/source.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "c77b19756ef40cf6bfd63d725dc48e74da79a6f1a529c73d20971516ec1ef53e",
+    "sha256": "c77b19756ef40cf6bfd63d725dc48e74da79a6f1a529c73d20971516ec1ef53e",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/replus-draw-guard-derived-01/source-provenance/replus-v18-draw-guard.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "c77b19756ef40cf6bfd63d725dc48e74da79a6f1a529c73d20971516ec1ef53e",
+    "sha256": "c77b19756ef40cf6bfd63d725dc48e74da79a6f1a529c73d20971516ec1ef53e",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/review/controller-editor-wait-60min-build-01/runtime-budget-only.diff",
+    "targets": [],
+    "original_sha256": "e6910c916f92c6a27a160fdc57640806679b5237368c14050c632d74dd8c259f",
+    "sha256": "e6910c916f92c6a27a160fdc57640806679b5237368c14050c632d74dd8c259f",
+    "license_scope": "Apache-2.0 (owner-authored controller/integration patch)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc10/review/pr-source-transfer-20260922-01/workspace.patch",
+    "targets": [
+      "engine-data/gta-capture/README.md",
+      "engine-data/gta-capture/RUNBOOK-MC2-60S.md",
+      "engine-data/gta-capture/gta_capture/calibration.py",
+      "engine-data/gta-capture/gta_capture/cli.py",
+      "engine-data/gta-capture/gta_capture/evidence.py",
+      "engine-data/gta-capture/gta_capture/media.py",
+      "engine-data/gta-capture/gta_capture/preflight.py",
+      "engine-data/gta-capture/gta_capture/scenario.py",
+      "engine-data/gta-capture/gta_capture/staged.py",
+      "engine-data/gta-capture/gta_capture/traj_adapter.py",
+      "engine-data/gta-capture/gta_capture/trajectory.py",
+      "engine-data/gta-capture/native/CMakeLists.txt",
+      "engine-data/gta-capture/native/README.md",
+      "engine-data/gta-capture/native/include/fx_capture_observer.hpp",
+      "engine-data/gta-capture/native/include/game_adapter.hpp",
+      "engine-data/gta-capture/native/src/controller_core.cpp",
+      "engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp",
+      "engine-data/gta-capture/native/src/fx_capture_observer_win.cpp",
+      "engine-data/gta-capture/native/src/mock_game_adapter.cpp",
+      "engine-data/gta-capture/native/src/mock_main.cpp",
+      "engine-data/gta-capture/native/src/process_runtime_selftest.cpp",
+      "engine-data/gta-capture/native/src/scripthook_game_adapter.cpp",
+      "engine-data/gta-capture/tests/test_calibration.py",
+      "engine-data/gta-capture/tests/test_delivery_coordinates.py",
+      "engine-data/gta-capture/tests/test_frame_seal_and_staged.py",
+      "engine-data/gta-capture/tests/test_trajectory_gate.py"
+    ],
+    "original_sha256": "b8e8cc64172b35a441118cc7cc1844f2961be53ccc9137f423749fa4e3b352f7",
+    "sha256": "b8e8cc64172b35a441118cc7cc1844f2961be53ccc9137f423749fa4e3b352f7",
+    "license_scope": "Apache-2.0 (owner-authored controller/integration patch)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc2/controller-derived-v2-final/source-provenance/tracked.patch",
+    "targets": [
+      "engine-data/gta-capture/native/CMakeLists.txt",
+      "engine-data/gta-capture/native/src/scripthook_game_adapter.cpp"
+    ],
+    "original_sha256": "b8a77b243cc95503463d4cd48d419c7588aacf66fe53ea055cebce3d1f5f4821",
+    "sha256": "b8a77b243cc95503463d4cd48d419c7588aacf66fe53ea055cebce3d1f5f4821",
+    "license_scope": "Apache-2.0 (owner-authored controller/integration patch)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc2/controller-derived-v2/source-provenance/tracked.patch",
+    "targets": [
+      "engine-data/gta-capture/native/CMakeLists.txt",
+      "engine-data/gta-capture/native/src/scripthook_game_adapter.cpp"
+    ],
+    "original_sha256": "b8a77b243cc95503463d4cd48d419c7588aacf66fe53ea055cebce3d1f5f4821",
+    "sha256": "b8a77b243cc95503463d4cd48d419c7588aacf66fe53ea055cebce3d1f5f4821",
+    "license_scope": "Apache-2.0 (owner-authored controller/integration patch)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc2/controller-story-projection-derived-01/source-provenance/tracked.patch",
+    "targets": [
+      "engine-data/gta-capture/native/CMakeLists.txt",
+      "engine-data/gta-capture/native/include/fx_capture_observer.hpp",
+      "engine-data/gta-capture/native/include/game_adapter.hpp",
+      "engine-data/gta-capture/native/src/controller_core.cpp",
+      "engine-data/gta-capture/native/src/editor_identity_observer_selftest.cpp",
+      "engine-data/gta-capture/native/src/fx_capture_observer_win.cpp",
+      "engine-data/gta-capture/native/src/mock_game_adapter.cpp",
+      "engine-data/gta-capture/native/src/mock_main.cpp",
+      "engine-data/gta-capture/native/src/process_runtime_selftest.cpp",
+      "engine-data/gta-capture/native/src/scripthook_game_adapter.cpp"
+    ],
+    "original_sha256": "ca5d69f9678f638e1822acc9ac7cabdf8441768f73e974172d64ef2aba6ad7be",
+    "sha256": "ca5d69f9678f638e1822acc9ac7cabdf8441768f73e974172d64ef2aba6ad7be",
+    "license_scope": "Apache-2.0 (owner-authored controller/integration patch)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc2/replus-story-idle-derived-01/source-provenance/replus-v18-story-idle-state.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
+    "sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc2/replus-story-mode-fix-01/source.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
+    "sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc2/replus-story-mode-fix-02/source.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
+    "sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  },
+  {
+    "path": "historical-capture-source/gta/2026-09-22/mc2/replus-story-mode-fix-03/source.patch",
+    "targets": [
+      "CMakeLists.txt",
+      "src/capture/diogenesbridge.cpp",
+      "src/capture/diogenesbridge.h",
+      "src/capture/fxcapture.cpp",
+      "src/capture/fxcapture.h",
+      "src/capture/render.cpp",
+      "src/capture/render.h",
+      "src/game/game.cpp",
+      "src/game/game.h",
+      "src/replay/smoothblend.cpp",
+      "src/ui/exportmenu.cpp",
+      "src/ui/exportmenu.h"
+    ],
+    "original_sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
+    "sha256": "41a55dfab049ebdcf761826b4ca7ccc4c546ed9343f24c5524fd5d9cd2e37191",
+    "license_scope": "GPL-3.0-only (REPlus derivative)"
+  }
+]

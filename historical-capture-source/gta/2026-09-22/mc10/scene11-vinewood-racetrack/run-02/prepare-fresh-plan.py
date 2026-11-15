@@ -1,0 +1,121 @@
+"""Offline only: build this new recording's plan, body-framing proposal and placed tape."""
+from pathlib import Path
+import json
+import argparse
+import re
+import shutil
+import subprocess
+import sys
+
+# Bound to the independently checked, actually installed 60-minute-budget manifest.
+EXPECTED_MANIFEST_SHA256 = "5a29c24672b2fbf78d08e489cc6c8e3565974348a36cf516ddcb03f64c7861d0"
+
+RUN = Path(__file__).resolve().parent
+CAPTURE = RUN.parents[3]
+sys.path.insert(0, str(CAPTURE))
+
+from gta_capture.jsonio import sha256_file, write_json_atomic
+from gta_capture.moving_plan import make_recorded_trajgen_clip
+from gta_capture.native_tape import write_native_tape
+from gta_capture.scenario import Scenario
+from gta_capture.staged import _validate_scenario_tape_route
+from gta_capture.tape import write_tape
+from gta_capture.traj_adapter import Placement, place_trajgen_clip
+
+
+def load(path):
+    return json.loads(Path(path).read_text(encoding="utf8"))
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Offline preparation for the new Vinewood racetrack run only; no game calls or ARM.")
+    parser.add_argument("--expected-replay-sha256", required=True)
+    parser.add_argument("--expected-telemetry-sha256", required=True)
+    args = parser.parse_args()
+    for value in (args.expected_replay_sha256, args.expected_telemetry_sha256):
+        if re.fullmatch(r"[0-9a-f]{64}", value) is None:
+            parser.error("Expected lowercase 64-character SHA256 from the successful new native record result.")
+    if EXPECTED_MANIFEST_SHA256 is None:
+        parser.error("New installed dependency manifest has not been pinned; this helper is not ready to execute.")
+    scenario_path = RUN / "config/scenario.json"
+    manifest_path = RUN / "config/dependency-manifest.json"
+    result_path = RUN / "evidence/native-record-result.json"
+    source = CAPTURE / "out/mc2-20260908/plan-clip"
+    base_plan = RUN / "config/recorded-plan-base-01"
+    proposal = RUN / "review/body-framing-proposal-01"
+    final_plan = RUN / "config/recorded-plan"
+    tape_path = RUN / "config/camera-tape.json"
+    route_path = RUN / "config/subject-route.json"
+    native_path = RUN / "config/camera-tape.bin"
+    receipt_path = RUN / "review/fresh-plan-preparation.json"
+    assert sha256_file(scenario_path) == "4078efc637dc24df0a94d14cdc37d7d7d1f5395d7d05933ab354484c02560d2b"
+    assert sha256_file(manifest_path) == EXPECTED_MANIFEST_SHA256
+    assert sha256_file(source / "plan.json") == "7eee899cd431c128dd7eaa4440fa10ee05a91bef1c6d80b80c782d22418b09c9"
+    assert all(not p.exists() for p in (base_plan, proposal, final_plan, tape_path, route_path, native_path, receipt_path)), "Use a fresh output; partial attempts are preserved."
+    record = load(result_path)
+    assert record.get("ok") is True, "Requires a successful new recording."
+    # Windows can reuse a PID after restart; bind the new run's actual files instead.
+    assert record["scenario"]["applied"] is True
+    assert record["scenario"]["scenario_sha256"] == sha256_file(scenario_path)
+    master = record["master"]
+    assert master["mock"] is False and master["recording_start_verified"] is True
+    assert master["player_observation_count"] == 1800
+    assert master["seed"] == 202609201102
+    assert master["source_control"] == "native_task_go_straight"
+    assert master["route_kind"] == "forward_from_anchor"
+    assert master["replay_sha256"] == args.expected_replay_sha256
+    assert master["player_telemetry_sha256"] == args.expected_telemetry_sha256
+    assert master["replay_sha256"] != "9710ce426dd3afa055aa0521f2a4ffa2ee296db26173e9237399f84be508e177", "The previous Casino master cannot be reused."
+    assert master["replay_sha256"] != "7ec15722400ef8a2d8c32bfc0504458ac612595f128cd9d145e4d75adf97a7ee", "The timed-out run01 master cannot be reused after restarting GTA."
+    for field, filename, hash_field in (
+            ("replay_path", "master-replay.clip", "replay_sha256"),
+            ("player_telemetry_path", "master-player-telemetry.jsonl", "player_telemetry_sha256")):
+        expected = (RUN / "source" / filename).resolve()
+        assert Path(master[field]).resolve() == expected, "Recording source must belong to this fresh run."
+        assert sha256_file(expected) == master[hash_field], "Recording source differs from its native result."
+    assert (RUN / "source/master-replay.clip").is_file()
+    assert (RUN / "source/master-player-telemetry.jsonl").is_file()
+    before = {str(p): sha256_file(p) for p in (scenario_path, manifest_path, result_path,
+        RUN / "source/master-replay.clip", RUN / "source/master-player-telemetry.jsonl")}
+    make_recorded_trajgen_clip(source, base_plan, record_result_path=result_path,
+        scenario_path=scenario_path, ground_y=0.0, choreography_scale=1.0,
+        choreography_mode="independent_windows")
+    assert load(base_plan / "forward-plan-qc.json")["verdict"] == "PASS", "Base planning QC failed; keep its outputs."
+    command = [sys.executable, "-X", "utf8", str(CAPTURE / "out/mc10-20260908/derive-recorded-body-framing.py"),
+        "--record-run-dir", str(RUN), "--scenario", str(scenario_path),
+        "--source-plan", str(base_plan), "--out-dir", str(proposal)]
+    subprocess.run(command, cwd=CAPTURE, check=True)
+    assert load(proposal / "review.json")["verdict"] == "PASS", "Framing proposal failed; retain it."
+    shutil.copytree(proposal / "recorded-plan", final_plan)
+    assert len(list(final_plan.iterdir())) == 13
+    for p in final_plan.iterdir():
+        assert p.is_file() and sha256_file(p) == sha256_file(proposal / "recorded-plan" / p.name)
+    placement = load(final_plan / "plan.json")["subject_motion"]["placement"]
+    assert placement["heading_deg"] == 0.0 and placement["ground_y"] == 0.0
+    tape, route = place_trajgen_clip(final_plan,
+        placement=Placement(anchor=tuple(placement["anchor"]), heading_deg=0.0, ground_y=0.0),
+        filmback_id=load(manifest_path)["calibration"]["filmback_id"],
+        clip_id="gta-mc10-scene11-vinewood-racetrack-60s-20260920-02")
+    _validate_scenario_tape_route(Scenario.load(scenario_path), tape,
+        expected_replay_sha256=master["replay_sha256"])
+    assert tape["n_frames"] == 1800 and tape["duration_s"] == 60.0
+    write_tape(tape_path, tape)
+    write_json_atomic(route_path, route)
+    write_native_tape(native_path, tape, json_path=tape_path)
+    assert all(sha256_file(Path(p)) == digest for p, digest in before.items())
+    receipt = {"schema": "dm-gta-fresh-plan-offline-preparation/1", "status": "PASS",
+        "run_dir": str(RUN), "record_source_sha256": before, "placement": placement,
+        "framing_command": command, "base_plan": str(base_plan), "framing_proposal": str(proposal),
+        "placed_source_plan": str(final_plan), "outputs": [{"path": str(p), "bytes": p.stat().st_size,
+            "sha256": sha256_file(p)} for p in (tape_path, route_path, native_path)],
+        "game_calls_performed": False, "arm_performed": False, "source_inputs_unchanged": True,
+        "expected_replay_sha256": args.expected_replay_sha256,
+        "expected_telemetry_sha256": args.expected_telemetry_sha256,
+        "helper": {"path": str(Path(__file__).resolve()), "sha256": sha256_file(Path(__file__).resolve())},
+        "actual_pixel_visibility_verified": False, "formal_delivery_eligible": False}
+    write_json_atomic(receipt_path, receipt)
+    print(json.dumps(receipt, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

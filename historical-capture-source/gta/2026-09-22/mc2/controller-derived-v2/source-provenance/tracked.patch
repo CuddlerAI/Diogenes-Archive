@@ -1,0 +1,212 @@
+diff --git a/engine-data/gta-capture/native/CMakeLists.txt b/engine-data/gta-capture/native/CMakeLists.txt
+index ba14c0e1dc535e1bb05a7e41dfa55112fe7dbac5..d70f24f4d63e4eb9e2da75d21ba5b01b152442ab 100644
+--- a/engine-data/gta-capture/native/CMakeLists.txt
++++ b/engine-data/gta-capture/native/CMakeLists.txt
+@@ -70,6 +70,15 @@ else()
+ endif()
+ add_test(NAME gta_story_route_contract COMMAND gta_story_route_selftest)
+ 
++add_executable(gta_recording_camera_selftest src/recording_camera_selftest.cpp)
++target_include_directories(gta_recording_camera_selftest PRIVATE include)
++if(MSVC)
++    target_compile_options(gta_recording_camera_selftest PRIVATE /W4 /permissive- /EHsc)
++else()
++    target_compile_options(gta_recording_camera_selftest PRIVATE -Wall -Wextra -Wpedantic)
++endif()
++add_test(NAME gta_recording_camera_contract COMMAND gta_recording_camera_selftest)
++
+ if(WIN32)
+     add_executable(gta_editor_identity_observer_selftest
+         src/editor_identity_observer_selftest.cpp
+diff --git a/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp b/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
+index d87408082e7c0cd5f5d0e9b5648b7b01db3dd5c6..4d1809a77a69b35fc80271e72aa471c0c30311b8 100644
+--- a/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
++++ b/engine-data/gta-capture/native/src/scripthook_game_adapter.cpp
+@@ -5,6 +5,7 @@
+ #include "fx_capture_observer.hpp"
+ #include "hash_utils.hpp"
+ #include "native_tape.hpp"
++#include "recording_camera.hpp"
+ #include "story_route.hpp"
+ 
+ #include <main.h>
+@@ -1594,6 +1595,7 @@ public:
+         const auto camera_position = CAM::_GET_GAMEPLAY_CAM_COORDS();
+         const auto camera_rotation = CAM::_GET_GAMEPLAY_CAM_ROT(2);
+         const auto camera_fov = invoke<float>(0x80EC114669DAEFF4);
++        const auto recording_camera = observe_recording_camera();
+         std::ostringstream out;
+         out << std::setprecision(15)
+             << "{\"story_mode\":true,\"online_session\":false,\"mock\":false,"
+@@ -1606,7 +1608,10 @@ public:
+             << camera_position.y << ',' << camera_position.z << "],"
+             << "\"camera_euler_deg\":[" << camera_rotation.x << ','
+             << camera_rotation.y << ',' << camera_rotation.z << "],"
+-            << "\"camera_fov_deg\":" << camera_fov << ',';
++            << "\"camera_fov_deg\":" << camera_fov << ','
++            << "\"follow_ped_camera_active\":"
++            << (recording_camera.follow_ped_active ? "true" : "false") << ','
++            << "\"follow_ped_camera_view_mode\":" << recording_camera.view_mode << ',';
+         append_runtime_probe(out, binding);
+         out << '}';
+         return AdapterResult::success(out.str());
+@@ -1711,6 +1716,10 @@ public:
+         }
+         ENTITY::SET_ENTITY_HEADING(
+             PLAYER::PLAYER_PED_ID(), static_cast<float>(route_heading_deg_));
++        if (!prepare_third_person_recording_camera(error)) {
++            scenario_applied_ = false;
++            return AdapterResult::failure(error);
++        }
+         scenario_sha256_ = actual_sha256;
+         scenario_applied_ = true;
+         return AdapterResult::success(
+@@ -1727,7 +1736,9 @@ public:
+             ",\"vehicle_density\":" + std::to_string(vehicle_density_) +
+             ",\"random_vehicle_density\":" + std::to_string(random_vehicle_density_) +
+             ",\"parked_vehicle_density\":" + std::to_string(parked_vehicle_density_) +
+-            ",\"radio_off\":true,\"story_mode\":true}");
++            ",\"radio_off\":true,\"story_mode\":true,"
++            "\"recording_camera_prepared\":true,\"follow_ped_camera_view_mode\":" +
++            std::to_string(observe_recording_camera().view_mode) + "}");
+     }
+ 
+     AdapterResult record_master(const std::string& run_dir, double duration_s) override {
+@@ -1770,6 +1781,11 @@ public:
+             return AdapterResult::failure(
+                 "Online/multiplayer session detected during warmup");
+         }
++        // Applying the scenario earlier is not enough: gameplay/camera changes
++        // during warmup must settle again before Rockstar starts its recorder.
++        if (!prepare_third_person_recording_camera(error)) {
++            return AdapterResult::failure(error);
++        }
+         const auto player = PLAYER::PLAYER_PED_ID();
+         const auto start = ENTITY::GET_ENTITY_COORDS(player, TRUE);
+         const std::array<double, 3> settled_start{start.x, start.y, start.z};
+@@ -1786,10 +1802,22 @@ public:
+         }
+         AI::CLEAR_PED_TASKS_IMMEDIATELY(player);
+         ENTITY::SET_ENTITY_HEADING(player, static_cast<float>(route_heading_deg_));
++        if (!recording_camera_matches(observe_recording_camera())) {
++            return AdapterResult::failure(
++                "third-person follow-ped camera changed before recording started");
++        }
++        recording_camera_drifted_ = false;
++        recording_camera_observation_count_ = 0;
++        recording_camera_guard_active_ = true;
++        struct RecordingCameraGuardCleanup {
++            bool& active;
++            ~RecordingCameraGuardCleanup() { active = false; }
++        } recording_camera_guard_cleanup{recording_camera_guard_active_};
+         UNK1::_SET_RECORDING_MODE(1);
+         if (!wait_frame()) {
++            UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+             return AdapterResult::failure(
+-                "Online/multiplayer session detected while starting recording");
++                recording_wait_error("Online/multiplayer session detected while starting recording"));
+         }
+         if (!UNK1::_IS_RECORDING()) {
+             return AdapterResult::failure("Rockstar Editor recording did not start");
+@@ -1817,7 +1845,7 @@ public:
+                     UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                     master_player_samples_.clear();
+                     return AdapterResult::failure(
+-                        "Online/multiplayer session detected during recording; clip discarded");
++                        recording_wait_error("Online/multiplayer session detected during recording; clip discarded"));
+                 }
+             }
+             const auto observed_ns_signed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+@@ -1853,7 +1881,7 @@ public:
+                 UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                 master_player_samples_.clear();
+                 return AdapterResult::failure(
+-                    "Online/multiplayer session detected during recording; clip discarded");
++                    recording_wait_error("Online/multiplayer session detected during recording; clip discarded"));
+             }
+         }
+         // Rockstar commits the replay clip boundary one or more game ticks behind the
+@@ -1869,11 +1897,12 @@ public:
+                 UNK1::_STOP_RECORDING_AND_DISCARD_CLIP();
+                 master_player_samples_.clear();
+                 return AdapterResult::failure(
+-                    "Online/multiplayer session detected during replay boundary commit; clip discarded");
++                    recording_wait_error("Online/multiplayer session detected during replay boundary commit; clip discarded"));
+             }
+         }
+         UNK1::_STOP_RECORDING_AND_SAVE_CLIP();
+         AI::CLEAR_PED_TASKS_IMMEDIATELY(player);
++        recording_camera_guard_active_ = false;
+ 
+         fs::path candidate;
+         std::uintmax_t stable_size = 0;
+@@ -1951,6 +1980,16 @@ public:
+                 hex_u64(master_source_identity_) +
+                 "\",\"source_epoch\":\"" + json_escape(source_epoch_) +
+                 "\",\"mock\":false,\"recording_start_verified\":true,"
++                "\"recording_camera\":{"
++                "\"method\":\"follow_ped_camera_native_game_tick_guard\","
++                "\"requested_view_mode\":" + std::to_string(kRecordingFollowPedViewMode) + ","
++                "\"last_observed_view_mode\":" +
++                std::to_string(recording_camera_last_observation_.view_mode) + ","
++                "\"follow_ped_camera_active\":" +
++                (recording_camera_last_observation_.follow_ped_active ? "true" : "false") + ","
++                "\"game_tick_observation_count\":" +
++                std::to_string(recording_camera_observation_count_) + ","
++                "\"pixel_visibility_verified\":false},"
+                 "\"player_observation_method\":\"" +
+                 std::string{kPlayerObservationMethod} + "\","
+                 "\"player_observation_count\":" +
+@@ -2621,9 +2660,40 @@ private:
+         return !online_detected_;
+     }
+ 
++    RecordingCameraObservation observe_recording_camera() const {
++        return {CAM::IS_FOLLOW_PED_CAM_ACTIVE() != FALSE,
++                CAM::GET_FOLLOW_PED_CAM_VIEW_MODE()};
++    }
++
++    bool prepare_third_person_recording_camera(std::string& error) {
++        if (!guard_story_mode()) {
++            error = "Online/multiplayer session detected before camera preparation";
++            return false;
++        }
++        return prepare_recording_camera(
++            [](int mode) { CAM::SET_FOLLOW_PED_CAM_VIEW_MODE(mode); },
++            [this] { return wait_frame(); },
++            [this] { return observe_recording_camera(); }, error);
++    }
++
++    std::string recording_wait_error(const char* fallback) const {
++        return recording_camera_drifted_
++            ? "third-person follow-ped camera changed during recording; clip discarded"
++            : fallback;
++    }
++
+     bool wait_frame() {
+         WAIT(0);
+-        return apply_frame_policy();
++        if (!apply_frame_policy()) return false;
++        if (recording_camera_guard_active_) {
++            recording_camera_last_observation_ = observe_recording_camera();
++            ++recording_camera_observation_count_;
++            if (!recording_camera_matches(recording_camera_last_observation_)) {
++                recording_camera_drifted_ = true;
++                return false;
++            }
++        }
++        return true;
+     }
+ 
+     bool yield_for(double seconds) {
+@@ -2637,6 +2707,10 @@ private:
+ 
+     bool online_detected_{false};
+     bool scenario_applied_{false};
++    bool recording_camera_guard_active_{false};
++    bool recording_camera_drifted_{false};
++    std::uint64_t recording_camera_observation_count_{};
++    RecordingCameraObservation recording_camera_last_observation_{};
+     double warmup_s_{0.0};
+     double location_[3]{};
+     double route_distance_m_{0.0};

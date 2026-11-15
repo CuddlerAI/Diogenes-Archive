@@ -12,6 +12,7 @@ third-party material. Existing component declarations and source copyright heade
 | `DataMiner/apps/client/public/fonts` | Preserve the shipped OFL license files for the embedded fonts |
 | `engine-data/gta-capture/patches/replus-*.patch` | GPL-3.0-only; preserve the pinned upstream license and patch attribution README; excluded from the root Apache grant |
 | `engine-data/gta-capture/patches/igcsconnector-v18-evidence-fence.patch` | MIT; preserve the pinned IGCS Connector license and attribution README |
+| `historical-capture-source/gta/2026-09-22` | Seven modified REPlus source snapshots and REPlus patches remain GPL-3.0-only; bundled MinHook/HDE retains its BSD notices and AUTHORS; IGCS derivative patch retains MIT. See the directory README and PATCH_LICENSES.json. |
 | npm, Rust, and Python dependencies | Obtain through the package manager; their individual licenses remain in force |
 
 Downloaded game/scene assets, datasets, model weights, copied research-paper archives, and
@@ -20,5 +21,6 @@ The archive-site posters remain demonstration images and are not covered by a co
 
 The Matrix-Game subproject declaration and GTA patch upstream licenses were verified against
 their official sources and preserved. This inventory is not an exhaustive dependency license audit.
-The Script Hook V SDK/runtime, REPlus/IGCS upstream source trees, ReShade, FFmpeg and GTA assets
+Historical modified REPlus source trees are now included only under their preserved GPL terms.
+The Script Hook V SDK/runtime, full IGCS upstream source tree, ReShade, FFmpeg and GTA assets
 are not bundled; obtain them independently under their respective terms.
