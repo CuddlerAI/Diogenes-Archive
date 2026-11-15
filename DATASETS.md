@@ -50,9 +50,9 @@ Synthetic camera plans, scene capture iterations and multicamera delivery artifa
 | CARLA Capture Iterations | [Diogenes_CARLA_Capture_Iterations_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_CARLA_Capture_Iterations_Archive_v01) |
 | CARLA Multicamera | [Diogenes_CARLA_Multicamera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_CARLA_Multicamera_Archive_v01) |
 | GTA V Beach 12 Camera | [Diogenes_GTA_V_Beach_12_Camera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_GTA_V_Beach_12_Camera_Archive_v01) |
-| Megacity Capture Iterations | [Diogenes_Megacity_Capture_Iterations_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Megacity_Capture_Iterations_Archive_v01) |
+| Megacity Capture Iterations | [Diogenes_Megacity_Capture_Iterations_Archive_v02](https://huggingface.co/datasets/DiogenesLab/Diogenes_Megacity_Capture_Iterations_Archive_v02) |
 | Megacity Multicamera | [Diogenes_Megacity_Multicamera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Megacity_Multicamera_Archive_v01) |
-| Robotics Warehouse Iterations | [Diogenes_Robotics_Warehouse_Iterations_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Robotics_Warehouse_Iterations_Archive_v01) |
+| Robotics Warehouse Iterations | [Diogenes_Robotics_Warehouse_Iterations_Archive_v02](https://huggingface.co/datasets/DiogenesLab/Diogenes_Robotics_Warehouse_Iterations_Archive_v02) |
 | Robotics Warehouse Multicamera | [Diogenes_Robotics_Warehouse_Multicamera_Archive_v01](https://huggingface.co/datasets/DiogenesLab/Diogenes_Robotics_Warehouse_Multicamera_Archive_v01) |
 
 ## Depth and geometry experiments
